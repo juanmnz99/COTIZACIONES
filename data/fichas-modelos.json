@@ -1,0 +1,423 @@
+[
+  {
+    "modelo": "CPD25-XAJ4-I",
+    "categoria": "autoelevador_electrico",
+    "campos": {
+      "bateria": "Litio 80V 230 Ah",
+      "capacidad": "2.500 Kg a 500 mm del c.d.c.",
+      "torre": "Triple containera 4.500 mm",
+      "desplazador": "Cascade",
+      "horquillas": "Marca Cascade"
+    },
+    "extras": "Butaca con suspensión regulable, apoya brazo y cinturón de seguridad.\nEspejo retrovisor interno.\nLuces de tránsito full LED.\nAlarma sonora de retroceso.\nBaliza de techo LED.\nBocina + alfombra antideslizante + estribos y pasamanos de acceso.\nTecho protector construido según normas de seguridad.\nParrilla soporte de cargas.\nOPS (Sistema de presencia de operador).\nCubiertas: Del: 700x12 Tras: 600x9.\nGarantía 1 año."
+  },
+  {
+    "modelo": "CPD35-XEY2H-I",
+    "categoria": "autoelevador_electrico",
+    "campos": {
+      "bateria": "Litio 80V 304 Ah",
+      "capacidad": "2.500 Kg a 500 mm del c.d.c.",
+      "torre": "Triple containera 4.700 mm",
+      "desplazador": "Cascade",
+      "horquillas": "Marca Cascade"
+    },
+    "extras": "Butaca con suspensión regulable, apoya brazo y cinturón de seguridad.\nEspejo retrovisor interno.\nLuces de tránsito full LED.\nAlarma sonora de retroceso.\nBaliza de techo LED.\nBocina + alfombra antideslizante + estribos y pasamanos de acceso.\nTecho protector construido según normas de seguridad.\nParrilla soporte de cargas.\nOPS (Sistema de presencia de operador).\nCubiertas: Del: 700x12 Tras: 600x9 neumáticas."
+  },
+  {
+    "modelo": "CPD18-XEY2-SI",
+    "categoria": "autoelevador_electrico",
+    "campos": {
+      "bateria": "Litio 80V 230 Ah",
+      "capacidad": "1.800 Kg a 500 mm del c.d.c.",
+      "torre": "Triple containera 4.500 mm",
+      "desplazador": "Cascade",
+      "horquillas": "Marca Cascade"
+    },
+    "extras": "Butaca con suspensión regulable, apoya brazo y cinturón de seguridad.\nEspejo retrovisor interno.\nLuces de tránsito full LED, red line y blue spot.\nAlarma sonora de retroceso.\nBaliza de techo LED.\nBocina + alfombra antideslizante + estribos y pasamanos de acceso.\nTecho protector construido según normas de seguridad.\nOPS (Sistema de presencia de operador).\nTerminales aptos lluvia."
+  },
+  {
+    "modelo": "CPD38-XAJ4-I",
+    "categoria": "autoelevador_electrico",
+    "campos": {
+      "bateria": "Litio 80V 304 Ah",
+      "capacidad": "3.800 Kg a 500 mm del c.d.c.",
+      "torre": "Triple containera 4.500 mm",
+      "desplazador": "Cascade",
+      "horquillas": "Marca Cascade"
+    },
+    "extras": "Butaca con suspensión regulable, apoya brazo y cinturón de seguridad.\nEspejo retrovisor interno.\nLuces de tránsito full LED.\nAlarma sonora de retroceso.\nBaliza de techo LED.\nBocina + alfombra antideslizante + estribos y pasamanos de acceso.\nTecho protector construido según normas de seguridad.\nParrilla soporte de cargas.\nOPS (Sistema de presencia de operador).\nGarantía 1 año."
+  },
+  {
+    "modelo": "CPD25-XEY2H-I",
+    "categoria": "autoelevador_electrico",
+    "campos": {
+      "bateria": "Litio 80V 304 Ah",
+      "capacidad": "2.500 Kg a 500 mm del c.d.c.",
+      "torre": "Triple containera 4.500 mm",
+      "desplazador": "Cascade",
+      "horquillas": "Marca Cascade"
+    },
+    "extras": "Butaca con suspensión regulable, apoya brazo y cinturón de seguridad.\nEspejo retrovisor interno.\nLuces de tránsito full LED.\nAlarma sonora de retroceso.\nBaliza de techo LED + Blue spot + Red Line.\nBocina + alfombra antideslizante + estribos y pasamanos de acceso.\nTecho protector construido según normas de seguridad.\nParrilla soporte de cargas.\nOPS (Sistema de presencia de operador).\nCubiertas: Del: 700x12 Tras: 600x9."
+  },
+  {
+    "modelo": "CPD30-XAJ4-I",
+    "categoria": "autoelevador_electrico",
+    "campos": {
+      "bateria": "Litio 80V 460 Ah",
+      "capacidad": "3.000 Kg a 500 mm del c.d.c.",
+      "torre": "Triple containera 4.500 mm",
+      "desplazador": "Cascade",
+      "horquillas": "Marca Cascade"
+    },
+    "extras": "Butaca con suspensión regulable, apoya brazo y cinturón de seguridad.\nEspejo retrovisor interno.\nLuces de tránsito full LED.\nAlarma sonora de retroceso.\nBaliza de techo LED.\nBocina + alfombra antideslizante + estribos y pasamanos de acceso.\nTecho protector construido según normas de seguridad.\nParrilla soporte de cargas.\nOPS (Sistema de presencia de operador).\nCubiertas: Del: 700x12 Tras: 600x9.\nCabinado."
+  },
+  {
+    "modelo": "CPDS20-XCY2G-SI",
+    "categoria": "autoelevador_electrico",
+    "campos": {
+      "bateria": "Litio 80V 230 Ah",
+      "capacidad": "1.800 Kg y 2.000 Kg a 500 mm del c.d.c.",
+      "torre": "Triple 4,5 mts",
+      "desplazador": "Cascade",
+      "horquillas": "Marca Cascade"
+    },
+    "extras": "Triciclo eléctrico.\nButaca con suspensión regulable, apoya brazo y cinturón de seguridad.\nEspejo retrovisor interno.\nLuces de tránsito full LED.\nBaliza de techo LED.\nBocina + alfombra antideslizante + estribos y pasamanos de acceso.\nTecho protector construido según normas de seguridad.\nParrilla soporte de cargas.\nOPS (Sistema de presencia de operador).\nCubiertas macizas superelásticas."
+  },
+  {
+    "modelo": "CPCD25-XRG2",
+    "categoria": "autoelevador_diesel",
+    "campos": {
+      "motor": "Mitsubishi diésel",
+      "capacidad": "2.500 kg a 500 mm del c.d.c.",
+      "mastil": "Triple containera 6.000 mm",
+      "desplazador": "Cascade",
+      "horquillas": ""
+    },
+    "extras": "Butaca con suspensión regulable, apoya brazo y cinturón de seguridad.\nEspejo retrovisor interno.\nLuces de tránsito full LED.\nAlarma sonora de retroceso.\nBaliza de techo LED.\nBocina + alfombra antideslizante + estribos y pasamanos de acceso.\nTecho protector construido según normas de seguridad.\nParrilla soporte de cargas.\nBomba de agua con purgador.\nAlternador con antipolvo.\nTrampa de sólidos y doble filtro de tierra.\nPuente trasero reforzado y con sujeción antivibración.\nRulemanes cónicos."
+  },
+  {
+    "modelo": "CPCD50-XRXG73",
+    "categoria": "autoelevador_diesel",
+    "campos": {
+      "motor": "Diésel XINCHAI 4D32RG30, 4 cilindros, 60 kW (80 HP)",
+      "capacidad": "5.000 Kg a 500 mm del c.d.c.",
+      "mastil": "Triple containera 4.800 mm",
+      "desplazador": "Tiancheng SC29-16",
+      "horquillas": "1.220 mm"
+    },
+    "extras": "Transmisión automática Power Shift.\nCabina semi cerrada (sin puertas).\nButaca con suspensión regulable, apoyabrazos y cinturón de seguridad.\nEspejo retrovisor interno.\nLuces de tránsito.\nAlarma sonora de retroceso.\nBaliza de techo.\nBocina + alfombra antideslizante + estribos y pasamanos de acceso.\nTecho protector construido según normas de seguridad.\nParrilla soporte de cargas.\nDirección hidráulica asistida.\nCubiertas: Del. 300-15 / Tras. 7.00-12.\nGarantía 1 año."
+  },
+  {
+    "modelo": "CPCD70-XRG77",
+    "categoria": "autoelevador_diesel",
+    "campos": {
+      "motor": "Diésel YUCHAI YC4A115",
+      "capacidad": "7.000 kg",
+      "mastil": "Tríplex 4,8 metros",
+      "desplazador": "Cascade con sistema de 3 válvulas (X150D-SSS-3020)",
+      "horquillas": "1.500 mm (150×65×1520 mm)"
+    },
+    "extras": "Color Rojo HANGCHA 4S-888 / Negro Dawn 2S-999.\nNeumáticos macizos (delanteros y traseros).\nVálvula hidráulica de 4 funciones con palanca de accionamiento.\n4ª línea hidráulica (4th hose).\nCabina semi cerrada (sin puerta).\nAsiento con suspensión ajustable Tiancheng SC29-16, con apoyabrazos e inclinación (IT1+2)."
+  },
+  {
+    "modelo": "CPCD50-XRG2",
+    "categoria": "autoelevador_diesel",
+    "campos": {
+      "motor": "Xinchai 4D32RG30 Diésel",
+      "capacidad": "5.000 Kg a 500 mm del c.d.c.",
+      "mastil": "Triple 4,8 mts",
+      "desplazador": "Cascade",
+      "horquillas": ""
+    },
+    "extras": "Butaca con suspensión regulable, apoya brazo y cinturón de seguridad.\nEspejo retrovisor interno.\nLuces de tránsito full LED.\nAlarma sonora de retroceso.\nBaliza de techo LED.\nBocina + alfombra antideslizante + estribos y pasamanos de acceso.\nTecho protector construido según normas de seguridad.\nParrilla soporte de cargas.\nGarantía 1 año."
+  },
+  {
+    "modelo": "CPCD25-A",
+    "categoria": "autoelevador_diesel",
+    "campos": {
+      "motor": "Diésel Xinchai, 4 cilindros en línea, 4 tiempos, refrigerado por agua e inyección directa",
+      "capacidad": "1.500 a 3.800 kg según modelo, centro de carga 500 mm",
+      "mastil": "Alta visibilidad, compatible con diferentes alturas de elevación",
+      "desplazador": "Hidráulico marca Cascade (Canadá)",
+      "horquillas": "Marca Cascade"
+    },
+    "extras": "Asiento ergonómico con amortiguación, regulable y cinturón de seguridad.\nLuces de trabajo y tránsito Full LED de alta eficiencia.\nCubiertas macizas de alta resistencia para mayor tracción y estabilidad.\nDirección hidráulica asistida para una operación precisa y confortable.\nTecho protector y parrilla porta carga fabricados conforme a normas internacionales de seguridad.\nAlarma sonora de retroceso, bocina, espejo retrovisor y baliza LED.\nDiseño robusto, ideal para aplicaciones industriales, logísticas y de trabajo intensivo."
+  },
+  {
+    "modelo": "CPCD30-A2",
+    "categoria": "autoelevador_diesel",
+    "campos": {
+      "motor": "Diésel Xinchai, 4 cilindros en línea, 4 tiempos, refrigerado por agua e inyección directa",
+      "capacidad": "1.500 a 3.800 kg según modelo, centro de carga 500 mm",
+      "mastil": "Alta visibilidad, compatible con diferentes alturas de elevación",
+      "desplazador": "Hidráulico marca Cascade (Canadá)",
+      "horquillas": "Marca Cascade"
+    },
+    "extras": "Asiento ergonómico con amortiguación, regulable y cinturón de seguridad.\nLuces de trabajo y tránsito Full LED de alta eficiencia.\nCubiertas macizas de alta resistencia para mayor tracción y estabilidad.\nDirección hidráulica asistida para una operación precisa y confortable.\nTecho protector y parrilla porta carga fabricados conforme a normas internacionales de seguridad.\nAlarma sonora de retroceso, bocina, espejo retrovisor y baliza LED.\nDiseño robusto, ideal para aplicaciones industriales, logísticas y de trabajo intensivo."
+  },
+  {
+    "modelo": "CPCD25-AG2-G2",
+    "categoria": "autoelevador_diesel",
+    "campos": {
+      "motor": "Diésel Xinchai, 4 cilindros en línea, 4 tiempos, refrigerado por agua e inyección directa",
+      "capacidad": "1.500 a 3.800 kg según modelo, centro de carga 500 mm",
+      "mastil": "Alta visibilidad, compatible con diferentes alturas de elevación",
+      "desplazador": "Hidráulico marca Cascade (Canadá)",
+      "horquillas": "Marca Cascade"
+    },
+    "extras": "Asiento ergonómico con amortiguación, regulable y cinturón de seguridad.\nLuces de trabajo y tránsito Full LED de alta eficiencia.\nCubiertas macizas de alta resistencia para mayor tracción y estabilidad.\nDirección hidráulica asistida para una operación precisa y confortable.\nTecho protector y parrilla porta carga fabricados conforme a normas internacionales de seguridad.\nAlarma sonora de retroceso, bocina, espejo retrovisor y baliza LED.\nDiseño robusto, ideal para aplicaciones industriales, logísticas y de trabajo intensivo."
+  },
+  {
+    "modelo": "CBD20-WD-I",
+    "categoria": "transpaleta",
+    "campos": {
+      "serie": "CBD20-WD series",
+      "bateria": "Litio",
+      "capacidad": "2.000 Kg a 500 mm del c.d.c.",
+      "ruedas": "PU Tyres"
+    },
+    "extras": "Indicador de batería multifunción.\nCargador incorporado.\nBotones + sistemas de seguridad integrados."
+  },
+  {
+    "modelo": "CBD15-A3MC2-I",
+    "categoria": "transpaleta",
+    "campos": {
+      "serie": "A3MC2-I series",
+      "bateria": "Litio",
+      "capacidad": "1.500 Kg a 500 mm del c.d.c.",
+      "ruedas": "PU Tyres"
+    },
+    "extras": "Indicador de batería multifunción.\nCargador incorporado.\nBotones + sistemas de seguridad integrados."
+  },
+  {
+    "modelo": "CBD20-XT1S",
+    "categoria": "transpaleta",
+    "campos": {
+      "serie": "XT1S series",
+      "bateria": "Litio",
+      "capacidad": "2.000 Kg a 500 mm del c.d.c.",
+      "ruedas": "PU Tyres"
+    },
+    "extras": "Plataforma amortiguada para el operador.\nBrazos de seguridad para el operador.\nIndicador de batería multifunción.\nCargador incorporado.\nBotones + sistemas de seguridad integrados.\nBaliza."
+  },
+  {
+    "modelo": "CDD15-WS-I",
+    "categoria": "apilador",
+    "campos": {
+      "serie": "WS series",
+      "bateria": "Litio",
+      "capacidad": "1.500 Kg a 500 mm del c.d.c.",
+      "torre": "Doble 3.0 / 3.5 mts",
+      "horquillas": "STD 1150 mm"
+    },
+    "extras": "PU Tyres.\nIndicador de batería multifunción.\nCargador incluido."
+  },
+  {
+    "modelo": "CDD20-XT1S",
+    "categoria": "apilador",
+    "campos": {
+      "serie": "XT1S series",
+      "bateria": "Litio EVE 48V / 105Ah",
+      "capacidad": "2.000 kg",
+      "torre": "Tríplex, 4.500 a 6.000 mm",
+      "horquillas": "1.150 mm"
+    },
+    "extras": "Apilador eléctrico con plataforma para operador a bordo rebatible.\nCargador integrado para carga rápida y de oportunidad.\nDirección eléctrica asistida (EPS).\nMotores de tracción e hidráulico AC libres de mantenimiento.\nRuedas de poliuretano (PU) de alta resistencia al desgaste.\nSistema de frenado electromagnético con recuperación de energía.\nIncluye baliza LED, bocina y botón de paro de emergencia.\nIndicador digital de batería y horas de trabajo."
+  },
+  {
+    "modelo": "CDD16-XT1S-SISU",
+    "categoria": "apilador",
+    "campos": {
+      "serie": "XT1S-SISU series",
+      "bateria": "Litio",
+      "capacidad": "1.600 Kg a 500 mm del c.d.c.",
+      "torre": "Triple 6.0 mts",
+      "horquillas": ""
+    },
+    "extras": "Frenos electromagnéticos.\nIndicador de batería multifunción.\nBocina + alfombra antideslizante.\nPU Tyres.\nPlataforma hombre a bordo cabinada.\nSensor de seguridad en torre.\nDirección eléctrica.\nSistema automático de velocidad en giro.\nCargador y batería incluido.\nArranque con tarjeta.\nLuces LED blue spot y red line."
+  },
+  {
+    "modelo": "CQD18",
+    "categoria": "reach",
+    "campos": {
+      "capacidad": "1.800 kg",
+      "centrocarga": "500 mm",
+      "altura": "3.0 a 12.5 m según configuración del mástil",
+      "operador": "Hombre a bordo (de pie)",
+      "bateria": "48V, 280 a 500 Ah según versión",
+      "velTraslacion": "Hasta 10.2 km/h con o sin carga",
+      "velElevacion": "Hasta 530 mm/s sin carga",
+      "radioGiro": "Aprox. 1.735–1.750 mm"
+    },
+    "extras": "Sistema Reach: pantógrafo para almacenamiento en racks de alta densidad.\nMotor de tracción AC libre de mantenimiento.\nMotor hidráulico AC de alto rendimiento.\nRuedas de poliuretano (PU).\nHorquillas con inclinación hacia adelante y atrás.\nFrenado electromagnético con recuperación de energía.\nDesplazador lateral (Side Shift).\nTecho panorámico de alta visibilidad, luces LED.\nIndicador digital de batería y horas de trabajo.\nBotón de paro de emergencia y sistema de seguridad del operador.\nIdeal para almacenes de pasillo angosto y centros de distribución."
+  },
+  {
+    "modelo": "X140XEN",
+    "categoria": "tijera",
+    "campos": {
+      "capMax": "320 kg",
+      "capExt": "113 kg",
+      "alturaTrabajo": "13,8 m",
+      "alturaPlataforma": "11,8 m",
+      "bateria": "24V / 290Ah libre de mantenimiento",
+      "motor": "JXQD-3.5-NG de 3,5 kW",
+      "velocidad": "0–3,5 km/h",
+      "pendiente": "25%",
+      "peso": "3.000 kg"
+    },
+    "extras": "Sistema de tracción hidráulica AC.\nControl proporcional de traslación y elevación.\nPlataforma extensible de 0,9 m.\nSensor de nivelación automática con alarma de inclinación.\nSistema anti vuelco automático.\nVálvula manual de descenso de emergencia.\nSistema hidráulico y eléctrico completamente sellado IP67.\nNeumáticos macizos 381 × 127 mm.\nCargador incorporado 24V / 36A."
+  },
+  {
+    "modelo": "X100XEN",
+    "categoria": "tijera",
+    "campos": {
+      "capMax": "450 kg",
+      "capExt": "113 kg",
+      "alturaTrabajo": "10 m",
+      "alturaPlataforma": "8 m",
+      "bateria": "24V / 290Ah libre de mantenimiento",
+      "motor": "JXQD-3.5-NG de 3,5 kW",
+      "velocidad": "0–3,5 km/h",
+      "pendiente": "25%",
+      "peso": "2.310 kg"
+    },
+    "extras": "Sistema de tracción hidráulica AC.\nControl proporcional de traslación y elevación.\nPlataforma extensible de 0,9 m.\nSensor de nivelación automática con alarma de inclinación.\nSistema anti vuelco automático.\nVálvula manual de descenso de emergencia.\nSistema hidráulico y eléctrico completamente sellado IP67.\nNeumáticos macizos 381 × 127 mm.\nCargador incorporado 24V / 36A."
+  },
+  {
+    "modelo": "X78XEN",
+    "categoria": "tijera",
+    "campos": {
+      "capMax": "230 kg",
+      "capExt": "113 kg",
+      "alturaTrabajo": "7,80 m",
+      "alturaPlataforma": "5,80 m",
+      "bateria": "Litio HANGCHA 25,6V / 150Ah",
+      "motor": "",
+      "velocidad": "0–3,5 km/h",
+      "pendiente": "",
+      "peso": "1.470 kg"
+    },
+    "extras": "Tipo de equipo: plataforma elevadora de tijera autopropulsada eléctrica.\nNúmero máximo de ocupantes: 2 (interior) / 1 (exterior).\nDimensiones de plataforma: 1,67 × 0,76 m.\nLlantas: 305 × 100 mm."
+  },
+  {
+    "modelo": "X160XEN",
+    "categoria": "tijera",
+    "campos": {
+      "capMax": "230 kg",
+      "capExt": "113 kg",
+      "alturaTrabajo": "15,7 m",
+      "alturaPlataforma": "13,7 m",
+      "bateria": "24V / 290Ah libre de mantenimiento",
+      "motor": "JXQD-3.5-NG de 3,5 kW",
+      "velocidad": "0–3 km/h",
+      "pendiente": "25%",
+      "peso": "3.240 kg"
+    },
+    "extras": "Sistema de tracción hidráulica AC.\nControl proporcional de traslación y elevación.\nPlataforma extensible de 0,9 m.\nSensor de nivelación automática con alarma de inclinación.\nSistema anti vuelco automático.\nVálvula manual de descenso de emergencia.\nSistema hidráulico y eléctrico completamente sellado IP67.\nNeumáticos macizos 381 × 127 mm.\nCargador incorporado 24V / 36A."
+  },
+  {
+    "modelo": "R50",
+    "categoria": "fregadora",
+    "campos": {
+      "tipo": "Operador a pie, tracción 100% eléctrica",
+      "rendimiento": "2.600 m²/h",
+      "bateria": "24V / 60Ah litio (opción 24V / 76Ah plomo-ácido)",
+      "anchoTrabajo": "500 mm",
+      "anchoBoquilla": "805 mm",
+      "tanqueLimpia": "50 L",
+      "tanqueSucia": "50 L",
+      "autonomia": "~2 horas",
+      "tiempoCarga": "4 a 5 horas",
+      "peso": "100 kg"
+    },
+    "extras": "Cargador integrado.\nSistema de limpieza: cepillo rotativo con aspiración y secado simultáneo.\nUso recomendado: depósitos, industrias, supermercados, hospitales, centros comerciales.\nDimensiones: 1460 × 650 × 1200 mm."
+  },
+  {
+    "modelo": "R75",
+    "categoria": "fregadora",
+    "campos": {
+      "tipo": "Fregadora hombre a bordo",
+      "rendimiento": "4.260 m²/h",
+      "bateria": "Litio 24V / 125Ah",
+      "anchoTrabajo": "710 mm",
+      "anchoBoquilla": "920 mm",
+      "tanqueLimpia": "70 L",
+      "tanqueSucia": "75 L",
+      "autonomia": "3,5 a 4 horas",
+      "tiempoCarga": "80% ≈ 2 a 2,5 horas",
+      "peso": "175 kg"
+    },
+    "extras": "Motor de aspiración: 500 W.\nMotor de tracción: 500 W.\nMotores de cepillo: 300 W × 2.\nDimensiones: 1296 × 770 × 1050 mm.\nNivel sonoro: ≤ 68 dB."
+  },
+  {
+    "modelo": "R90",
+    "categoria": "fregadora",
+    "campos": {
+      "tipo": "Fregadora hombre a bordo",
+      "rendimiento": "4.800 m²/h",
+      "bateria": "Litio 24V / 105Ah",
+      "anchoTrabajo": "700 mm",
+      "anchoBoquilla": "1100 mm",
+      "tanqueLimpia": "90 L",
+      "tanqueSucia": "104 L",
+      "autonomia": "2,5 horas",
+      "tiempoCarga": "80% ≈ 1,5 a 2 horas",
+      "peso": "270 kg"
+    },
+    "extras": "Motor de aspiración: 600 W.\nMotor de tracción: 800 W.\nMotores de cepillo: 450 W × 2.\nDimensiones: 1460 × 650 × 1200 mm."
+  },
+  {
+    "modelo": "X120",
+    "categoria": "fregadora",
+    "campos": {
+      "tipo": "Fregadora hombre a bordo, alta capacidad",
+      "rendimiento": "6.000 m²/h",
+      "bateria": "Litio 24V / 210Ah",
+      "anchoTrabajo": "910 mm",
+      "anchoBoquilla": "1080 mm",
+      "tanqueLimpia": "105 L",
+      "tanqueSucia": "120 L",
+      "autonomia": "3,5 a 4 horas",
+      "tiempoCarga": "80% ≈ 3 a 4 horas",
+      "peso": "430 kg"
+    },
+    "extras": "Motor de aspiración: 600 W.\nMotor de tracción: 760 W.\nMotores de cepillo: 500 W × 2.\nDimensiones: 1600 × 920 × 1280 mm.\nNivel sonoro: ≤ 68 dB."
+  },
+  {
+    "modelo": "B1250",
+    "categoria": "barredora",
+    "campos": {
+      "anchoBarrido": "1250 mm",
+      "capResiduos": "80 L",
+      "bateria": "Gel 48V",
+      "autonomia": "4–6 horas",
+      "rendimiento": "6000–7000 m²/h"
+    },
+    "extras": "Barredora industrial con operador a bordo.\nSistema de barrido + aspiración de polvo.\nUso interior y exterior.\nCepillos laterales dobles.\nSistema de control de polvo con agua.\nTracción eléctrica autopropulsada, cero emisiones y operación silenciosa.\nPanel de control simple e intuitivo.\nAsiento para operador.\nSistema de filtrado de polvo.\nIluminación LED.\nSistema de limpieza de filtro manual."
+  },
+  {
+    "modelo": "B1350",
+    "categoria": "barredora",
+    "campos": {
+      "anchoBarrido": "1350 mm",
+      "capResiduos": "120 L",
+      "bateria": "Litio 48V",
+      "autonomia": "3–5 horas",
+      "rendimiento": "7000–8500 m²/h"
+    },
+    "extras": "Barredora industrial con operador a bordo.\nSistema de barrido + aspiración de polvo.\nUso interior y exterior.\nCepillos laterales dobles.\nSistema de control de polvo con agua.\nTracción eléctrica autopropulsada, cero emisiones y operación silenciosa.\nPanel de control simple e intuitivo.\nAsiento para operador.\nSistema de filtrado de polvo.\nIluminación LED.\nSistema de vibración eléctrica de filtro."
+  },
+  {
+    "modelo": "1.3-2.0t XC series TRICICLO",
+    "categoria": "autoelevador_electrico",
+    "campos": {
+      "bateria": "Litio 80V 230 Ah",
+      "capacidad": "",
+      "torre": "",
+      "desplazador": "",
+      "horquillas": ""
+    },
+    "extras": "Espejo retrovisor interno.\nLuces de tránsito full LED.\nAlarma sonora de retroceso.\nBaliza de techo LED.\nBocina + alfombra antideslizante + estribos y pasamanos de acceso.\nTecho protector construido según normas de seguridad.\nParrilla soporte de cargas.\nOPS (Sistema de presencia de operador).\nCubiertas: Del: 700x12 Tras: 600x9.",
+    "fecha": "11/8/2026"
+  }
+]
