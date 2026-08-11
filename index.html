@@ -1668,7 +1668,7 @@
         // Si el campo está vacío y solo tiene el texto de ejemplo (placeholder gris), apretar
         // Enter ahí adentro lo escribe directamente como valor real, sin tener que tipearlo.
         inp.addEventListener('keydown', (e)=>{
-          if(e.key === 'Enter'){
+          if(e.key === 'Enter' || e.keyCode === 13){
             e.preventDefault();
             if(!inp.value.trim() && inp.placeholder){
               inp.value = inp.placeholder;
@@ -1813,7 +1813,7 @@
     // Por eso escribir el modelo y apretar Enter no autocompletaba nada: acá forzamos el blur,
     // que sí dispara el "change" de arriba y completa todo en el momento.
     modeloEl.addEventListener('keydown', (e)=>{
-      if(e.key === 'Enter'){
+      if(e.key === 'Enter' || e.keyCode === 13){
         e.preventDefault();
         modeloEl.blur();
       }
