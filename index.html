@@ -823,6 +823,7 @@
       <button type="button" class="btn-agregar" id="cotBuscarFichaGuardada">🔎 Recargar ficha guardada de este modelo</button>
       <div class="estado-fichas" id="cotFichaGuardadaEstado"></div>
 
+      <div class="tasa-note">Tip: si un campo está vacío, hacé clic adentro y apretá Enter para usar directamente el ejemplo gris sugerido.</div>
       <div id="camposCategoria"></div>
 
       <div class="field">
@@ -1663,6 +1664,20 @@
           if(!camposValoresPorCategoria[categoriaEl.value]) camposValoresPorCategoria[categoriaEl.value] = {};
           camposValoresPorCategoria[categoriaEl.value][inp.dataset.campo] = inp.value;
           programarAutoguardado();
+        });
+        // Si el campo está vacío y solo tiene el texto de ejemplo (placeholder gris), apretar
+        // Enter ahí adentro lo escribe directamente como valor real, sin tener que tipearlo.
+        inp.addEventListener('keydown', (e)=>{
+          if(e.key === 'Enter'){
+            e.preventDefault();
+            if(!inp.value.trim() && inp.placeholder){
+              inp.value = inp.placeholder;
+              if(!camposValoresPorCategoria[categoriaEl.value]) camposValoresPorCategoria[categoriaEl.value] = {};
+              camposValoresPorCategoria[categoriaEl.value][inp.dataset.campo] = inp.value;
+              programarAutoguardado();
+            }
+            inp.blur();
+          }
         });
       });
       if(!extrasEl.dataset.editadoManual || extrasEl.dataset.categoriaActual !== categoriaEl.value){
