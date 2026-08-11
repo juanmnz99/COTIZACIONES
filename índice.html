@@ -1,0 +1,2487 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Simulador de Financiación</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<style>
+  :root{
+    --azul:#003d7a;
+    --azul-claro:#0057a8;
+    --verde:#2e9e4f;
+    --gris:#f4f6f8;
+    --gris-borde:#dbe2ea;
+    --texto:#1c2a3a;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Segoe UI',Arial,sans-serif;
+    background:var(--gris);
+    color:var(--texto);
+    display:flex;
+    justify-content:center;
+    padding:32px 16px;
+  }
+  .wrapper{
+    max-width:480px;
+    width:100%;
+  }
+  .tabs{
+    display:flex;
+    gap:8px;
+    margin-bottom:14px;
+  }
+  .tab-btn{
+    flex:1;
+    padding:12px 8px;
+    text-align:center;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+    font-size:13px;
+    font-weight:700;
+    color:var(--azul);
+    background:#fff;
+    box-shadow:0 2px 8px rgba(0,0,0,0.06);
+    transition:all .15s;
+  }
+  .tab-btn.activo{
+    background:var(--azul);
+    color:#fff;
+  }
+  .card{
+    background:#fff;
+    width:100%;
+    border-radius:14px;
+    box-shadow:0 4px 20px rgba(0,0,0,0.08);
+    overflow:hidden;
+    display:none;
+  }
+  .card.activo{
+    display:block;
+  }
+  .header{
+    background:linear-gradient(135deg,var(--azul),var(--azul-claro));
+    color:#fff;
+    padding:24px 28px;
+  }
+  .header h1{
+    margin:0 0 4px 0;
+    font-size:20px;
+  }
+  .header p{
+    margin:0;
+    font-size:13px;
+    opacity:0.85;
+  }
+  .body{
+    padding:24px 28px 28px;
+  }
+  label{
+    display:block;
+    font-size:13px;
+    font-weight:600;
+    margin-bottom:6px;
+    color:var(--azul);
+  }
+  .field{
+    margin-bottom:18px;
+  }
+  .field-row{
+    display:flex;
+    gap:12px;
+  }
+  .field-row .field{
+    flex:1;
+  }
+  input[type=text], input[type=number]{
+    width:100%;
+    padding:11px 12px;
+    border:1.5px solid var(--gris-borde);
+    border-radius:8px;
+    font-size:15px;
+    outline:none;
+    transition:border-color .15s;
+  }
+  input:focus{
+    border-color:var(--azul-claro);
+  }
+  .tasa-note{
+    font-size:12px;
+    color:#66748a;
+    margin-top:6px;
+  }
+  .plazo-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    margin-bottom:6px;
+  }
+  .plazo-header label{
+    margin-bottom:0;
+  }
+  .plazo-valor{
+    font-size:15px;
+    font-weight:700;
+    color:var(--azul);
+  }
+  input[type=range]{
+    width:100%;
+    accent-color:var(--azul);
+    height:6px;
+    margin:8px 0 4px;
+  }
+  .plazo-atajos{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    margin-top:10px;
+  }
+  .plazo-atajo{
+    flex:1;
+    min-width:60px;
+    padding:7px 0;
+    text-align:center;
+    border:1.5px solid var(--gris-borde);
+    border-radius:7px;
+    cursor:pointer;
+    font-size:12px;
+    font-weight:600;
+    color:#66748a;
+    background:#fff;
+    transition:all .15s;
+  }
+  .plazo-atajo.activo{
+    background:var(--azul);
+    border-color:var(--azul);
+    color:#fff;
+  }
+  .resultado{
+    margin-top:22px;
+    background:var(--gris);
+    border-radius:10px;
+    padding:18px 20px;
+  }
+  .fila{
+    display:flex;
+    justify-content:space-between;
+    padding:7px 0;
+    font-size:14px;
+    border-bottom:1px solid var(--gris-borde);
+  }
+  .fila:last-child{
+    border-bottom:none;
+  }
+  .fila .valor{
+    font-weight:600;
+    text-align:right;
+  }
+  .fila .valor .ars{
+    display:block;
+    color:var(--azul);
+  }
+  .fila .valor .usd{
+    display:block;
+    font-size:11.5px;
+    font-weight:500;
+    color:#8a97a8;
+  }
+  .cuota-destacada{
+    text-align:center;
+    padding:16px 0 4px;
+  }
+  .cuota-destacada .num{
+    font-size:34px;
+    font-weight:700;
+    color:var(--verde);
+  }
+  .cuota-destacada .num-usd{
+    font-size:14px;
+    font-weight:600;
+    color:#8a97a8;
+    margin-top:2px;
+  }
+  .cuota-destacada .label{
+    font-size:13px;
+    color:#66748a;
+  }
+  .disclaimer{
+    font-size:11px;
+    color:#8a97a8;
+    margin-top:16px;
+    line-height:1.5;
+  }
+  .whatsapp-btn{
+    display:block;
+    text-align:center;
+    margin-top:16px;
+    background:var(--verde);
+    color:#fff;
+    text-decoration:none;
+    padding:12px;
+    border-radius:8px;
+    font-weight:600;
+    font-size:14px;
+  }
+  table.desglose{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:14px;
+    font-size:13px;
+  }
+  table.desglose th{
+    text-align:left;
+    font-size:11px;
+    text-transform:uppercase;
+    color:#8a97a8;
+    padding:4px 6px;
+    border-bottom:1.5px solid var(--gris-borde);
+  }
+  table.desglose td{
+    padding:7px 6px;
+    border-bottom:1px solid var(--gris-borde);
+  }
+  table.desglose td.num{
+    text-align:right;
+  }
+  table.desglose td .ars{
+    display:block;
+    font-weight:600;
+  }
+  table.desglose td .usd{
+    display:block;
+    font-size:11px;
+    color:#8a97a8;
+  }
+  .buscador{
+    margin-bottom:14px;
+  }
+  .lista-fichas{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+  .ficha-item{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    padding:10px 14px;
+    background:var(--gris);
+    border-radius:9px;
+  }
+  .ficha-info{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    min-width:0;
+  }
+  .ficha-thumb{
+    width:38px;
+    height:52px;
+    border-radius:4px;
+    object-fit:cover;
+    background:#fff;
+    border:1px solid var(--gris-borde);
+    flex-shrink:0;
+  }
+  .ficha-thumb-fallback{
+    width:38px;
+    height:52px;
+    border-radius:4px;
+    background:#fff;
+    border:1px solid var(--gris-borde);
+    flex-shrink:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:9px;
+    font-weight:700;
+    color:#b7c3d1;
+  }
+  .ficha-nombre{
+    font-size:13.5px;
+    font-weight:600;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    min-width:0;
+    flex:1;
+  }
+  .ficha-acciones{
+    display:flex;
+    gap:6px;
+    flex-shrink:0;
+  }
+  .ficha-btn{
+    border:none;
+    border-radius:6px;
+    padding:7px 10px;
+    font-size:12px;
+    font-weight:600;
+    cursor:pointer;
+    text-decoration:none;
+    display:inline-block;
+  }
+  .ficha-btn.ver{
+    background:var(--azul);
+    color:#fff;
+  }
+  .ficha-btn.enviar{
+    background:var(--verde);
+    color:#fff;
+  }
+  .ficha-btn.borrar{
+    background:#fde8e8;
+    color:#c0392b;
+  }
+  .estado-fichas{
+    font-size:13px;
+    color:#66748a;
+    padding:10px 0;
+    text-align:center;
+  }
+  .admin-toggle{
+    display:block;
+    text-align:center;
+    font-size:12px;
+    color:#8a97a8;
+    margin-top:18px;
+    cursor:pointer;
+    text-decoration:underline;
+  }
+  .admin-panel{
+    display:none;
+    margin-top:14px;
+    padding-top:14px;
+    border-top:1.5px dashed var(--gris-borde);
+  }
+  .admin-panel.activo{
+    display:block;
+  }
+  .admin-nota{
+    font-size:11.5px;
+    color:#8a97a8;
+    line-height:1.5;
+    margin-bottom:12px;
+  }
+  input[type=file], input[type=password]{
+    width:100%;
+    padding:10px 12px;
+    border:1.5px solid var(--gris-borde);
+    border-radius:8px;
+    font-size:13px;
+    margin-bottom:10px;
+  }
+  .btn-secundario{
+    width:100%;
+    padding:11px 0;
+    border:none;
+    border-radius:8px;
+    background:var(--azul);
+    color:#fff;
+    font-weight:700;
+    font-size:14px;
+    cursor:pointer;
+    margin-bottom:8px;
+  }
+  .btn-secundario:disabled{
+    background:#b7c3d1;
+    cursor:not-allowed;
+  }
+  .checkbox-row{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:12.5px;
+    color:#66748a;
+    margin-bottom:12px;
+  }
+  .checkbox-row input{
+    width:auto;
+  }
+  select{
+    width:100%;
+    padding:11px 12px;
+    border:1.5px solid var(--gris-borde);
+    border-radius:8px;
+    font-size:15px;
+    outline:none;
+    background:#fff;
+    color:var(--texto);
+  }
+  textarea{
+    width:100%;
+    padding:11px 12px;
+    border:1.5px solid var(--gris-borde);
+    border-radius:8px;
+    font-size:14px;
+    font-family:inherit;
+    resize:vertical;
+    outline:none;
+  }
+  .seccion-titulo{
+    font-size:12px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.03em;
+    color:#8a97a8;
+    margin:22px 0 12px;
+    padding-top:14px;
+    border-top:1.5px dashed var(--gris-borde);
+  }
+  .seccion-titulo:first-child{
+    margin-top:0;
+    padding-top:0;
+    border-top:none;
+  }
+  .item-fila{
+    display:flex;
+    gap:8px;
+    align-items:flex-start;
+    margin-bottom:10px;
+  }
+  .item-fila .item-desc{
+    flex:1;
+  }
+  .item-fila .item-precio{
+    width:95px;
+  }
+  .item-fila .item-iva{
+    width:72px;
+    padding:9px 6px;
+    font-size:12px;
+  }
+  .item-fila .item-quitar{
+    flex-shrink:0;
+    width:34px;
+    height:38px;
+    border:none;
+    border-radius:8px;
+    background:#fde8e8;
+    color:#c0392b;
+    font-weight:700;
+    cursor:pointer;
+    margin-top:0;
+  }
+  .btn-agregar{
+    width:100%;
+    padding:9px 0;
+    border:1.5px dashed var(--gris-borde);
+    border-radius:8px;
+    background:none;
+    color:var(--azul);
+    font-weight:600;
+    font-size:13px;
+    cursor:pointer;
+    margin-bottom:4px;
+  }
+  .lp-modelo-item{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    padding:9px 12px;
+    background:var(--gris);
+    border-radius:8px;
+    cursor:pointer;
+    font-size:12.5px;
+  }
+  .lp-modelo-item:hover{
+    background:#e6ecf3;
+  }
+  .lp-modelo-item .lp-nombre{
+    font-weight:600;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .lp-modelo-item .lp-clase{
+    font-size:11px;
+    color:#8a97a8;
+    display:block;
+    font-weight:400;
+  }
+  .lp-modelo-item .lp-precio{
+    flex-shrink:0;
+    font-weight:700;
+    color:var(--azul);
+  }
+  .lp-acc-item{
+    padding:9px 12px;
+    background:var(--gris);
+    border-radius:8px;
+  }
+  .lp-acc-item .lp-nombre{
+    font-size:12.5px;
+    font-weight:600;
+    display:block;
+    margin-bottom:6px;
+  }
+  .lp-bandas{
+    display:flex;
+    flex-wrap:wrap;
+    gap:5px;
+  }
+  .lp-banda-btn{
+    border:1px solid var(--gris-borde);
+    background:#fff;
+    border-radius:6px;
+    padding:4px 8px;
+    font-size:11px;
+    cursor:pointer;
+    color:var(--texto);
+  }
+  .lp-banda-btn:hover{
+    background:var(--azul);
+    color:#fff;
+    border-color:var(--azul);
+  }
+  .btn-primario{
+    width:100%;
+    padding:13px 0;
+    border:none;
+    border-radius:9px;
+    background:var(--verde);
+    color:#fff;
+    font-weight:700;
+    font-size:15px;
+    cursor:pointer;
+    margin-top:6px;
+  }
+
+  /* ---------- Vista previa / impresión de cotización ---------- */
+  #previewOverlay{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(20,30,45,0.55);
+    z-index:999;
+    overflow-y:auto;
+    padding:20px 12px;
+  }
+  #previewOverlay.activo{
+    display:block;
+  }
+  .preview-controles{
+    max-width:800px;
+    margin:0 auto 12px;
+    display:flex;
+    gap:10px;
+  }
+  .preview-controles button{
+    flex:1;
+    padding:12px 0;
+    border:none;
+    border-radius:9px;
+    font-weight:700;
+    font-size:14px;
+    cursor:pointer;
+  }
+  .preview-controles .btn-imprimir{
+    background:var(--verde);
+    color:#fff;
+  }
+  .preview-controles .btn-cerrar{
+    background:#fff;
+    color:var(--texto);
+  }
+  .preview-controles .btn-whatsapp{
+    background:#25D366;
+    color:#fff;
+  }
+  .preview-controles button:disabled{
+    opacity:0.6;
+    cursor:not-allowed;
+  }
+  .preview-page{
+    max-width:800px;
+    margin:0 auto;
+    background:#fff;
+    padding:50px 55px;
+    border-radius:6px;
+    font-size:13.5px;
+    line-height:1.55;
+    color:#1a1a1a;
+  }
+  .preview-logos{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:26px;
+  }
+  .preview-logos img.logo-hangcha{
+    height:46px;
+  }
+  .preview-logos img.logo-pomiglio{
+    height:60px;
+    background:#000;
+    padding:6px 10px;
+    border-radius:4px;
+  }
+  .preview-page h2{
+    font-size:15px;
+    margin:22px 0 8px;
+  }
+  .preview-page p{
+    margin:6px 0;
+  }
+  .preview-page ul{
+    margin:6px 0 6px 18px;
+    padding:0;
+  }
+  .preview-page li{
+    margin-bottom:3px;
+  }
+  table.preview-tabla{
+    width:100%;
+    border-collapse:collapse;
+    margin:14px 0;
+    font-size:13px;
+  }
+  table.preview-tabla th, table.preview-tabla td{
+    border:1px solid #999;
+    padding:8px 10px;
+    text-align:left;
+  }
+  table.preview-tabla th{
+    background:#e9edf2;
+  }
+  @media print{
+    body > *:not(#previewOverlay){
+      display:none !important;
+    }
+    #previewOverlay{
+      display:block !important;
+      position:static !important;
+      inset:auto;
+      background:#fff;
+      padding:0;
+      overflow:visible;
+    }
+    .preview-controles{
+      display:none !important;
+    }
+    .preview-page{
+      box-shadow:none;
+      max-width:100%;
+      margin:0;
+      padding:0;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrapper">
+
+  <div class="tabs">
+    <button class="tab-btn activo" data-tab="fichas">Fichas</button>
+    <button class="tab-btn" data-tab="cotizacion">Cotización</button>
+    <button class="tab-btn" data-tab="cheques">Cheques</button>
+    <button class="tab-btn" data-tab="bna">BNA Conecta</button>
+  </div>
+
+  <!-- ==================== TAB BNA CONECTA ==================== -->
+  <div class="card" id="tab-bna">
+    <div class="header">
+      <h1>Simulador de Cuotas</h1>
+      <p>Financiación BNA Conecta</p>
+    </div>
+
+    <div class="body">
+
+      <div class="field">
+        <label for="monto">Monto a financiar (ARS)</label>
+        <input type="text" id="monto" inputmode="decimal" placeholder="Ej: 1.500.000" value="1.000.000">
+      </div>
+
+      <div class="field">
+        <label for="tna">Tasa Nominal Anual - TNA (%)</label>
+        <input type="number" id="tna" step="0.1" value="27">
+        <div class="tasa-note">Valor de referencia PyME. Confirmá la tasa exacta con el comercio.</div>
+      </div>
+
+      <div class="field">
+        <div class="plazo-header">
+          <label>Plazo</label>
+          <span class="plazo-valor"><span id="plazoLabel">24</span> meses</span>
+        </div>
+        <input type="range" id="plazoSlider" min="1" max="36" value="24">
+        <div class="plazo-atajos">
+          <div class="plazo-atajo" data-meses="12">12</div>
+          <div class="plazo-atajo" data-meses="18">18</div>
+          <div class="plazo-atajo activo" data-meses="24">24</div>
+          <div class="plazo-atajo" data-meses="36">36</div>
+        </div>
+      </div>
+
+      <div class="resultado">
+        <div class="cuota-destacada">
+          <div class="num" id="cuotaMensual">$0</div>
+          <div class="label">cuota mensual estimada</div>
+        </div>
+        <div class="fila"><span>Monto financiado</span><span class="valor" id="rMonto">$0</span></div>
+        <div class="fila"><span>Plazo</span><span class="valor" id="rPlazo">0 meses</span></div>
+        <div class="fila"><span>Total a pagar</span><span class="valor" id="rTotal">$0</span></div>
+        <div class="fila"><span>Costo financiero total (intereses)</span><span class="valor" id="rInteres">$0</span></div>
+      </div>
+
+      <a class="whatsapp-btn" id="waBtn" href="#" target="_blank">Enviar simulación por WhatsApp</a>
+
+      <div class="disclaimer">
+        Cálculo estimado por sistema francés (cuota fija), solo a fines orientativos. No incluye seguros, gastos administrativos ni el Costo Financiero Total (CFT) real informado por el comercio adherido a BNA Conecta, que puede diferir de la TNA. Valores sujetos a confirmación final al momento de la compra.
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ==================== TAB COTIZACIÓN ==================== -->
+  <div class="card" id="tab-cotizacion">
+    <div class="header">
+      <h1>Armar Cotización</h1>
+      <p>Ficha técnica resumida + precio + condiciones</p>
+    </div>
+
+    <div class="body">
+
+      <div class="seccion-titulo">Datos de la cotización</div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="cotRef">Referencia</label>
+          <select id="cotRef">
+            <option value="COTIZACION">Cotización</option>
+            <option value="PROFORMA">Proforma</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="cotCiudad">Ciudad</label>
+          <input type="text" id="cotCiudad" value="CORDOBA">
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="cotCliente">Cliente (opcional)</label>
+          <input type="text" id="cotCliente" placeholder="Ej: Empresa XYZ SA">
+        </div>
+        <div class="field">
+          <label for="cotCuit">CUIT del cliente</label>
+          <input type="text" id="cotCuit" placeholder="Ej: 30-12345678-9">
+        </div>
+      </div>
+
+      <div class="seccion-titulo">Equipo 1</div>
+
+      <div class="field">
+        <label for="cotFichaSelect">Ficha técnica del equipo (PDF ya cargado)</label>
+        <select id="cotFichaSelect">
+          <option value="">— Sin vincular / cargar manualmente —</option>
+        </select>
+        <div class="tasa-note">Si el Modelo está vacío, al elegir una ficha se completa con el nombre del PDF. Confirmá vos la categoría que le corresponde.</div>
+      </div>
+
+      <div class="field">
+        <label for="cotCategoria">Categoría de equipo</label>
+        <select id="cotCategoria"></select>
+      </div>
+
+      <div class="field">
+        <label for="cotModelo">Modelo</label>
+        <input type="text" id="cotModelo" placeholder="Ej: CPD25-XAJ4-I">
+        <div class="tasa-note">Si ya guardaste una ficha para este modelo, al salir del campo se autocompleta sola.</div>
+      </div>
+
+      <button type="button" class="btn-agregar" id="cotBuscarFichaGuardada">🔎 Recargar ficha guardada de este modelo</button>
+      <div class="estado-fichas" id="cotFichaGuardadaEstado"></div>
+
+      <div id="camposCategoria"></div>
+
+      <div class="field">
+        <label for="cotExtras">Equipamiento adicional (una línea por ítem)</label>
+        <textarea id="cotExtras" rows="6"></textarea>
+      </div>
+
+      <button type="button" class="btn-agregar" id="cotGuardarFicha">💾 Guardar ahora (además se guarda solo al editar)</button>
+      <div class="estado-fichas" id="cotGuardarFichaEstado"></div>
+
+      <button type="button" class="btn-secundario" id="cotAgregarProducto2" style="margin-top:14px;">+ Agregar segundo equipo a esta cotización</button>
+
+      <div id="producto2Container" style="display:none;margin-top:10px;">
+        <div class="seccion-titulo" style="display:flex;align-items:center;justify-content:space-between;">
+          <span>Equipo 2</span>
+          <button type="button" class="btn-secundario" id="cotQuitarProducto2" style="margin:0;padding:4px 10px;font-size:12px;">✕ Quitar equipo 2</button>
+        </div>
+
+        <div class="field">
+          <label for="cotFichaSelect2">Ficha técnica del equipo (PDF ya cargado)</label>
+          <select id="cotFichaSelect2">
+            <option value="">— Sin vincular / cargar manualmente —</option>
+          </select>
+          <div class="tasa-note">Si el Modelo está vacío, al elegir una ficha se completa con el nombre del PDF. Confirmá vos la categoría que le corresponde.</div>
+        </div>
+
+        <div class="field">
+          <label for="cotCategoria2">Categoría de equipo</label>
+          <select id="cotCategoria2"></select>
+        </div>
+
+        <div class="field">
+          <label for="cotModelo2">Modelo</label>
+          <input type="text" id="cotModelo2" placeholder="Ej: CPD25-XAJ4-I">
+          <div class="tasa-note">Si ya guardaste una ficha para este modelo, al salir del campo se autocompleta sola.</div>
+        </div>
+
+        <button type="button" class="btn-agregar" id="cotBuscarFichaGuardada2">🔎 Recargar ficha guardada de este modelo</button>
+        <div class="estado-fichas" id="cotFichaGuardadaEstado2"></div>
+
+        <div id="camposCategoria2"></div>
+
+        <div class="field">
+          <label for="cotExtras2">Equipamiento adicional (una línea por ítem)</label>
+          <textarea id="cotExtras2" rows="6"></textarea>
+        </div>
+
+        <button type="button" class="btn-agregar" id="cotGuardarFicha2">💾 Guardar ahora (además se guarda solo al editar)</button>
+        <div class="estado-fichas" id="cotGuardarFichaEstado2"></div>
+      </div>
+
+      <div class="seccion-titulo">Lista de precios (modelos GP)</div>
+
+      <div class="field">
+        <label for="lpModeloBuscar">Buscar modelo</label>
+        <input type="text" id="lpModeloBuscar" placeholder="Ej: CPD25, XEN, apilador...">
+      </div>
+      <div class="lista-fichas" id="lpModeloResultados" style="max-height:220px;overflow-y:auto;"></div>
+      <div class="checkbox-row" style="margin-top:10px;">
+        <span style="font-size:12.5px;color:#66748a;">Precio a usar:</span>
+        <select id="lpTipoPrecio" style="width:auto;padding:6px 8px;font-size:12.5px;">
+          <option value="contado">Contado</option>
+          <option value="distribuidor">Distribuidor</option>
+        </select>
+      </div>
+      <div class="tasa-note">Precios netos, sin IVA. Al hacer clic en un modelo se agrega como ítem a la tabla de abajo.</div>
+
+      <div class="seccion-titulo">Accesorios y opciones (lista de precios)</div>
+
+      <div class="field">
+        <label for="lpAccBuscar">Buscar accesorio u opción</label>
+        <input type="text" id="lpAccBuscar" placeholder="Ej: mástil, sideshift, cubierta...">
+      </div>
+      <div class="lista-fichas" id="lpAccResultados" style="max-height:260px;overflow-y:auto;"></div>
+      <div class="tasa-note">Elegí la franja de tonelaje que corresponda a tu equipo — se agrega como ítem editable.</div>
+
+      <span class="admin-toggle" id="lpAdminToggle">Actualizar lista de precios (subir Excel nuevo)</span>
+
+      <div class="admin-panel" id="lpAdminPanel">
+        <div class="admin-nota">
+          Usa el mismo token de GitHub que configuraste en la pestaña Fichas Técnicas. El Excel debe tener las hojas <strong>LPARG</strong>, <strong>Tyre</strong>, <strong>Mast options</strong> y <strong>Others</strong>, igual que el que me pasaste.
+        </div>
+        <div class="field">
+          <label for="lpArchivo">Excel nuevo (.xlsx)</label>
+          <input type="file" id="lpArchivo" accept=".xlsx">
+        </div>
+        <button type="button" class="btn-secundario" id="lpSubirBtn">Procesar y actualizar</button>
+        <div class="estado-fichas" id="lpEstadoSubida"></div>
+      </div>
+
+      <div class="seccion-titulo">Ítems y precios</div>
+
+      <div id="itemsCotizacion"></div>
+      <button type="button" class="btn-agregar" id="cotAgregarItem">+ Agregar ítem</button>
+
+      <div class="field-row" style="margin-top:14px; align-items:flex-end;">
+        <div class="field" style="margin-bottom:0;">
+          <label for="cotIvaGlobal">IVA para aplicar en lote</label>
+          <select id="cotIvaGlobal">
+            <option value="10.5">10,5%</option>
+            <option value="21">21%</option>
+          </select>
+        </div>
+        <button type="button" class="btn-agregar" id="cotAplicarIvaTodos" style="margin-bottom:0;">Aplicar a todos los ítems</button>
+      </div>
+      <div class="tasa-note">Cada ítem tiene su propio IVA (10,5% o 21%) editable individualmente al lado del precio.</div>
+
+      <div class="seccion-titulo">Condiciones comerciales</div>
+
+      <div class="field">
+        <label for="cotValidez">Validez</label>
+        <input type="text" id="cotValidez" value="7 días de fecha de presentación">
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="cotEntrega">Tiempo de entrega</label>
+          <input type="text" id="cotEntrega" value="INMEDIATA">
+        </div>
+        <div class="field">
+          <label for="cotLugar">Lugar de entrega</label>
+          <input type="text" id="cotLugar" value="A coordinar">
+        </div>
+      </div>
+      <div class="field">
+        <label for="cotFormaPago">Forma de pago (texto base)</label>
+        <textarea id="cotFormaPago" rows="4">El pago podrá realizarse de contado o financiado, a elección del cliente. Ofrecemos dos alternativas de financiación: propia, mediante cheques de pago diferido en hasta 12 cuotas; o bancaria, a través del programa BNA Conecta del Banco de la Nación Argentina, en hasta 36 cuotas, sujeta a las condiciones vigentes de dicha entidad.</textarea>
+      </div>
+
+      <div class="checkbox-row">
+        <input type="checkbox" id="cotIncluirBna">
+        <label for="cotIncluirBna" style="margin:0;font-weight:400;">Incluir opción BNA Conecta (usa lo cargado en esa pestaña)</label>
+      </div>
+      <div class="checkbox-row">
+        <input type="checkbox" id="cotIncluirCheques">
+        <label for="cotIncluirCheques" style="margin:0;font-weight:400;">Incluir opción de cheques (usa lo cargado en esa pestaña)</label>
+      </div>
+
+      <div class="seccion-titulo">Datos del vendedor</div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="cotVendedorNombre">Nombre</label>
+          <input type="text" id="cotVendedorNombre" placeholder="Ej: Juan Nuñez">
+        </div>
+        <div class="field">
+          <label for="cotVendedorTel">Teléfono</label>
+          <input type="text" id="cotVendedorTel" value="0351-152014521">
+        </div>
+      </div>
+      <div class="field">
+        <label for="cotVendedorEmail">Email</label>
+        <input type="text" id="cotVendedorEmail" placeholder="Ej: jnunez@grupopomiglio.com">
+      </div>
+
+      <button type="button" class="btn-primario" id="cotVerPreview">Vista previa e imprimir</button>
+
+    </div>
+  </div>
+
+  <!-- ==================== TAB CHEQUES (FINANCIACIÓN PROPIA) ==================== -->
+  <div class="card" id="tab-cheques">
+    <div class="header">
+      <h1>Simulador de Cheques</h1>
+      <p>Financiación propia</p>
+    </div>
+
+    <div class="body">
+
+      <div class="field">
+        <label for="chPrecio">Precio de venta (U$D)</label>
+        <input type="text" id="chPrecio" inputmode="decimal" placeholder="Ej: 13.800" value="13.800">
+      </div>
+
+      <div class="field">
+        <label for="chTC">Tipo de cambio - TC (ARS por U$D)</label>
+        <input type="number" id="chTC" step="1" value="1500">
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="chEntregaPct">Entrega (%)</label>
+          <input type="number" id="chEntregaPct" step="1" value="30">
+        </div>
+        <div class="field">
+          <label for="chAdelanto">Adelanto ya entregado (U$D)</label>
+          <input type="text" id="chAdelanto" inputmode="decimal" value="0">
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="chCantCheques">Cantidad de cheques</label>
+          <input type="number" id="chCantCheques" step="1" min="1" value="6">
+        </div>
+        <div class="field">
+          <label for="chTasa">Interés mensual (%)</label>
+          <input type="number" id="chTasa" step="0.1" value="3.2">
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="chIva">IVA aplicado (%)</label>
+        <input type="number" id="chIva" step="0.1" value="10.5">
+        <div class="tasa-note">Se calcula sobre el total financiado y se carga íntegro en la entrega, igual que en tus planillas.</div>
+      </div>
+
+      <div class="resultado">
+        <div class="cuota-destacada">
+          <div class="num" id="chChequeARS">$0</div>
+          <div class="num-usd" id="chChequeUSD">U$D 0</div>
+          <div class="label">valor de cada cheque</div>
+        </div>
+        <div class="fila">
+          <span>Entrega (con IVA)</span>
+          <span class="valor"><span class="ars" id="chEntregaARS">$0</span><span class="usd" id="chEntregaUSD">U$D 0</span></span>
+        </div>
+        <div class="fila">
+          <span>Total financiado</span>
+          <span class="valor"><span class="ars" id="chTotalARS">$0</span><span class="usd" id="chTotalUSD">U$D 0</span></span>
+        </div>
+        <div class="fila">
+          <span>Costo financiero (interés)</span>
+          <span class="valor"><span class="ars" id="chCostoARS">$0</span><span class="usd" id="chCostoUSD">U$D 0</span></span>
+        </div>
+      </div>
+
+      <table class="desglose">
+        <thead>
+          <tr><th>Pago</th><th>Día</th><th style="text-align:right">Importe</th></tr>
+        </thead>
+        <tbody id="chTablaBody"></tbody>
+      </table>
+
+      <a class="whatsapp-btn" id="chWaBtn" href="#" target="_blank">Enviar cotización por WhatsApp</a>
+
+      <div class="disclaimer">
+        Cálculo estimado en base a interés simple acumulado por plazo (cheque a 30 días = 1 tasa, a 60 días = 2 tasas, etc.), IVA cargado íntegramente en la entrega, y cheques promediados a valor uniforme para su firma. Valores sujetos a confirmación final del tipo de cambio al momento de la operación.
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ==================== TAB FICHAS TÉCNICAS ==================== -->
+  <div class="card activo" id="tab-fichas">
+    <div class="header">
+      <h1>Fichas Técnicas</h1>
+      <p>Buscá, enviá o gestioná los PDFs de tus equipos</p>
+    </div>
+
+    <div class="body">
+
+      <div class="field buscador">
+        <input type="text" id="fichaBuscador" placeholder="Buscar ficha por nombre...">
+      </div>
+
+      <div class="lista-fichas" id="listaFichas">
+        <div class="estado-fichas">Cargando fichas...</div>
+      </div>
+
+      <span class="admin-toggle" id="adminToggle">Administrar fichas (subir / borrar)</span>
+
+      <div class="admin-panel" id="adminPanel">
+        <div class="admin-nota">
+          Para subir o borrar fichas necesitás un token de acceso de GitHub, con permisos limitados solo a este repositorio. Se guarda únicamente en este navegador, nunca en el código público.
+        </div>
+
+        <div class="field">
+          <label for="ghToken">Token de GitHub</label>
+          <input type="password" id="ghToken" placeholder="ghp_... o github_pat_...">
+        </div>
+        <div class="checkbox-row">
+          <input type="checkbox" id="ghRecordar">
+          <label for="ghRecordar" style="margin:0;font-weight:400;">Recordar en este dispositivo</label>
+        </div>
+        <button class="btn-secundario" id="ghGuardarToken">Guardar token</button>
+
+        <div id="panelSubida" style="display:none; margin-top:14px;">
+          <div class="field">
+            <label for="ghArchivo">PDF a subir</label>
+            <input type="file" id="ghArchivo" accept="application/pdf">
+          </div>
+          <div class="field">
+            <label for="ghNombre">Nombre a mostrar (con .pdf al final)</label>
+            <input type="text" id="ghNombre" placeholder="Ej: Compresor Denver 50L.pdf">
+          </div>
+          <button class="btn-secundario" id="ghSubirBtn">Subir ficha</button>
+          <div class="estado-fichas" id="ghEstadoSubida"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<div id="previewOverlay">
+  <div class="preview-controles">
+    <button class="btn-imprimir" onclick="window.print()">Imprimir / Guardar PDF</button>
+    <button class="btn-whatsapp" id="cotEnviarWa">Enviar por WhatsApp</button>
+    <button class="btn-cerrar" id="cotCerrarPreview">Cerrar</button>
+  </div>
+  <div class="estado-fichas" id="cotWaEstado" style="max-width:800px;margin:-4px auto 10px;"></div>
+  <div class="preview-page" id="previewPage"></div>
+</div>
+
+<script>
+  /* ---------- Utilidades compartidas ---------- */
+  // Acepta formato es-AR: puntos como separador de miles, coma como decimal (ej: 13.590,50)
+  function limpiarEntradaDecimal(str){
+    let s = String(str).replace(/[^0-9,]/g,'');
+    const primeraComa = s.indexOf(',');
+    if(primeraComa !== -1){
+      s = s.slice(0, primeraComa+1) + s.slice(primeraComa+1).replace(/,/g,'');
+    }
+    return s;
+  }
+  function parseMonto(str){
+    let s = limpiarEntradaDecimal(str);
+    if(s === '' || s === ',') return 0;
+    s = s.replace(',', '.');
+    return parseFloat(s) || 0;
+  }
+  function formatoMoneda(num, prefijo){
+    prefijo = prefijo === undefined ? '$' : prefijo;
+    return prefijo + Math.round(num).toLocaleString('es-AR');
+  }
+  function formatoInputMonto(valor){
+    let s = limpiarEntradaDecimal(valor);
+    if(s === '') return '';
+    let [intPart, decPart] = s.split(',');
+    intPart = intPart.replace(/^0+(?=\d)/,'');
+    if(intPart === '') intPart = '0';
+    const intFormateado = parseInt(intPart,10).toLocaleString('es-AR');
+    return decPart !== undefined ? intFormateado + ',' + decPart : intFormateado;
+  }
+  // Convierte un número JS "de fábrica" (punto decimal, ej: proveniente de la lista de precios)
+  // al formato de texto es-AR (coma decimal) que espera parseMonto/limpiarEntradaDecimal.
+  // Sin esto, un precio como 7780.3 se guardaba como texto "7780.3", el punto se interpretaba
+  // como separador de miles y terminaba mostrándose como USD 77.803 en vez de USD 7.780,3.
+  function numeroAFormatoInput(num){
+    if(num === null || num === undefined || num === '') return '';
+    const n = typeof num === 'number' ? num : parseFloat(String(num).replace(',', '.'));
+    if(isNaN(n)) return String(num);
+    let s = n.toFixed(2);
+    if(s.endsWith('.00')) s = s.slice(0, -3);
+    else if(s.endsWith('0')) s = s.slice(0, -1);
+    const [intPart, decPart] = s.split('.');
+    const intFormateado = parseInt(intPart, 10).toLocaleString('es-AR');
+    return decPart ? intFormateado + ',' + decPart : intFormateado;
+  }
+
+  /* ---------- GitHub (repo del propio sitio, usado por Fichas / Cotización / Lista de precios) ---------- */
+  const GH_OWNER = 'juanmnz99';
+  const GH_REPO = 'COTIZACIONES';
+  const GH_FOLDER = 'fichas';
+  const GH_BRANCH = 'main';
+  const GH_API = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents/${GH_FOLDER}`;
+  const GH_RAW_BASE = `https://raw.githubusercontent.com/${GH_OWNER}/${GH_REPO}/${GH_BRANCH}/${GH_FOLDER}`;
+  const GH_CONTENTS_ROOT = `https://api.github.com/repos/${GH_OWNER}/${GH_REPO}/contents`;
+  const GH_RAW_ROOT = `https://raw.githubusercontent.com/${GH_OWNER}/${GH_REPO}/${GH_BRANCH}`;
+  let ghToken = localStorage.getItem('gh_token_fichas') || '';
+
+  /* ---------- Tabs ---------- */
+  const tabBtns = document.querySelectorAll('.tab-btn');
+  const cards = {
+    fichas: document.getElementById('tab-fichas'),
+    cotizacion: document.getElementById('tab-cotizacion'),
+    cheques: document.getElementById('tab-cheques'),
+    bna: document.getElementById('tab-bna')
+  };
+  tabBtns.forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      tabBtns.forEach(b=>b.classList.remove('activo'));
+      btn.classList.add('activo');
+      Object.values(cards).forEach(c=>c.classList.remove('activo'));
+      cards[btn.dataset.tab].classList.add('activo');
+    });
+  });
+
+  /* ---------- BNA Conecta ---------- */
+  const montoInput = document.getElementById('monto');
+  const tnaInput = document.getElementById('tna');
+  const plazoSlider = document.getElementById('plazoSlider');
+  const plazoLabel = document.getElementById('plazoLabel');
+  const plazoAtajos = document.querySelectorAll('.plazo-atajo');
+  let plazoMeses = 24;
+
+  function calcularBna(){
+    const monto = parseMonto(montoInput.value);
+    const tna = parseFloat(tnaInput.value) || 0;
+    const iMensual = (tna/100)/12;
+    let cuota;
+    if(iMensual === 0){
+      cuota = monto / plazoMeses;
+    } else {
+      cuota = monto * iMensual / (1 - Math.pow(1+iMensual, -plazoMeses));
+    }
+    const total = cuota * plazoMeses;
+    const interes = total - monto;
+
+    document.getElementById('cuotaMensual').textContent = formatoMoneda(cuota);
+    document.getElementById('rMonto').textContent = formatoMoneda(monto);
+    document.getElementById('rPlazo').textContent = plazoMeses + ' meses';
+    document.getElementById('rTotal').textContent = formatoMoneda(total);
+    document.getElementById('rInteres').textContent = formatoMoneda(interes);
+
+    const texto = `Simulación de financiación BNA Conecta:%0AMonto: ${formatoMoneda(monto)}%0APlazo: ${plazoMeses} meses%0ATNA: ${tna}%25%0ACuota estimada: ${formatoMoneda(cuota)}%0ATotal a pagar: ${formatoMoneda(total)}`;
+    document.getElementById('waBtn').href = `https://wa.me/?text=${texto}`;
+  }
+
+  function sincronizarAtajos(){
+    plazoAtajos.forEach(a=>{
+      a.classList.toggle('activo', parseInt(a.dataset.meses) === plazoMeses);
+    });
+  }
+
+  montoInput.addEventListener('input', (e)=>{
+    const cursorAlFinal = e.target.selectionStart === e.target.value.length;
+    e.target.value = formatoInputMonto(e.target.value);
+    if(cursorAlFinal) e.target.setSelectionRange(e.target.value.length, e.target.value.length);
+    calcularBna();
+  });
+  tnaInput.addEventListener('input', calcularBna);
+
+  plazoSlider.addEventListener('input', ()=>{
+    plazoMeses = parseInt(plazoSlider.value);
+    plazoLabel.textContent = plazoMeses;
+    sincronizarAtajos();
+    calcularBna();
+  });
+
+  plazoAtajos.forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      plazoMeses = parseInt(btn.dataset.meses);
+      plazoSlider.value = plazoMeses;
+      plazoLabel.textContent = plazoMeses;
+      sincronizarAtajos();
+      calcularBna();
+    });
+  });
+
+  montoInput.value = formatoInputMonto(montoInput.value);
+  calcularBna();
+
+  /* ---------- Cheques (financiación propia) ---------- */
+  const chPrecioInput = document.getElementById('chPrecio');
+  const chTCInput = document.getElementById('chTC');
+  const chEntregaPctInput = document.getElementById('chEntregaPct');
+  const chAdelantoInput = document.getElementById('chAdelanto');
+  const chCantChequesInput = document.getElementById('chCantCheques');
+  const chTasaInput = document.getElementById('chTasa');
+  const chIvaInput = document.getElementById('chIva');
+  const chTablaBody = document.getElementById('chTablaBody');
+
+  function calcularCheques(){
+    const precio = parseMonto(chPrecioInput.value);
+    const tc = parseFloat(chTCInput.value) || 0;
+    const entregaPct = (parseFloat(chEntregaPctInput.value) || 0) / 100;
+    const adelanto = parseMonto(chAdelantoInput.value);
+    const n = Math.max(1, parseInt(chCantChequesInput.value) || 1);
+    const tasa = (parseFloat(chTasaInput.value) || 0) / 100;
+    const ivaPct = (parseFloat(chIvaInput.value) || 0) / 100;
+
+    const entregaBruta = precio * entregaPct - adelanto;
+    const saldo = precio * (1 - entregaPct);
+    const cuotaPura = saldo / n;
+
+    let cuotas = [];
+    let sumaCuotas = 0;
+    for(let i=1; i<=n; i++){
+      const factor = i * tasa;
+      const cuota = cuotaPura * (1 + factor);
+      cuotas.push(cuota);
+      sumaCuotas += cuota;
+    }
+
+    const totalPuro = entregaBruta + sumaCuotas;
+    const iva = totalPuro * ivaPct;
+    const entregaConIva = entregaBruta + iva;
+    const promedioCheque = sumaCuotas / n;
+    const totalGeneral = entregaConIva + sumaCuotas;
+    const costoFinanciero = totalPuro - precio + adelanto;
+
+    const entregaConIvaARS = entregaConIva * tc;
+    const promedioChequeARS = promedioCheque * tc;
+    const totalGeneralARS = totalGeneral * tc;
+    const costoFinancieroARS = costoFinanciero * tc;
+
+    document.getElementById('chChequeARS').textContent = formatoMoneda(promedioChequeARS);
+    document.getElementById('chChequeUSD').textContent = formatoMoneda(promedioCheque, 'U$D ');
+    document.getElementById('chEntregaARS').textContent = formatoMoneda(entregaConIvaARS);
+    document.getElementById('chEntregaUSD').textContent = formatoMoneda(entregaConIva, 'U$D ');
+    document.getElementById('chTotalARS').textContent = formatoMoneda(totalGeneralARS);
+    document.getElementById('chTotalUSD').textContent = formatoMoneda(totalGeneral, 'U$D ');
+    document.getElementById('chCostoARS').textContent = formatoMoneda(costoFinancieroARS);
+    document.getElementById('chCostoUSD').textContent = formatoMoneda(costoFinanciero, 'U$D ');
+
+    chTablaBody.innerHTML = '';
+    const filaEntrega = document.createElement('tr');
+    filaEntrega.innerHTML = `<td>Entrega</td><td>Día 0</td><td class="num"><span class="ars">${formatoMoneda(entregaConIvaARS)}</span><span class="usd">${formatoMoneda(entregaConIva,'U$D ')}</span></td>`;
+    chTablaBody.appendChild(filaEntrega);
+    for(let i=1; i<=n; i++){
+      const fila = document.createElement('tr');
+      fila.innerHTML = `<td>Cheque ${i}</td><td>${i*30} días</td><td class="num"><span class="ars">${formatoMoneda(promedioChequeARS)}</span><span class="usd">${formatoMoneda(promedioCheque,'U$D ')}</span></td>`;
+      chTablaBody.appendChild(fila);
+    }
+
+    const texto = `Cotización financiación propia:%0APrecio: U$D ${formatoMoneda(precio,'')}%0ATC: $${tc}%0AEntrega: ${formatoMoneda(entregaConIvaARS)} (U$D ${formatoMoneda(entregaConIva,'')})%0A${n} cheques de ${formatoMoneda(promedioChequeARS)} c/u (U$D ${formatoMoneda(promedioCheque,'')})%0ATotal financiado: ${formatoMoneda(totalGeneralARS)}`;
+    document.getElementById('chWaBtn').href = `https://wa.me/?text=${texto}`;
+  }
+
+  [chTCInput, chEntregaPctInput, chCantChequesInput, chTasaInput, chIvaInput].forEach(el=>{
+    el.addEventListener('input', calcularCheques);
+  });
+  [chPrecioInput, chAdelantoInput].forEach(el=>{
+    el.addEventListener('input', (e)=>{
+      const cursorAlFinal = e.target.selectionStart === e.target.value.length;
+      e.target.value = formatoInputMonto(e.target.value);
+      if(cursorAlFinal) e.target.setSelectionRange(e.target.value.length, e.target.value.length);
+      calcularCheques();
+    });
+  });
+
+  chPrecioInput.value = formatoInputMonto(chPrecioInput.value);
+  chAdelantoInput.value = formatoInputMonto(chAdelantoInput.value);
+  calcularCheques();
+
+  /* ---------- Cotización ---------- */
+  let LISTA_PRECIOS = {"modelos":[{"clasificacion":"SIN CLASE (Aereo)","marca":"HANGCHA","modelo":"78XEN","cap":"NA","alt":10,"motor":"EVE Lithium Battery 24V/230Ah","ruedas":"MACIZA","contado":11748.74,"distribuidor":10617.12,"comentarios":""},{"clasificacion":"SIN CLASE (Aereo)","marca":"HANGCHA","modelo":"100XEN","cap":"NA","alt":10,"motor":"EVE Lithium Battery 24V/230Ah","ruedas":"MACIZA","contado":15186.01,"distribuidor":13723.31,"comentarios":""},{"clasificacion":"SIN CLASE (Aereo)","marca":"HANGCHA","modelo":"140XEN","cap":"NA","alt":14,"motor":"EVE Lithium Battery 24V/230Ah","ruedas":"MACIZA","contado":16287.11,"distribuidor":14718.36,"comentarios":""},{"clasificacion":"SIN CLASE (Aereo)","marca":"HANGCHA","modelo":"160XEN","cap":"NA","alt":16,"motor":"EVE Lithium Battery 24V/230Ah","ruedas":"MACIZA","contado":21517.33,"distribuidor":19444.82,"comentarios":""},{"clasificacion":"SIN CLASE (Aereo)","marca":"HANGCHA","modelo":"HV70M-LC","cap":"NA","alt":7,"motor":"Gel","ruedas":"MACIZA","contado":5120.12,"distribuidor":4626.95,"comentarios":""},{"clasificacion":"CLASE 7 (Telehandler)","marca":"HANGCHA","modelo":"T25-60XHYG","cap":2500,"alt":6000,"motor":"EVE Lithium Battery 310V/150Ah","ruedas":"NEUMATICAS","contado":93226.4,"distribuidor":82530.35,"comentarios":""},{"clasificacion":"CLASE 7 (Brazos)","marca":"HANGCHA","modelo":"GTHZ170","cap":"NA","alt":17000,"motor":"HANGCHA lithium battery 80V/125AH","ruedas":"MACIZA","contado":52414.71,"distribuidor":46401.07,"comentarios":""},{"clasificacion":"CLASE 3 (rango alto)","marca":"HANGCHA","modelo":"AGVLCBD20-MGJ1","cap":2000,"alt":0,"motor":"STD","ruedas":"PU","contado":6826.65,"distribuidor":6131.13,"comentarios":""},{"clasificacion":"CLASE 1 (Entre 1,8 y 2,5)","marca":"HANGCHA","modelo":"CPDS18-XCY2G-SI","cap":1800,"alt":6000,"motor":"EVE Lithium battery (80V/230Ah)","ruedas":"MACIZA","contado":25159.12,"distribuidor":22595.84,"comentarios":""},{"clasificacion":"CLASE 1 (Entre 1,8 y 2,5)","marca":"HANGCHA","modelo":"CPDS20-XCD6-SI","cap":2000,"alt":6000,"motor":"EVE Lithium battery (80V/230Ah)","ruedas":"MACIZA","contado":10864.12,"distribuidor":9757.25,"comentarios":""},{"clasificacion":"CLASE 1 (Entre 1,8 y 2,5)","marca":"HANGCHA","modelo":"CPD25-XAJ4-I","cap":2500,"alt":4500,"motor":"EVE Lithium battery (80V/230Ah)","ruedas":"NEUMATICAS","contado":19251.14,"distribuidor":17289.78,"comentarios":"Precio Promo 16500"},{"clasificacion":"CLASE 1 (Entre 1,8 y 2,5)","marca":"HANGCHA","modelo":"CPD25-XAJ4-I","cap":2500,"alt":4500,"motor":"EVE Lithium battery (80V/230Ah)","ruedas":"NEUMATICAS","contado":20187.37,"distribuidor":18130.62,"comentarios":"Precio Promo 17300"},{"clasificacion":"CLASE 1 (Entre 1,8 y 2,5)","marca":"HANGCHA","modelo":"CPD25-XAJ4-I","cap":2500,"alt":4500,"motor":"EVE Lithium battery (80V/230Ah)","ruedas":"NEUMATICAS","contado":20733.5,"distribuidor":18621.11,"comentarios":"Precio Promo 17800"},{"clasificacion":"CLASE 1 (Entre 3,0 y 3,8)","marca":"HANGCHA","modelo":"CPD30-XAJ4-I","cap":3000,"alt":4500,"motor":"EVE Lithium battery (80V/304Ah)","ruedas":"NEUMATICAS","contado":22120.29,"distribuidor":19866.61,"comentarios":""},{"clasificacion":"CLASE 1 (Entre 3,0 y 3,8)","marca":"HANGCHA","modelo":"CPD38-XAJ4-I","cap":3800,"alt":4500,"motor":"EVE Lithium battery (80V/304Ah)","ruedas":"NEUMATICAS","contado":23220.35,"distribuidor":20854.6,"comentarios":""},{"clasificacion":"CLASE 1 (Entre 1,8 y 2,5)","marca":"HANGCHA","modelo":"CPD18-XEY2HA-SI","cap":1800,"alt":4500,"motor":"EVE Lithium battery (80V/230Ah)","ruedas":"NEUMATICAS","contado":19949.41,"distribuidor":17916.91,"comentarios":""},{"clasificacion":"CLASE 1 (Entre 1,8 y 2,5)","marca":"HANGCHA","modelo":"CPD25-XEY2HA-SI","cap":2500,"alt":4500,"motor":"EVE Lithium battery (80V/230Ah)","ruedas":"NEUMATICAS","contado":21950.6,"distribuidor":19714.21,"comentarios":"Precio Promo 17300"},{"clasificacion":"CLASE 1 (Entre 1,8 y 2,5)","marca":"HANGCHA","modelo":"CPD25-XEY2HA-SI","cap":2500,"alt":4500,"motor":"EVE Lithium battery (80V/304Ah)","ruedas":"NEUMATICAS","contado":23413.45,"distribuidor":21028.02,"comentarios":"Precio Promo 18500"},{"clasificacion":"CLASE 1 (Entre 3,0 y 3,8)","marca":"HANGCHA","modelo":"CPD30-XEY2HA-SI","cap":3000,"alt":4500,"motor":"EVE Lithium battery (80V/304Ah)","ruedas":"NEUMATICAS","contado":25393.18,"distribuidor":22806.05,"comentarios":""},{"clasificacion":"CLASE 1 (Entre 3,0 y 3,8)","marca":"HANGCHA","modelo":"CPD38-XEY2HA-SI","cap":3800,"alt":4500,"motor":"EVE Lithium battery (80V/304Ah)","ruedas":"NEUMATICAS","contado":27080.33,"distribuidor":24321.31,"comentarios":""},{"clasificacion":"CLASE 3 (rango alto)","marca":"HANGCHA","modelo":"CQD18-AC5-I","cap":1800,"alt":9500,"motor":"CATL Lithium battery (80V/302Ah)","ruedas":"PU","contado":45001.26,"distribuidor":40416.4,"comentarios":""},{"clasificacion":"CLASE 3 (rango alto)","marca":"HANGCHA","modelo":"CQD20-AC5-I","cap":2000,"alt":9500,"motor":"CATL Lithium battery (80V/302Ah)","ruedas":"PU","contado":46062.31,"distribuidor":41369.35,"comentarios":""},{"clasificacion":"CLASE 3 (rango bajo) CBD20","marca":"HANGCHA","modelo":"CBD20-WD-I","cap":2000,"alt":0,"motor":"48V/20Ah hangcha lithium battery(standard)","ruedas":"PU","contado":1572.42,"distribuidor":1300.33,"comentarios":""},{"clasificacion":"CLASE 3 (rango alto)","marca":"HANGCHA","modelo":"CBD20-XT1S-SISU","cap":2000,"alt":0,"motor":"EVE Lithium Battery 48V/125Ah","ruedas":"PU","contado":8318.76,"distribuidor":7471.22,"comentarios":""},{"clasificacion":"CLASE 3 (rango bajo) CDD15","marca":"HANGCHA","modelo":"CDD15-WS-I","cap":1500,"alt":3000,"motor":"Li-ion iron phosphate lithium (24V/60Ah)","ruedas":"PU","contado":3291.45,"distribuidor":2875.9,"comentarios":""},{"clasificacion":"CLASE 3 (rango bajo) CDD15","marca":"HANGCHA","modelo":"CDD15-WS-I","cap":1500,"alt":3500,"motor":"Li-ion iron phosphate lithium (24V/60Ah)","ruedas":"PU","contado":3506.44,"distribuidor":3063.74,"comentarios":""},{"clasificacion":"CLASE 3 (rango alto)","marca":"HANGCHA","modelo":"CDD16-XT1S-SISU","cap":1600,"alt":6000,"motor":"EVE Lithium Battery 48V/105Ah","ruedas":"PU","contado":13516.76,"distribuidor":12139.63,"comentarios":""},{"clasificacion":"CLASE 3 (rango alto)","marca":"HANGCHA","modelo":"CDD20-XT1S-SI","cap":2000,"alt":4500,"motor":"EVE Lithium Battery 48V/80Ah","ruedas":"PU","contado":10672.97,"distribuidor":9585.58,"comentarios":""},{"clasificacion":"CLASE 3 (rango alto)","marca":"HANGCHA","modelo":"CDD20-XT1S-SI","cap":2000,"alt":5500,"motor":"EVE Lithium Battery 48V/105Ah","ruedas":"PU","contado":11336.13,"distribuidor":10181.18,"comentarios":""},{"clasificacion":"CLASE 3 (rango alto)","marca":"HANGCHA","modelo":"CDD20-XT1S-SI","cap":2000,"alt":6000,"motor":"EVE Lithium Battery 48V/105Ah","ruedas":"PU","contado":11862.76,"distribuidor":10654.15,"comentarios":""},{"clasificacion":"CLASE 5 (2,5)","marca":"HANGCHA","modelo":"CPCD25-AG2/A2G28","cap":2500,"alt":3000,"motor":"XINCHAI C490BPG/4D29G","ruedas":"NEUMATICAS","contado":13522.91,"distribuidor":12179.55,"comentarios":"Precio Promo 11400"},{"clasificacion":"CLASE 5 (2,5)","marca":"HANGCHA","modelo":"CPCD25-AG2/A2G28","cap":2500,"alt":4500,"motor":"XINCHAI C490BPG/4D29G","ruedas":"NEUMATICAS","contado":15894.95,"distribuidor":14315.96,"comentarios":"Precio Promo 12200"},{"clasificacion":"CLASE 5 (Entre 3,0 y 3,8)","marca":"HANGCHA","modelo":"CPCD30-AG2/A2G28","cap":3000,"alt":4500,"motor":"XINCHAI C490BPG/4D29G","ruedas":"NEUMATICAS","contado":17092.27,"distribuidor":15394.34,"comentarios":""},{"clasificacion":"CLASE 5 (Entre 3,0 y 3,8)","marca":"HANGCHA","modelo":"CPCD38-AG2/A2G28","cap":3800,"alt":4500,"motor":"XINCHAI C490BPG/4D29G","ruedas":"NEUMATICAS","contado":19335.54,"distribuidor":17414.77,"comentarios":""},{"clasificacion":"CLASE 5 (2,5)","marca":"HANGCHA","modelo":"CPCD25-XRG2","cap":2500,"alt":4500,"motor":"XINCHAI C490BPG","ruedas":"NEUMATICAS","contado":16541.05,"distribuidor":14897.88,"comentarios":"Precio Promo 12700"},{"clasificacion":"CLASE 5 (Entre 3,0 y 3,8)","marca":"HANGCHA","modelo":"CPCD30-XRG2","cap":3000,"alt":4500,"motor":"XINCHAI C490BPG","ruedas":"NEUMATICAS","contado":3230.5,"distribuidor":2909.58,"comentarios":""},{"clasificacion":"CLASE 5 (Entre 3,0 y 3,8)","marca":"HANGCHA","modelo":"CPCD38-XRG2","cap":3800,"alt":4500,"motor":"XINCHAI C490BPG","ruedas":"NEUMATICAS","contado":3863.04,"distribuidor":3479.29,"comentarios":""},{"clasificacion":"CLASE 5 (2,5)","marca":"HANGCHA","modelo":"CPCD25-XRW10","cap":2500,"alt":4500,"motor":"ISUZU C240NKFC01","ruedas":"NEUMATICAS","contado":23984.75,"distribuidor":21602.12,"comentarios":""},{"clasificacion":"CLASE 5 (2,5)","marca":"HANGCHA","modelo":"CPCD25-XRW55F","cap":2500,"alt":4500,"motor":"MITSUBISHI S4S","ruedas":"NEUMATICAS","contado":22665.44,"distribuidor":20413.88,"comentarios":""},{"clasificacion":"CLASE 5 (2,5)","marca":"SOGNI","modelo":"IDF25","cap":2500,"alt":3000,"motor":"XINCHAI C490BPG","ruedas":"NEUMATICAS","contado":13441.58,"distribuidor":12106.31,"comentarios":"Precio Promo 11400"},{"clasificacion":"CLASE 5 (2,5)","marca":"SOGNI","modelo":"IDF25","cap":2500,"alt":4500,"motor":"XINCHAI C490BPG","ruedas":"NEUMATICAS","contado":14571.12,"distribuidor":13123.64,"comentarios":""},{"clasificacion":"CLASE 3 (rango alto)","marca":"HANGCHA","modelo":"QDD60-AC2-I","cap":6000,"alt":0,"motor":"CATL Lithium Battery 48V/228Ah","ruedas":"MACIZA","contado":20801.77,"distribuidor":18682.42,"comentarios":""},{"clasificacion":"SIN CLASE (Cleaning)","marca":"HANGCHA","modelo":"JSSD1250-BC6J","cap":"NA","alt":0,"motor":"GEL","ruedas":"MACIZA","contado":6162.0,"distribuidor":5138.25,"comentarios":""},{"clasificacion":"SIN CLASE (Cleaning)","marca":"HANGCHA","modelo":"JSSD1350-BC6J-I","cap":"NA","alt":0,"motor":"LITIO","ruedas":"MACIZA","contado":9243.0,"distribuidor":7707.38,"comentarios":""},{"clasificacion":"SIN CLASE (Cleaning)","marca":"HANGCHA","modelo":"JSSD1900-BC6J-P-I","cap":"NA","alt":0,"motor":"LITIO","ruedas":"MACIZA","contado":14315.76,"distribuidor":11937.36,"comentarios":""},{"clasificacion":"SIN CLASE (Cleaning)","marca":"HANGCHA","modelo":"JSXD50-RC9Z-I","cap":"NA","alt":0,"motor":"LITIO","ruedas":"MACIZA","contado":3081.0,"distribuidor":2569.13,"comentarios":""},{"clasificacion":"SIN CLASE (Cleaning)","marca":"HANGCHA","modelo":"JSXD60-XQ6Z-I","cap":"NA","alt":0,"motor":"LITIO","ruedas":"MACIZA","contado":5290.61,"distribuidor":4411.63,"comentarios":""},{"clasificacion":"SIN CLASE (Cleaning)","marca":"HANGCHA","modelo":"JSXD90-RC9-I","cap":"NA","alt":0,"motor":"LITIO","ruedas":"MACIZA","contado":5290.61,"distribuidor":4411.63,"comentarios":""},{"clasificacion":"SIN CLASE (Cleaning)","marca":"HANGCHA","modelo":"JSXD90-RC9-SI","cap":"NA","alt":0,"motor":"LITIO","ruedas":"MACIZA","contado":5041.64,"distribuidor":4204.03,"comentarios":""},{"clasificacion":"SIN CLASE (Cleaning)","marca":"HANGCHA","modelo":"JSXD75-XL6-STI","cap":"NA","alt":0,"motor":"LITIO","ruedas":"MACIZA","contado":7780.3,"distribuidor":6487.69,"comentarios":""},{"clasificacion":"SIN CLASE (Cleaning)","marca":"HANGCHA","modelo":"JSXD120-XL6-I","cap":"NA","alt":0,"motor":"LITIO","ruedas":"MACIZA","contado":14626.97,"distribuidor":12196.86,"comentarios":""},{"clasificacion":"SIN CLASE (transp. Manual)","marca":"HANGCHA","modelo":"CBY30-BF","cap":3000,"alt":0,"motor":"NA","ruedas":"NYLON","contado":531.76,"distribuidor":454.09,"comentarios":"Precio Promo 362"}],"accesorios":[{"categoria":"Neumáticos","nombre":"Solid tyre","bandas":{"1-1.8T":280,"2-2.5T":340,"3-3.5T":420,"5-7T":1290,"8-10T":2570,"12T-14T (600mm)":4320,"16T (600mm)":4370,"14T-16T (900mm)":4370,"A16T-18T (1200mm)":5010,"25T":7140,"32T":9470}},{"categoria":"Neumáticos","nombre":"No mark tyre","bandas":{"1-1.8T":350,"2-2.5T":520,"3-3.5T":640,"5-7T":1940,"8-10T":3160,"3-W":140,"12T-14T (600mm)":4470,"16T (600mm)":4680,"14T-16T (900mm)":5680,"A16T-18T (1200mm)":5890,"25T":9890}},{"categoria":"Neumáticos","nombre":"Dual tyres","bandas":{"1-1.8T":370,"2-2.5T":460,"3-3.5T":540,"4T/4.5T-5T(Mini)":690}},{"categoria":"Neumáticos","nombre":"Front dual solid tyres and Rear solid tyre","bandas":{"1-1.8T":770,"2-2.5T":970,"3-3.5T":1200,"4T/4.5T-5T(Mini)":1640}},{"categoria":"Neumáticos","nombre":"Fromt dual pneumatic tyres and Rear solid tyres","bandas":{"1-1.8T":400,"2-2.5T":580,"3-3.5T":690,"4T/4.5T-5T(Mini)":890}},{"categoria":"Accesorios","nombre":"Standard length of the Fork","bandas":{"1-1.8T":920,"2-2.5T":1070,"3-3.5T":1070,"4-mini 5T":1070,"5-6T":1200,"7T":1200,"8T":1500,"10T":1500,"CQD":920,"3-Wheel":900,"12T/14T/mini 16T":1500,"14T/16T Std.":1800,"A16T-18T":1800}},{"categoria":"Accesorios","nombre":"Each 100mm extended fork length","bandas":{"1-1.8T":20,"2-2.5T":30,"3-3.5T":35,"4-mini 5T":40,"5-6T":40,"7T":50,"8T":50,"10T":60,"CQD":40,"3-Wheel":40,"12T/14T/mini 16T":220,"14T/16T Std.":320,"A16T-18T":400}},{"categoria":"Accesorios","nombre":"Standard width of the Carriage","bandas":{"1-1.8T":1000,"2-2.5T":1038,"3-3.5T":1150,"4-mini 5T":1250,"5-6T":1700,"7T":1700,"8T":1800,"10T":1800,"12T/14T/mini 16T":2200,"14T/16T Std.":2310,"A16T-18T":2510}},{"categoria":"Accesorios","nombre":"Each 100mm extended Carriage Wide","bandas":{"1-1.8T":30,"2-2.5T":50,"3-3.5T":60,"4-mini 5T":70,"5-6T":90,"7T":110,"8T":140,"10T":150,"12T/14T/mini 16T":210,"14T/16T Std.":220,"A16T-18T":250}},{"categoria":"Accesorios","nombre":"HC made Integrated sideshift","bandas":{"1-1.8T":360,"2-2.5T":420,"3-3.5T":460,"4-mini 5T":560,"CQD":0,"3-Wheel":360}},{"categoria":"Accesorios","nombre":"Cascade sideshift","bandas":{"1-1.8T":350,"2-2.5T":350,"3-3.5T":660,"4-mini 5T":660,"5-6T":1410,"7T":1410,"3-Wheel":390}},{"categoria":"Accesorios","nombre":"Integrated sideshift & Fork positioner","bandas":{"1-1.8T":1800,"2-2.5T":1800,"5-6T":2920,"7T":2920,"8T":2850,"10T":3000,"12T/14T/mini 16T":3390,"14T/16T Std.":4650,"A16T-18T":4650}},{"categoria":"Accesorios","nombre":"3rd valve","bandas":{"1-1.8T":60,"2-2.5T":60,"3-3.5T":60,"4-mini 5T":130,"5-6T":130,"7T":130,"3-Wheel":60}},{"categoria":"Accesorios","nombre":"3rd and 4th valve","bandas":{"1-1.8T":120,"2-2.5T":120,"3-3.5T":120,"4-mini 5T":260,"5-6T":260,"7T":260,"3-Wheel":120}},{"categoria":"Accesorios","nombre":"3rd and 4th and 5th valve","bandas":{"3-3.5T":180,"4-mini 5T":390,"5-6T":390,"7T":390,"8T":210,"10T":210}},{"categoria":"Accesorios","nombre":"3rd pipeline","bandas":{"1-1.8T":140,"2-2.5T":140,"3-3.5T":140,"4-mini 5T":140,"5-6T":140,"7T":140,"8T":140,"10T":140,"CQD":0,"3-Wheel":140}},{"categoria":"Accesorios","nombre":"3rd and 4th pipelines","bandas":{"1-1.8T":280,"2-2.5T":280,"3-3.5T":280,"4-mini 5T":280,"5-6T":280,"7T":280,"8T":280,"10T":280,"CQD":0,"3-Wheel":280}},{"categoria":"Accesorios","nombre":"3rd and 4th and 5th pipelines","bandas":{"3-3.5T":420,"4-mini 5T":420,"5-6T":420,"7T":420,"8T":420,"10T":420}},{"categoria":"Accesorios","nombre":"3-Way catalyst","bandas":{"1-1.8T":1000,"2-2.5T":1000,"3-3.5T":1000,"4-mini 5T":1000,"5-6T":1000,"7T":1000,"CQD":0,"3-Wheel":0}},{"categoria":"Accesorios","nombre":"Particle purifier","bandas":{"1-1.8T":1000,"2-2.5T":1000,"3-3.5T":1000,"4-mini 5T":1000,"5-6T":1000,"7T":1000,"8T":1000,"10T":1000}},{"categoria":"Accesorios","nombre":"Oil-bath cleaner for R series","bandas":{"1-1.8T":70,"2-2.5T":70,"3-3.5T":70,"4-mini 5T":110,"5-6T":130,"7T":130,"8T":130,"10T":130,"CQD":0,"3-Wheel":0}},{"categoria":"Accesorios","nombre":"Upper air cleaner for R series","bandas":{"1-1.8T":90,"2-2.5T":90,"3-3.5T":90,"4-mini 5T":90,"5-6T":130,"7T":130,"8T":130,"10T":130,"CQD":0,"3-Wheel":0,"12T/14T/mini 16T":190,"14T/16T Std.":190,"A16T-18T":190}},{"categoria":"Accesorios","nombre":"LPG swing-down bracket","bandas":{"1-1.8T":70,"2-2.5T":70,"3-3.5T":70,"4-mini 5T":80,"5-6T":0,"7T":0,"8T":0,"10T":0,"CQD":0,"3-Wheel":0}},{"categoria":"Accesorios","nombre":"LPG back rotated bracket","bandas":{"1-1.8T":70,"2-2.5T":70,"3-3.5T":70,"4-mini 5T":80}},{"categoria":"Accesorios","nombre":"Double LPG bracket","bandas":{"5-6T":130,"7T":130}},{"categoria":"Accesorios","nombre":"Upper-positioned exhaust pipe","bandas":{"1-1.8T":110,"2-2.5T":110,"3-3.5T":110,"4-mini 5T":110,"5-6T":110,"7T":110,"8T":110,"10T":110,"CQD":0,"3-Wheel":0}},{"categoria":"Accesorios","nombre":"Middle-positioned exhaust pipe","bandas":{"1-1.8T":70,"2-2.5T":70,"3-3.5T":70,"4-mini 5T":70,"5-6T":0,"7T":0,"8T":0,"10T":0,"CQD":0,"3-Wheel":0}},{"categoria":"Accesorios","nombre":"Sparkle-arrest","bandas":{"1-1.8T":40,"2-2.5T":40,"3-3.5T":40,"4-mini 5T":40,"5-6T":40,"7T":40,"8T":40,"10T":40,"CQD":0,"3-Wheel":0,"12T/14T/mini 16T":40}},{"categoria":"Accesorios","nombre":"Fire extinguisher","bandas":{"1-1.8T":50,"2-2.5T":50,"3-3.5T":50,"4-mini 5T":50,"5-6T":50,"7T":50,"8T":50,"10T":50,"CQD":0,"3-Wheel":0}},{"categoria":"Accesorios","nombre":"Counterbalance net","bandas":{"1-1.8T":30,"2-2.5T":30,"3-3.5T":30,"4-mini 5T":30,"5-6T":30,"7T":30,"8T":30,"10T":30,"CQD":0,"3-Wheel":0}},{"categoria":"Accesorios","nombre":"Camera for Reach truck","bandas":{"CQD":950}},{"categoria":"Accesorios","nombre":"Lifting height digital screen for Reach truck","bandas":{"CQD":1370}},{"categoria":"Accesorios","nombre":"lifting height limitation","bandas":{"CQD":530}},{"categoria":"Accesorios","nombre":"lifting height selection system","bandas":{"CQD":720}},{"categoria":"Accesorios","nombre":"Glass overhead","bandas":{"CQD":130}},{"categoria":"Accesorios","nombre":"Single fork positioner in Hydraulic type","bandas":{"12T/14T/mini 16T":1350}},{"categoria":"Accesorios","nombre":"Rear view camera","bandas":{"12T/14T/mini 16T":460}},{"categoria":"Accesorios","nombre":"Clean control indicator in filter","bandas":{"1-1.8T":10,"2-2.5T":10,"3-3.5T":10,"5-6T":10,"7T":10,"8T":10,"10T":10}},{"categoria":"Accesorios","nombre":"Dust proof for engine radiator","bandas":{"1-1.8T":20,"2-2.5T":20,"3-3.5T":20,"4-mini 5T":20,"5-6T":20,"7T":20,"8T":20,"10T":20}},{"categoria":"Accesorios","nombre":"Protective hood for chassis","bandas":{"1-1.8T":90,"2-2.5T":90,"3-3.5T":90}},{"categoria":"Accesorios","nombre":"AKEBONO brake system","bandas":{"4-mini 5T":850,"5-6T":850,"7T":850}},{"categoria":"Accesorios","nombre":"Return oil strainer for IC truck","bandas":{"1-1.8T":30,"2-2.5T":30,"3-3.5T":30,"4-mini 5T":30,"5-6T":30,"7T":30,"8T":30,"10T":30}},{"categoria":"Accesorios","nombre":"Overspeed alarm","bandas":{"1-1.8T":150,"2-2.5T":150,"3-3.5T":150}},{"categoria":"Accesorios","nombre":"Lateral battery extraction for A series 4-wheel truck","bandas":{"1-1.8T":240,"2-2.5T":240,"3-3.5T":240}},{"categoria":"Accesorios","nombre":"Lateral battery extraction for A series 3-wheel truck","bandas":{"3-Wheel":240}},{"categoria":"Accesorios","nombre":"Wheelbarrow","bandas":{"1-1.8T":60,"2-2.5T":60,"3-3.5T":60,"3-Wheel":60}},{"categoria":"Accesorios","nombre":"Lateral battery extraction and wheelbarrow for reach truck","bandas":{"CQD":270}},{"categoria":"Accesorios","nombre":"Lateral battery extraction and wheelbarrow for rear driving 3-wheel truck","bandas":{"3-Wheel":340}},{"categoria":"Accesorios","nombre":"Higher OHG with suspension seat","bandas":{"1-1.8T":30,"2-2.5T":30,"3-3.5T":30,"4-mini 5T":30,"5-6T":30,"7T":30,"8T":30,"10T":30}},{"categoria":"Accesorios","nombre":"Wet-disc brake","bandas":{"4-mini 5T":580,"5-6T":660,"7T":660,"8T":800,"10T":800}},{"categoria":"Accesorios","nombre":"Port transmission","bandas":{"5-6T":280,"7T":280,"8T":280,"10T":280}},{"categoria":"Accesorios","nombre":"Double sound insulating padding","bandas":{"1-1.8T":70,"2-2.5T":70,"3-3.5T":70,"4-mini 5T":110,"5-6T":110,"7T":110,"8T":130,"10T":130}},{"categoria":"Accesorios","nombre":"REAR HANDLE WITH HORN","bandas":{"1-1.8T":20,"2-2.5T":20,"3-3.5T":20}},{"categoria":"Accesorios","nombre":"Tools set","bandas":{"1-1.8T":28,"2-2.5T":28,"3-3.5T":28,"4-mini 5T":28,"5-6T":28,"7T":28,"8T":28,"10T":28,"CQD":28,"3-Wheel":28,"12T/14T/mini 16T":28,"14T/16T Std.":28,"A16T-18T":28}},{"categoria":"Accesorios","nombre":"Hangcha Work Suit","bandas":{"1-1.8T":18,"2-2.5T":18,"3-3.5T":18,"4-mini 5T":18,"5-6T":18,"7T":18,"8T":18,"10T":18,"CQD":18,"3-Wheel":18,"12T/14T/mini 16T":18,"14T/16T Std.":18,"A16T-18T":18}},{"categoria":"Accesorios","nombre":"Dual Rear view mirror","bandas":{"1-1.8T":20,"2-2.5T":20,"3-3.5T":20,"4-mini 5T":20}},{"categoria":"Accesorios","nombre":"Protecting rod for control valve","bandas":{"1-1.8T":20,"2-2.5T":0,"3-3.5T":0,"4-mini 5T":0,"5-6T":0,"7T":0,"8T":0,"10T":0,"CQD":0,"3-Wheel":0}},{"categoria":"Accesorios","nombre":"BF5 full suspention seat","bandas":{"1-1.8T":70}},{"categoria":"Accesorios","nombre":"BF5 full suspention seat with switch and belt","bandas":{"1-1.8T":100}},{"categoria":"Accesorios","nombre":"MSG65/531 seat with armset","bandas":{"1-1.8T":280}},{"categoria":"Accesorios","nombre":"SC24 full-suspension seat with armset and switch","bandas":{"1-1.8T":90}},{"categoria":"Accesorios","nombre":"Operator presence system(OPS) for IC","bandas":{"1-1.8T":210}},{"categoria":"Accesorios","nombre":"OPS for electric forklift","bandas":{"1-1.8T":130}},{"categoria":"Accesorios","nombre":"S85/90 seat","bandas":{"1-1.8T":30,"2-2.5T":0,"3-3.5T":0,"4-mini 5T":0,"5-6T":0,"7T":0,"8T":0,"10T":0,"CQD":0,"3-Wheel":0}},{"categoria":"Accesorios","nombre":"S85/90 seat with armset","bandas":{"1-1.8T":40,"2-2.5T":0,"3-3.5T":0,"4-mini 5T":0,"5-6T":0,"7T":0,"8T":0,"10T":0,"CQD":0,"3-Wheel":0}},{"categoria":"Accesorios","nombre":"S85/90 Seat with belt","bandas":{"1-1.8T":40,"2-2.5T":0,"3-3.5T":0,"4-mini 5T":0,"5-6T":0,"7T":0,"8T":0,"10T":0,"CQD":0,"3-Wheel":0}},{"categoria":"Accesorios","nombre":"S85/90 Folding Seat with belt","bandas":{"1-1.8T":50,"2-2.5T":0,"3-3.5T":0,"4-mini 5T":0,"5-6T":0,"7T":0,"8T":0,"10T":0,"CQD":0,"3-Wheel":0}},{"categoria":"Accesorios","nombre":"S85/90 with armset and switch","bandas":{"1-1.8T":60}},{"categoria":"Accesorios","nombre":"S85/90 Folding seat with armset","bandas":{"1-1.8T":70}},{"categoria":"Accesorios","nombre":"GS12 seat","bandas":{"1-1.8T":50,"2-2.5T":0,"3-3.5T":0,"4-mini 5T":0,"5-6T":0,"7T":0,"8T":0,"10T":0,"CQD":0,"3-Wheel":0}},{"categoria":"Accesorios","nombre":"GS12 seat with armset","bandas":{"1-1.8T":70,"2-2.5T":0,"3-3.5T":0,"4-mini 5T":0,"5-6T":0,"7T":0,"8T":0,"10T":0,"CQD":0,"3-Wheel":0}},{"categoria":"Accesorios","nombre":"GS12 seat with switch","bandas":{"1-1.8T":60,"2-2.5T":0,"3-3.5T":0,"4-mini 5T":0,"5-6T":0,"7T":0,"8T":0,"10T":0,"CQD":0,"3-Wheel":0}},{"categoria":"Accesorios","nombre":"GS12 with armset and switch","bandas":{"1-1.8T":80,"2-2.5T":0,"3-3.5T":0,"4-mini 5T":0,"5-6T":0,"7T":0,"8T":0,"10T":0,"CQD":0,"3-Wheel":0}},{"categoria":"Accesorios","nombre":"GRAMMER MFA Fingtip control","bandas":{"1-1.8T":1860,"2-2.5T":1860,"3-3.5T":1860,"4-mini 5T":1860,"3-Wheel":1860}},{"categoria":"Accesorios","nombre":"Rear working light","bandas":{"1-1.8T":50,"2-2.5T":50,"3-3.5T":50,"4-mini 5T":50}},{"categoria":"Accesorios","nombre":"Bule LED light","bandas":{"1-1.8T":40,"2-2.5T":40,"3-3.5T":40}},{"categoria":"Mástiles (apiladores)","nombre":"Mástil - Mini range (CDD10/12-AMC1-SZ)","bandas":{"2.0m":0,"2.5m":0,"2.7m":0,"3m":0,"3.3m":120,"3.5m":180,"3.6m":200}},{"categoria":"Mástiles (apiladores)","nombre":"Mástil - Basic Range (CDD12/14/16-AEC1(S)) - 1 cilindro simple","bandas":{"2.0m":0,"2.5m":0,"2.7m":0,"3m":65,"3.3m":95,"3.5m":160,"3.6m":170}},{"categoria":"Mástiles (apiladores)","nombre":"Mástil - Basic Range (CDD12/14/16-AEC1(S)) - 2 cilindros dúplex","bandas":{"2.0m":285,"2.5m":295,"2.7m":330,"3m":360,"3.3m":380,"3.5m":410,"3.6m":420,"3.8m":430,"4.0m":440,"4.3m":520,"4.5M":550}},{"categoria":"Mástiles (apiladores)","nombre":"Mástil - Basic Range (CDD12/14/16-AEC1(S)) - full free dúplex","bandas":{"2.0m":440,"2.5m":440,"2.7m":450,"3m":460,"3.3m":510,"3.5m":530,"3.6m":540}},{"categoria":"Mástiles (apiladores)","nombre":"Mástil - Hi Range (CDD12/14/16/20-AC1(S)) - 2 cilindros dúplex","bandas":{"2.0m":0,"2.5m":0,"2.7m":0,"3m":75,"3.3m":120,"3.5m":190,"3.6m":200,"3.8m":240,"4.0m":290,"4.3m":370,"4.5M":390}},{"categoria":"Mástiles (apiladores)","nombre":"Mástil - Hi Range (CDD12/14/16/20-AC1(S)) - full free dúplex","bandas":{"2.0m":290,"2.5m":300,"2.7m":310,"3m":330,"3.3m":360,"3.5m":370,"3.6m":380}},{"categoria":"Mástiles (apiladores)","nombre":"Mástil - Basic Range (CDD12/14/16-AEC1(S)) - full free tríplex","bandas":{"3.5m":590,"3.7m":610,"4.0m":650,"4.3m":730,"4.5M":800}},{"categoria":"Mástiles (apiladores)","nombre":"Mástil - Hi Range (CDD12/14/16/20-AC1(S)) - full free tríplex","bandas":{"3.5m":440,"3.6m":450,"3.7m":460,"4.0m":510,"4.3m":580,"4.5M":660,"4.7M":690,"5.0M":730,"5.2M":760,"5.5M":800,"6.0M":1070}}]};
+
+  (function cargarListaPreciosRemota(){
+    fetch(GH_RAW_ROOT + '/data/lista-precios.json')
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if(data && Array.isArray(data.modelos) && Array.isArray(data.accesorios)){
+          LISTA_PRECIOS = data;
+        }
+      })
+      .catch(()=>{ /* seguimos con la lista embebida por defecto */ });
+  })();
+
+  // Biblioteca de fichas técnicas guardadas por modelo (se completa con el botón "Guardar ficha")
+  let BIBLIOTECA_FICHAS = [];
+  (function cargarBibliotecaFichasRemota(){
+    fetch(GH_RAW_ROOT + '/data/fichas-modelos.json')
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if(Array.isArray(data)) BIBLIOTECA_FICHAS = data;
+      })
+      .catch(()=>{ /* todavía no hay ninguna guardada */ });
+  })();
+  function normalizarModelo(s){
+    return String(s || '').trim().toLowerCase();
+  }
+  function buscarFichaGuardada(modelo){
+    const clave = normalizarModelo(modelo);
+    if(!clave) return null;
+    return BIBLIOTECA_FICHAS.find(f => normalizarModelo(f.modelo) === clave) || null;
+  }
+
+  const CATEGORIAS = {
+    autoelevador_electrico: {
+      nombre: 'Autoelevador Eléctrico',
+      modeloPlaceholder: 'Ej: CPD25-XAJ4-I',
+      campos: [
+        {id:'bateria', label:'Batería', placeholder:'Litio 80V 230 Ah'},
+        {id:'capacidad', label:'Capacidad de carga nominal', placeholder:'2.500 Kg a 500 mm del c.d.c.'},
+        {id:'torre', label:'Torre / Mástil', placeholder:'Triple containera 4.500 mm'},
+        {id:'desplazador', label:'Desplazador lateral', placeholder:'Marca Cascade'},
+        {id:'horquillas', label:'Horquillas', placeholder:'Marca Cascade'}
+      ],
+      extrasDefault: 'Espejo retrovisor interno.\nLuces de tránsito full LED.\nAlarma sonora de retroceso.\nBaliza de techo LED.\nBocina + alfombra antideslizante + estribos y pasamanos de acceso.\nTecho protector construido según normas de seguridad.\nParrilla soporte de cargas.\nOPS (Sistema de presencia de operador).\nCubiertas: Del: 700x12 Tras: 600x9.'
+    },
+    autoelevador_diesel: {
+      nombre: 'Autoelevador Diésel / GLP',
+      modeloPlaceholder: 'Ej: CPCD25-A',
+      campos: [
+        {id:'motor', label:'Motor', placeholder:'Diésel Xinchai, 4 cilindros, refrigerado por agua'},
+        {id:'capacidad', label:'Capacidad de carga nominal', placeholder:'1.500 a 3.800 kg, centro de carga 500 mm'},
+        {id:'mastil', label:'Mástil', placeholder:'Alta visibilidad, doble 3.0 mts'},
+        {id:'desplazador', label:'Desplazador lateral', placeholder:'Hidráulico marca Cascade'},
+        {id:'horquillas', label:'Horquillas', placeholder:'Marca Cascade'}
+      ],
+      extrasDefault: 'Asiento ergonómico con amortiguación, regulable y cinturón de seguridad.\nLuces de trabajo y tránsito Full LED.\nCubiertas macizas de alta resistencia.\nDirección hidráulica asistida.\nTecho protector y parrilla porta carga.\nAlarma sonora de retroceso, bocina, espejo retrovisor y baliza LED.'
+    },
+    transpaleta: {
+      nombre: 'Transpaleta',
+      modeloPlaceholder: 'Ej: CBD15-A3MC2-I',
+      campos: [
+        {id:'serie', label:'Serie', placeholder:'A3MC2-I series'},
+        {id:'bateria', label:'Batería', placeholder:'Litio'},
+        {id:'capacidad', label:'Capacidad de carga nominal', placeholder:'1.500 Kg a 500 mm del c.d.c.'},
+        {id:'ruedas', label:'Ruedas', placeholder:'PU Tyres'}
+      ],
+      extrasDefault: 'Indicador de batería multifunción.\nCargador incorporado.\nBotones + sistemas de seguridad integrados.'
+    },
+    apilador: {
+      nombre: 'Apilador',
+      modeloPlaceholder: 'Ej: CDD15-WS-I',
+      campos: [
+        {id:'serie', label:'Serie', placeholder:'WS series'},
+        {id:'bateria', label:'Batería', placeholder:'Litio'},
+        {id:'capacidad', label:'Capacidad de carga nominal', placeholder:'1.500 Kg a 500 mm del c.d.c.'},
+        {id:'torre', label:'Torre', placeholder:'Doble 3.0 mts'},
+        {id:'horquillas', label:'Horquillas', placeholder:'STD 1150 mm'}
+      ],
+      extrasDefault: 'PU Tyres.\nIndicador de batería multifunción.\nCargador incluido.'
+    },
+    reach: {
+      nombre: 'Reach Truck',
+      modeloPlaceholder: 'Ej: CQD20',
+      campos: [
+        {id:'capacidad', label:'Capacidad nominal', placeholder:'1.800 kg'},
+        {id:'centrocarga', label:'Centro de carga', placeholder:'500 mm'},
+        {id:'altura', label:'Altura de elevación', placeholder:'3.0 a 12.5 m según mástil'},
+        {id:'operador', label:'Tipo de operador', placeholder:'Hombre a bordo (de pie)'},
+        {id:'bateria', label:'Batería', placeholder:'48V, 280-500 Ah'},
+        {id:'velTraslacion', label:'Velocidad de traslación', placeholder:'Hasta 10.2 km/h'},
+        {id:'velElevacion', label:'Velocidad de elevación', placeholder:'Hasta 530 mm/s'},
+        {id:'radioGiro', label:'Radio de giro', placeholder:'1.735–1.750 mm'}
+      ],
+      extrasDefault: 'Desplazador lateral (Side Shift).\nTecho panorámico de alta visibilidad, luces LED.\nIndicador digital de batería y horas de trabajo.\nBotón de paro de emergencia y sistema de seguridad del operador.'
+    },
+    tijera: {
+      nombre: 'Tijera Elevadora Eléctrica',
+      modeloPlaceholder: 'Ej: X100XEN',
+      campos: [
+        {id:'capMax', label:'Capacidad máxima de carga', placeholder:'450 kg'},
+        {id:'capExt', label:'Capacidad de carga en extensión', placeholder:'113 kg'},
+        {id:'alturaTrabajo', label:'Altura máxima de trabajo', placeholder:'10 m'},
+        {id:'alturaPlataforma', label:'Altura máxima de plataforma', placeholder:'8 m'},
+        {id:'bateria', label:'Batería', placeholder:'24V / 290Ah libre de mantenimiento'},
+        {id:'motor', label:'Motor', placeholder:'JXQD-3.5-NG de 3,5 kW'},
+        {id:'velocidad', label:'Velocidad de desplazamiento', placeholder:'0–3,5 km/h'},
+        {id:'pendiente', label:'Pendiente máxima superable', placeholder:'25%'},
+        {id:'peso', label:'Peso operativo', placeholder:'2.310 kg'}
+      ],
+      extrasDefault: 'Sensor de nivelación automática con alarma de inclinación.\nSistema anti vuelco automático.\nVálvula manual de descenso de emergencia.\nSistema hidráulico y eléctrico sellado IP67.\nCargador incorporado.'
+    },
+    fregadora: {
+      nombre: 'Fregadora de Pisos',
+      modeloPlaceholder: 'Ej: R50 (JSXD50-RC9-I)',
+      campos: [
+        {id:'tipo', label:'Tipo', placeholder:'Operador a pie, tracción 100% eléctrica'},
+        {id:'rendimiento', label:'Rendimiento teórico', placeholder:'2.600 m²/h'},
+        {id:'bateria', label:'Batería', placeholder:'24V / 60Ah litio'},
+        {id:'anchoTrabajo', label:'Ancho de trabajo (cepillo)', placeholder:'500 mm'},
+        {id:'anchoBoquilla', label:'Ancho de boquilla de secado', placeholder:'805 mm'},
+        {id:'tanqueLimpia', label:'Tanque de agua limpia', placeholder:'50 L'},
+        {id:'tanqueSucia', label:'Tanque de recuperación', placeholder:'50 L'},
+        {id:'autonomia', label:'Autonomía', placeholder:'~2 horas'},
+        {id:'tiempoCarga', label:'Tiempo de carga', placeholder:'4 a 5 horas'},
+        {id:'peso', label:'Peso', placeholder:'100 kg'}
+      ],
+      extrasDefault: 'Cargador integrado.\nSistema de limpieza: cepillo rotativo con aspiración y secado simultáneo.\nUso recomendado: depósitos, industrias, supermercados, hospitales, centros comerciales.'
+    },
+    barredora: {
+      nombre: 'Barredora',
+      modeloPlaceholder: 'Ej: B1250 / B1350',
+      campos: [
+        {id:'anchoBarrido', label:'Ancho de barrido', placeholder:'1250 mm'},
+        {id:'capResiduos', label:'Capacidad de residuos', placeholder:'80 L'},
+        {id:'bateria', label:'Batería', placeholder:'Gel 48V'},
+        {id:'autonomia', label:'Autonomía', placeholder:'4–6 horas'},
+        {id:'rendimiento', label:'Rendimiento', placeholder:'6000–7000 m²/h'}
+      ],
+      extrasDefault: 'Sistema de barrido + aspiración de polvo.\nCepillos laterales dobles.\nTracción eléctrica autopropulsada, cero emisiones.\nIluminación LED.\nApta para superficies industriales.'
+    },
+    otro: {
+      nombre: 'Otro / Personalizado',
+      modeloPlaceholder: 'Ej: Modelo del equipo',
+      campos: [],
+      extrasDefault: ''
+    }
+  };
+
+  let fichaUrlPorNombre = {};
+  const itemsCotizacionEl = document.getElementById('itemsCotizacion');
+  const cotAgregarItemBtn = document.getElementById('cotAgregarItem');
+  let itemsCotizacion = [ { desc:'', precio:'', iva:'10.5' } ];
+
+  // Fábrica de controladores de "Equipo" (categoría + modelo + ficha técnica). Se usa una vez
+  // para el Equipo 1 (sufijo '') y, si el usuario lo pide, una segunda vez para el Equipo 2
+  // (sufijo '2'), reutilizando los mismos ids con el sufijo agregado en el HTML.
+  function crearProductoController(sufijo){
+    const categoriaEl = document.getElementById('cotCategoria' + sufijo);
+    const modeloEl = document.getElementById('cotModelo' + sufijo);
+    const fichaSelectEl = document.getElementById('cotFichaSelect' + sufijo);
+    const camposCategoriaEl = document.getElementById('camposCategoria' + sufijo);
+    const extrasEl = document.getElementById('cotExtras' + sufijo);
+    const buscarFichaBtn = document.getElementById('cotBuscarFichaGuardada' + sufijo);
+    const fichaGuardadaEstadoEl = document.getElementById('cotFichaGuardadaEstado' + sufijo);
+    const guardarFichaBtn = document.getElementById('cotGuardarFicha' + sufijo);
+    const guardarFichaEstadoEl = document.getElementById('cotGuardarFichaEstado' + sufijo);
+
+    let camposValoresPorCategoria = {};
+    let autoguardadoTimer = null;
+    let ultimoModeloAutocargado = '';
+
+    Object.keys(CATEGORIAS).forEach(key=>{
+      const opt = document.createElement('option');
+      opt.value = key;
+      opt.textContent = CATEGORIAS[key].nombre;
+      categoriaEl.appendChild(opt);
+    });
+
+    function renderCampos(){
+      const cat = CATEGORIAS[categoriaEl.value];
+      modeloEl.placeholder = cat.modeloPlaceholder;
+      camposCategoriaEl.innerHTML = '';
+      const guardados = camposValoresPorCategoria[categoriaEl.value] || {};
+      cat.campos.forEach(campo=>{
+        const div = document.createElement('div');
+        div.className = 'field';
+        div.innerHTML = `<label for="camp_${campo.id}${sufijo}">${campo.label}</label>
+          <input type="text" id="camp_${campo.id}${sufijo}" data-campo="${campo.id}" placeholder="${campo.placeholder}" value="${guardados[campo.id] || ''}">`;
+        camposCategoriaEl.appendChild(div);
+      });
+      camposCategoriaEl.querySelectorAll('input').forEach(inp=>{
+        inp.addEventListener('input', ()=>{
+          if(!camposValoresPorCategoria[categoriaEl.value]) camposValoresPorCategoria[categoriaEl.value] = {};
+          camposValoresPorCategoria[categoriaEl.value][inp.dataset.campo] = inp.value;
+          programarAutoguardado();
+        });
+      });
+      if(!extrasEl.dataset.editadoManual || extrasEl.dataset.categoriaActual !== categoriaEl.value){
+        extrasEl.value = cat.extrasDefault;
+        extrasEl.dataset.categoriaActual = categoriaEl.value;
+        extrasEl.dataset.editadoManual = '';
+      }
+    }
+
+    // Busca una ficha guardada para el modelo actual y completa categoría/campos/extras.
+    // silencioso=true no muestra mensaje si no encuentra nada (se usa en el autocompletado automático).
+    function autocompletarDesdeFicha(silencioso){
+      const modelo = modeloEl.value.trim();
+      if(!modelo){
+        if(!silencioso) fichaGuardadaEstadoEl.textContent = 'Escribí un modelo para buscar.';
+        return;
+      }
+      const encontrada = buscarFichaGuardada(modelo);
+      if(!encontrada){
+        if(!silencioso) fichaGuardadaEstadoEl.textContent = `No hay ninguna ficha guardada para "${modelo}" todavía.`;
+        return;
+      }
+      ultimoModeloAutocargado = normalizarModelo(modelo);
+      if(encontrada.categoria && CATEGORIAS[encontrada.categoria]){
+        categoriaEl.value = encontrada.categoria;
+        renderCampos();
+      }
+      if(!camposValoresPorCategoria[categoriaEl.value]) camposValoresPorCategoria[categoriaEl.value] = {};
+      Object.keys(encontrada.campos || {}).forEach(id=>{
+        camposValoresPorCategoria[categoriaEl.value][id] = encontrada.campos[id];
+        const inp = document.getElementById('camp_' + id + sufijo);
+        if(inp) inp.value = encontrada.campos[id];
+      });
+      if(typeof encontrada.extras === 'string'){
+        extrasEl.value = encontrada.extras;
+        extrasEl.dataset.editadoManual = '1';
+        extrasEl.dataset.categoriaActual = categoriaEl.value;
+      }
+      fichaGuardadaEstadoEl.textContent = `✔ Ficha de "${encontrada.modelo}" cargada${encontrada.fecha ? ' (guardada el ' + encontrada.fecha + ')' : ''}. Podés editarla y se actualiza sola.`;
+    }
+
+    // Guarda en la biblioteca (y en GitHub) los campos + extras actuales para el modelo tipeado.
+    // silencioso=true se usa en el autoguardado: no muestra "escribí el modelo" ni errores de token a los gritos.
+    async function guardarFichaEnBiblioteca(silencioso){
+      const modelo = modeloEl.value.trim();
+      if(!modelo){
+        if(!silencioso) guardarFichaEstadoEl.textContent = 'Escribí el modelo antes de guardar la ficha.';
+        return;
+      }
+      if(!ghToken){
+        if(!silencioso) guardarFichaEstadoEl.textContent = 'Necesitás cargar el token de GitHub (panel de administración de Fichas Técnicas) para poder guardar.';
+        return;
+      }
+      const campos = {};
+      camposCategoriaEl.querySelectorAll('input[data-campo]').forEach(inp=>{
+        campos[inp.dataset.campo] = inp.value;
+      });
+      const nuevaEntrada = {
+        modelo,
+        categoria: categoriaEl.value,
+        campos,
+        extras: extrasEl.value,
+        fecha: new Date().toLocaleDateString('es-AR')
+      };
+      const clave = normalizarModelo(modelo);
+      const idxExistente = BIBLIOTECA_FICHAS.findIndex(f => normalizarModelo(f.modelo) === clave);
+      if(idxExistente >= 0) BIBLIOTECA_FICHAS[idxExistente] = nuevaEntrada;
+      else BIBLIOTECA_FICHAS.push(nuevaEntrada);
+
+      guardarFichaEstadoEl.textContent = silencioso ? 'Guardando automáticamente...' : 'Guardando...';
+      const urlArchivo = `${GH_CONTENTS_ROOT}/data/fichas-modelos.json`;
+      try{
+        let sha;
+        try{
+          const metaResp = await fetch(urlArchivo, { headers: { 'Accept': 'application/vnd.github+json', 'Authorization': `Bearer ${ghToken}` } });
+          if(metaResp.ok){ const meta = await metaResp.json(); sha = meta.sha; }
+        }catch(e){ /* si falla, intentamos crear el archivo sin sha */ }
+
+        const body = {
+          message: `Actualiza ficha guardada de modelo ${modelo}`,
+          content: utf8ToBase64(JSON.stringify(BIBLIOTECA_FICHAS, null, 2)),
+          branch: GH_BRANCH
+        };
+        if(sha) body.sha = sha;
+
+        const resp = await fetch(urlArchivo, {
+          method: 'PUT',
+          headers: { 'Accept': 'application/vnd.github+json', 'Authorization': `Bearer ${ghToken}` },
+          body: JSON.stringify(body)
+        });
+        if(!resp.ok) throw new Error('No se pudo guardar en GitHub (revisá el token).');
+        ultimoModeloAutocargado = clave;
+        guardarFichaEstadoEl.textContent = silencioso
+          ? `✔ Guardado automáticamente para "${modelo}".`
+          : `✔ Ficha de "${modelo}" guardada. La próxima vez que cotices este modelo, se autocompleta sola.`;
+      }catch(err){
+        guardarFichaEstadoEl.textContent = 'Error al guardar la ficha: ' + err.message;
+      }
+    }
+
+    // Autoguardado con demora: cada vez que se toca un campo o el texto de extras, se espera 2s de
+    // inactividad y se guarda solo (sin que el vendedor tenga que acordarse de tocar "Guardar ficha").
+    function programarAutoguardado(){
+      if(!modeloEl.value.trim() || !ghToken) return;
+      if(autoguardadoTimer) clearTimeout(autoguardadoTimer);
+      autoguardadoTimer = setTimeout(()=>{ guardarFichaEnBiblioteca(true); }, 2000);
+    }
+
+    extrasEl.addEventListener('input', ()=>{
+      extrasEl.dataset.editadoManual = '1';
+      programarAutoguardado();
+    });
+    categoriaEl.addEventListener('change', renderCampos);
+    renderCampos();
+
+    // Al elegir una ficha PDF ya cargada, solo completa el Modelo si todavía está vacío:
+    // así no pisa un modelo que el vendedor ya tipeó (ej: un PDF general "Equipos de limpieza"
+    // que sirve para varios modelos distintos).
+    fichaSelectEl.addEventListener('change', ()=>{
+      if(fichaSelectEl.value && !modeloEl.value.trim()){
+        modeloEl.value = fichaSelectEl.value;
+        autocompletarDesdeFicha(true);
+      }
+    });
+
+    // Autocompletado automático: al salir del campo Modelo (o al elegir una ficha PDF que sí
+    // completó el modelo), si existe una ficha guardada para ese modelo se carga sola.
+    modeloEl.addEventListener('change', ()=>{
+      const clave = normalizarModelo(modeloEl.value);
+      if(clave && clave !== ultimoModeloAutocargado) autocompletarDesdeFicha(true);
+    });
+
+    if(buscarFichaBtn){
+      buscarFichaBtn.addEventListener('click', ()=> autocompletarDesdeFicha(false));
+    }
+
+    if(guardarFichaBtn){
+      guardarFichaBtn.addEventListener('click', ()=> guardarFichaEnBiblioteca(false));
+    }
+
+    return {
+      categoriaEl, modeloEl, fichaSelectEl, extrasEl,
+      getCategoria: () => CATEGORIAS[categoriaEl.value],
+      getModelo: () => modeloEl.value.trim(),
+      getCamposHtml: () => {
+        const cat = CATEGORIAS[categoriaEl.value];
+        return cat.campos
+          .map(c => { const v = (document.getElementById('camp_'+c.id+sufijo) || {}).value; return v ? `<li>${c.label}: ${v}</li>` : ''; })
+          .join('');
+      },
+      getExtrasHtml: () => nl2li(extrasEl.value),
+      getFichaLink: () => (fichaSelectEl.value && fichaUrlPorNombre[fichaSelectEl.value])
+        ? { nombre: fichaSelectEl.value, url: fichaUrlPorNombre[fichaSelectEl.value] }
+        : null
+    };
+  }
+
+  const producto1 = crearProductoController('');
+  let producto2 = null;
+  const cotAgregarProducto2Btn = document.getElementById('cotAgregarProducto2');
+  const producto2ContainerEl = document.getElementById('producto2Container');
+  const cotQuitarProducto2Btn = document.getElementById('cotQuitarProducto2');
+
+  function producto2Activo(){
+    return !!producto2 && producto2ContainerEl.style.display !== 'none';
+  }
+
+  cotAgregarProducto2Btn.addEventListener('click', ()=>{
+    if(!producto2) producto2 = crearProductoController('2');
+    producto2ContainerEl.style.display = '';
+    cotAgregarProducto2Btn.style.display = 'none';
+  });
+  cotQuitarProducto2Btn.addEventListener('click', ()=>{
+    producto2ContainerEl.style.display = 'none';
+    cotAgregarProducto2Btn.style.display = '';
+  });
+
+  function renderItemsCotizacion(){
+    itemsCotizacionEl.innerHTML = '';
+    itemsCotizacion.forEach((item, idx)=>{
+      if(item.iva === undefined) item.iva = '10.5';
+      const div = document.createElement('div');
+      div.className = 'item-fila';
+      div.innerHTML = `
+        <input type="text" class="item-desc" placeholder="Descripción del ítem" value="${item.desc}">
+        <input type="text" class="item-precio" inputmode="decimal" placeholder="USD" value="${item.precio}">
+        <select class="item-iva">
+          <option value="10.5"${item.iva==='10.5'?' selected':''}>10,5%</option>
+          <option value="21"${item.iva==='21'?' selected':''}>21%</option>
+        </select>
+        <button type="button" class="item-quitar" title="Quitar">✕</button>
+      `;
+      const descInp = div.querySelector('.item-desc');
+      const precioInp = div.querySelector('.item-precio');
+      const ivaSel = div.querySelector('.item-iva');
+      const quitarBtn = div.querySelector('.item-quitar');
+      descInp.addEventListener('input', ()=>{ itemsCotizacion[idx].desc = descInp.value; });
+      precioInp.addEventListener('input', ()=>{ itemsCotizacion[idx].precio = precioInp.value; });
+      ivaSel.addEventListener('change', ()=>{ itemsCotizacion[idx].iva = ivaSel.value; });
+      quitarBtn.addEventListener('click', ()=>{
+        if(itemsCotizacion.length === 1) return;
+        itemsCotizacion.splice(idx,1);
+        renderItemsCotizacion();
+      });
+      itemsCotizacionEl.appendChild(div);
+    });
+  }
+  cotAgregarItemBtn.addEventListener('click', ()=>{
+    itemsCotizacion.push({ desc:'', precio:'', iva: document.getElementById('cotIvaGlobal').value });
+    renderItemsCotizacion();
+  });
+  document.getElementById('cotAplicarIvaTodos').addEventListener('click', ()=>{
+    const valor = document.getElementById('cotIvaGlobal').value;
+    itemsCotizacion.forEach(it => it.iva = valor);
+    renderItemsCotizacion();
+  });
+  renderItemsCotizacion();
+
+  function nl2li(texto){
+    return texto.split('\n').map(l=>l.trim()).filter(l=>l).map(l=>`<li>${l}</li>`).join('');
+  }
+
+  // Arma el bloque "Ficha técnica – Categoría Modelo" para un producto (controller de crearProductoController).
+  function renderFichaTecnicaHtml(controller){
+    const cat = controller.getCategoria();
+    const modelo = controller.getModelo();
+    const camposHtml = controller.getCamposHtml();
+    const extrasHtml = controller.getExtrasHtml();
+    const fichaLink = controller.getFichaLink();
+    return `
+      <h2>Ficha técnica – ${cat.nombre}${modelo ? ' ' + modelo : ''}</h2>
+      <ul>
+        ${camposHtml}
+        ${extrasHtml}
+      </ul>
+      ${fichaLink ? `<p style="font-size:12px;color:#555;">Ficha técnica completa: <a href="${fichaLink.url}" target="_blank">${fichaLink.nombre}.pdf</a></p>` : ''}
+    `;
+  }
+
+  function generarPreview(){
+    const ref = document.getElementById('cotRef').value;
+    const ciudad = document.getElementById('cotCiudad').value.trim();
+    const cliente = document.getElementById('cotCliente').value.trim();
+    const cuit = document.getElementById('cotCuit').value.trim();
+    const validez = document.getElementById('cotValidez').value.trim();
+    const entrega = document.getElementById('cotEntrega').value.trim();
+    const lugar = document.getElementById('cotLugar').value.trim();
+    let formaPago = document.getElementById('cotFormaPago').value.trim();
+    const vendedorNombre = document.getElementById('cotVendedorNombre').value.trim();
+    const vendedorTel = document.getElementById('cotVendedorTel').value.trim();
+    const vendedorEmail = document.getElementById('cotVendedorEmail').value.trim();
+
+    const fecha = new Date().toLocaleDateString('es-AR', { day:'numeric', month:'long', year:'numeric' });
+
+    const fichasTecnicasHtml = renderFichaTecnicaHtml(producto1) + (producto2Activo() ? renderFichaTecnicaHtml(producto2) : '');
+    const introEquipo = producto2Activo() ? 'los siguientes equipos' : 'el siguiente equipo';
+
+    const filasTabla = itemsCotizacion
+      .filter(it => it.desc.trim() !== '')
+      .map((it, i) => {
+        const precioNum = parseMonto(it.precio);
+        const ivaItem = (it.iva || '10.5').replace('.', ',');
+        return `<tr><td>${i+1}</td><td>${it.desc}</td><td>USD ${formatoMoneda(precioNum,'')} + IVA ${ivaItem}%</td></tr>`;
+      }).join('');
+
+    if(document.getElementById('cotIncluirBna').checked){
+      const cuota = document.getElementById('cuotaMensual').textContent;
+      const plazo = document.getElementById('plazoLabel').textContent;
+      const tna = document.getElementById('tna').value;
+      formaPago += `\nOpción BNA Conecta: ${plazo} cuotas de ${cuota} (TNA ${tna}%).`;
+    }
+    if(document.getElementById('cotIncluirCheques').checked){
+      const chequeArs = document.getElementById('chChequeARS').textContent;
+      const chequeUsd = document.getElementById('chChequeUSD').textContent;
+      const entregaArs = document.getElementById('chEntregaARS').textContent;
+      const n = document.getElementById('chCantCheques').value;
+      formaPago += `\nOpción financiación propia: entrega de ${entregaArs} + ${n} cheques de ${chequeArs} (${chequeUsd}) c/u.`;
+    }
+
+    const html = `
+      <div class="preview-logos">
+        <img class="logo-hangcha" src="assets/logo-hangcha.png" alt="Hangcha">
+        <img class="logo-pomiglio" src="assets/logo-pomiglio.png" alt="Grupo Pomiglio">
+      </div>
+      <p><strong>GRUPO POMIGLIO SRL</strong><br>30-71066861-9</p>
+      <p>${ciudad}, ${fecha}</p>
+      ${cliente ? `<p>Sr./Sres.: ${cliente}${cuit ? ' — CUIT: ' + cuit : ''}</p>` : ''}
+      <p><strong>Ref.: ${ref}</strong></p>
+      <p>De nuestra mayor consideración:</p>
+      <p>En nuestro carácter de concesionario de la Línea de equipos para manipuleo de materiales producidos por HANGCHA forklift truck, nos dirigimos a Uds., a los efectos de cotizarles ${introEquipo}.</p>
+      ${fichasTecnicasHtml}
+      <table class="preview-tabla">
+        <thead><tr><th>Item</th><th>Tipo</th><th>Precio</th></tr></thead>
+        <tbody>${filasTabla || '<tr><td colspan="3">Sin ítems cargados</td></tr>'}</tbody>
+      </table>
+      <p><strong>Oferta económica:</strong> Dólar oficial BNA al día de la facturación.</p>
+      <p><strong>Oferta comercial:</strong></p>
+      <p>Validez: ${validez}.<br>
+      Tiempo de entrega: ${entrega}.<br>
+      Lugar de entrega: ${lugar}.<br>
+      Forma de pago: ${formaPago.replace(/\n/g,'<br>')}</p>
+      <p>Nos gustaría agradecerles por la confianza y el interés depositado en Grupo POMIGLIO para la ejecución de este servicio.<br>
+      Estamos a su entera disposición para esclarecerles eventuales dudas, y reiteramos nuestro compromiso para la mejora continua de la calidad del servicio.<br>
+      Poniendo nuestra experiencia y compromiso a disposición de sus requerimientos, les saludamos cordialmente.</p>
+      <p>
+        ${vendedorNombre ? vendedorNombre + '<br>' : ''}
+        DTO. MAQUINARIAS<br>
+        Grupo POMIGLIO<br>
+        ${vendedorTel ? 'Tel.: ' + vendedorTel + '<br>' : ''}
+        ${vendedorEmail ? vendedorEmail : ''}
+      </p>
+    `;
+
+    document.getElementById('previewPage').innerHTML = html;
+    document.getElementById('previewOverlay').classList.add('activo');
+  }
+
+  document.getElementById('cotVerPreview').addEventListener('click', generarPreview);
+  document.getElementById('cotCerrarPreview').addEventListener('click', ()=>{
+    document.getElementById('previewOverlay').classList.remove('activo');
+  });
+
+  function construirMensajeWhatsapp(){
+    const cliente = document.getElementById('cotCliente').value.trim();
+    let formaPago = document.getElementById('cotFormaPago').value.trim();
+
+    if(document.getElementById('cotIncluirBna').checked){
+      const cuota = document.getElementById('cuotaMensual').textContent;
+      const plazo = document.getElementById('plazoLabel').textContent;
+      const tna = document.getElementById('tna').value;
+      formaPago += `\nOpción BNA Conecta: ${plazo} cuotas de ${cuota} (TNA ${tna}%).`;
+    }
+    if(document.getElementById('cotIncluirCheques').checked){
+      const chequeArs = document.getElementById('chChequeARS').textContent;
+      const chequeUsd = document.getElementById('chChequeUSD').textContent;
+      const entregaArs = document.getElementById('chEntregaARS').textContent;
+      const n = document.getElementById('chCantCheques').value;
+      formaPago += `\nOpción financiación propia: entrega de ${entregaArs} + ${n} cheques de ${chequeArs} (${chequeUsd}) c/u.`;
+    }
+
+    const items = itemsCotizacion.filter(it => it.desc.trim() !== '');
+    const itemsTexto = items.map(it=>{
+      const precioNum = parseMonto(it.precio);
+      const ivaItem = (it.iva || '10.5').replace('.', ',');
+      return `- ${it.desc}: USD ${formatoMoneda(precioNum,'')} + IVA ${ivaItem}%`;
+    }).join('\n');
+
+    const equipos = [producto1];
+    if(producto2Activo()) equipos.push(producto2);
+    const equiposTexto = equipos
+      .map(p => { const cat = p.getCategoria(); const modelo = p.getModelo(); return `${cat.nombre}${modelo ? ' ' + modelo : ''}`; })
+      .join(' + ');
+
+    let msg = `*Grupo Pomiglio — Cotización*\n`;
+    if(cliente) msg += `Cliente: ${cliente}\n`;
+    msg += `Equipo: ${equiposTexto}\n\n`;
+    if(itemsTexto) msg += itemsTexto + '\n\n';
+    msg += `Forma de pago: ${formaPago}\n\n`;
+    msg += `Te adjunto la cotización completa en PDF.`;
+    return msg;
+  }
+
+  function cargarLibreriaHtml2pdf(){
+    return new Promise((resolve, reject)=>{
+      if(window.html2pdf){ resolve(); return; }
+      const s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+      s.onload = () => resolve();
+      s.onerror = () => reject(new Error('No se pudo cargar el generador de PDF'));
+      document.head.appendChild(s);
+    });
+  }
+
+  async function generarBlobPdf(){
+    await cargarLibreriaHtml2pdf();
+    const elemento = document.getElementById('previewPage');
+    const opt = {
+      margin: 10,
+      filename: 'cotizacion.pdf',
+      image: { type: 'jpeg', quality: 0.95 },
+      html2canvas: { scale: 2, useCORS: true },
+      jsPDF: { unit: 'pt', format: 'a4', orientation: 'portrait' }
+    };
+    const pdfObj = await html2pdf().set(opt).from(elemento).toPdf().get('pdf');
+    return pdfObj.output('blob');
+  }
+
+  document.getElementById('cotEnviarWa').addEventListener('click', async ()=>{
+    const btn = document.getElementById('cotEnviarWa');
+    const estadoEl = document.getElementById('cotWaEstado');
+    btn.disabled = true;
+    estadoEl.textContent = 'Generando PDF...';
+    try{
+      const mensaje = construirMensajeWhatsapp();
+      const blob = await generarBlobPdf();
+      const nombreBase = [producto1.getModelo(), producto2Activo() ? producto2.getModelo() : ''].filter(Boolean).join('-') || 'equipo';
+      const nombreArchivo = 'cotizacion-' + nombreBase.replace(/[^a-z0-9-]+/gi,'_') + '.pdf';
+      const archivo = new File([blob], nombreArchivo, { type: 'application/pdf' });
+
+      if(navigator.canShare && navigator.canShare({ files: [archivo] })){
+        await navigator.share({ files: [archivo], text: mensaje, title: 'Cotización Grupo Pomiglio' });
+        estadoEl.textContent = '';
+      } else {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = nombreArchivo;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(()=>URL.revokeObjectURL(url), 5000);
+        window.open(`https://wa.me/?text=${encodeURIComponent(mensaje)}`, '_blank');
+        estadoEl.textContent = 'Se descargó el PDF y se abrió WhatsApp — adjuntá el PDF descargado al chat manualmente (tu navegador no permite adjuntarlo solo).';
+      }
+    }catch(err){
+      if(err && err.name === 'AbortError'){
+        estadoEl.textContent = '';
+      } else {
+        estadoEl.textContent = 'Error al generar/enviar: ' + (err.message || err);
+      }
+    }finally{
+      btn.disabled = false;
+    }
+  });
+
+  /* ---------- Lista de precios (modelos + accesorios) ---------- */
+  const lpModeloBuscarEl = document.getElementById('lpModeloBuscar');
+  const lpModeloResultadosEl = document.getElementById('lpModeloResultados');
+  const lpTipoPrecioEl = document.getElementById('lpTipoPrecio');
+  const lpAccBuscarEl = document.getElementById('lpAccBuscar');
+  const lpAccResultadosEl = document.getElementById('lpAccResultados');
+
+  function agregarItemCotizacion(desc, precio){
+    const ivaDefault = document.getElementById('cotIvaGlobal').value;
+    const precioTexto = numeroAFormatoInput(precio);
+    if(itemsCotizacion.length === 1 && itemsCotizacion[0].desc.trim() === '' && itemsCotizacion[0].precio === ''){
+      itemsCotizacion[0] = { desc, precio: precioTexto, iva: ivaDefault };
+    } else {
+      itemsCotizacion.push({ desc, precio: precioTexto, iva: ivaDefault });
+    }
+    renderItemsCotizacion();
+  }
+
+  function renderModelosResultados(){
+    const q = lpModeloBuscarEl.value.trim().toLowerCase();
+    if(q.length < 2){
+      lpModeloResultadosEl.innerHTML = q.length === 0 ? '' : '<div class="estado-fichas">Escribí al menos 2 letras...</div>';
+      return;
+    }
+    const tipo = lpTipoPrecioEl.value;
+    const resultados = LISTA_PRECIOS.modelos
+      .filter(m => (m.modelo + ' ' + m.clasificacion + ' ' + m.marca).toLowerCase().includes(q))
+      .slice(0, 25);
+    if(resultados.length === 0){
+      lpModeloResultadosEl.innerHTML = '<div class="estado-fichas">Sin resultados.</div>';
+      return;
+    }
+    lpModeloResultadosEl.innerHTML = '';
+    resultados.forEach(m=>{
+      const precio = tipo === 'contado' ? m.contado : m.distribuidor;
+      const div = document.createElement('div');
+      div.className = 'lp-modelo-item';
+      div.innerHTML = `
+        <span class="lp-nombre">${m.marca} ${m.modelo}<span class="lp-clase">${m.clasificacion}${m.comentarios ? ' · ' + m.comentarios : ''}</span></span>
+        <span class="lp-precio">${precio != null ? 'U$D ' + formatoMoneda(precio,'') : 's/d'}</span>
+      `;
+      div.addEventListener('click', ()=>{
+        // Completa el Equipo 1 primero; si ya tiene modelo y el Equipo 2 está activo y vacío, completa ese.
+        const destino = (producto1.getModelo() && producto2Activo() && !producto2.getModelo()) ? producto2 : producto1;
+        destino.modeloEl.value = m.modelo;
+        if(precio != null){
+          agregarItemCotizacion(`${m.marca} ${m.modelo} (${tipo === 'contado' ? 'Contado' : 'Distribuidor'})`, precio);
+        }
+      });
+      lpModeloResultadosEl.appendChild(div);
+    });
+  }
+  lpModeloBuscarEl.addEventListener('input', renderModelosResultados);
+  lpTipoPrecioEl.addEventListener('change', renderModelosResultados);
+
+  function renderAccResultados(){
+    const q = lpAccBuscarEl.value.trim().toLowerCase();
+    if(q.length < 2){
+      lpAccResultadosEl.innerHTML = q.length === 0 ? '' : '<div class="estado-fichas">Escribí al menos 2 letras...</div>';
+      return;
+    }
+    const resultados = LISTA_PRECIOS.accesorios
+      .filter(a => (a.nombre + ' ' + a.categoria).toLowerCase().includes(q))
+      .slice(0, 20);
+    if(resultados.length === 0){
+      lpAccResultadosEl.innerHTML = '<div class="estado-fichas">Sin resultados.</div>';
+      return;
+    }
+    lpAccResultadosEl.innerHTML = '';
+    resultados.forEach(a=>{
+      const div = document.createElement('div');
+      div.className = 'lp-acc-item';
+      const bandasHtml = Object.entries(a.bandas).map(([banda,precio])=>
+        `<button type="button" class="lp-banda-btn" data-nombre="${a.nombre.replace(/"/g,'&quot;')}" data-banda="${banda.replace(/"/g,'&quot;')}" data-precio="${precio}">${banda}: U$D ${formatoMoneda(precio,'')}</button>`
+      ).join('');
+      div.innerHTML = `<span class="lp-nombre">${a.nombre} <span style="font-weight:400;color:#8a97a8;">(${a.categoria})</span></span><div class="lp-bandas">${bandasHtml}</div>`;
+      lpAccResultadosEl.appendChild(div);
+    });
+    lpAccResultadosEl.querySelectorAll('.lp-banda-btn').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        agregarItemCotizacion(`${btn.dataset.nombre} (${btn.dataset.banda})`, btn.dataset.precio);
+      });
+    });
+  }
+  lpAccBuscarEl.addEventListener('input', renderAccResultados);
+
+  /* ---------- Actualizar lista de precios desde Excel ---------- */
+  const lpAdminToggleEl = document.getElementById('lpAdminToggle');
+  const lpAdminPanelEl = document.getElementById('lpAdminPanel');
+  const lpArchivoInput = document.getElementById('lpArchivo');
+  const lpSubirBtn = document.getElementById('lpSubirBtn');
+  const lpEstadoSubidaEl = document.getElementById('lpEstadoSubida');
+
+  lpAdminToggleEl.addEventListener('click', ()=>{
+    lpAdminPanelEl.classList.toggle('activo');
+  });
+
+  function cargarLibreriaXLSX(){
+    return new Promise((resolve, reject)=>{
+      if(window.XLSX){ resolve(); return; }
+      const s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+      s.onload = () => resolve();
+      s.onerror = () => reject(new Error('No se pudo cargar la librería de Excel (revisá tu conexión)'));
+      document.head.appendChild(s);
+    });
+  }
+
+  function extraerListaPrecios(wb){
+    const wsLparg = wb.Sheets['LPARG'];
+    const wsTyre = wb.Sheets['Tyre'];
+    const wsMast = wb.Sheets['Mast options'];
+    const wsOthers = wb.Sheets['Others'];
+    if(!wsLparg || !wsTyre || !wsMast || !wsOthers){
+      throw new Error('El Excel no tiene las hojas esperadas: LPARG, Tyre, Mast options, Others.');
+    }
+
+    const limpiar = s => (s === null || s === undefined) ? '' : String(s).replace(/\n/g,' ').trim();
+    const numOr = v => typeof v === 'number' ? Math.round(v*100)/100 : null;
+
+    // Modelos (LPARG)
+    const aoaLparg = XLSX.utils.sheet_to_json(wsLparg, {header:1, defval:null});
+    const modelos = [];
+    for(let r=5; r<aoaLparg.length; r++){
+      const row = aoaLparg[r] || [];
+      const [clasReal, clasPom, marca, modelo, cap, alt, motor, ruedas, fobStd, accQ, fobTotal, contado, distribuidor, comentarios] = row;
+      if(!modelo) continue;
+      modelos.push({
+        clasificacion: limpiar(clasPom) || limpiar(clasReal),
+        marca: limpiar(marca),
+        modelo: limpiar(modelo),
+        cap: cap ?? null,
+        alt: alt ?? null,
+        motor: limpiar(motor),
+        ruedas: limpiar(ruedas),
+        contado: numOr(contado),
+        distribuidor: numOr(distribuidor),
+        comentarios: limpiar(comentarios)
+      });
+    }
+    if(modelos.length === 0) throw new Error('No se encontraron modelos en la hoja LPARG (¿cambió la estructura de filas/columnas?).');
+
+    const accesorios = [];
+
+    // Neumáticos (Tyre)
+    const aoaTyre = XLSX.utils.sheet_to_json(wsTyre, {header:1, defval:null});
+    const headersTyre = (aoaTyre[1] || []).slice(1);
+    for(let r=2; r<aoaTyre.length; r++){
+      const row = aoaTyre[r] || [];
+      const nombre = row[0];
+      if(!nombre) continue;
+      const bandas = {};
+      headersTyre.forEach((h,i)=>{
+        if(!h) return;
+        const v = row[1+i];
+        if(typeof v === 'number') bandas[limpiar(h)] = numOr(v);
+      });
+      if(Object.keys(bandas).length) accesorios.push({categoria:'Neumáticos', nombre: limpiar(nombre), bandas});
+    }
+
+    // Accesorios (Others)
+    const aoaOthers = XLSX.utils.sheet_to_json(wsOthers, {header:1, defval:null});
+    const headersOthers = (aoaOthers[2] || []).slice(1);
+    for(let r=3; r<aoaOthers.length; r++){
+      const row = aoaOthers[r] || [];
+      const nombre = row[0];
+      if(!nombre) continue;
+      const bandas = {};
+      headersOthers.forEach((h,i)=>{
+        if(!h) return;
+        const v = row[1+i];
+        if(typeof v === 'number') bandas[limpiar(h)] = numOr(v);
+      });
+      if(Object.keys(bandas).length) accesorios.push({categoria:'Accesorios', nombre: limpiar(nombre), bandas});
+    }
+
+    // Mástiles de apiladores (Mast options)
+    const aoaMast = XLSX.utils.sheet_to_json(wsMast, {header:1, defval:null});
+    const gruposMast = {
+      2: 'Mini range (CDD10/12-AMC1-SZ)',
+      3: 'Basic Range (CDD12/14/16-AEC1(S)) - 1 cilindro simple',
+      4: 'Basic Range (CDD12/14/16-AEC1(S)) - 2 cilindros dúplex',
+      5: 'Basic Range (CDD12/14/16-AEC1(S)) - full free dúplex',
+      6: 'Basic Range (CDD12/14/16-AEC1(S)) - full free tríplex',
+      7: 'Hi Range (CDD12/14/16/20-AC1(S)) - 2 cilindros dúplex',
+      8: 'Hi Range (CDD12/14/16/20-AC1(S)) - full free dúplex',
+      9: 'Hi Range (CDD12/14/16/20-AC1(S)) - full free tríplex'
+    };
+    const mastAcc = {};
+    for(let r=5; r<aoaMast.length; r++){
+      const row = aoaMast[r] || [];
+      const altura = row[0];
+      if(!altura) continue;
+      Object.entries(gruposMast).forEach(([colStr,label])=>{
+        const v = row[parseInt(colStr)];
+        if(v === null || v === undefined || v === 'x' || v === 'X') return;
+        let precio = null;
+        if(v === '√' || v === 0) precio = 0;
+        else if(typeof v === 'number') precio = numOr(v);
+        if(precio === null) return;
+        if(!mastAcc[label]) mastAcc[label] = {};
+        mastAcc[label][limpiar(altura)] = precio;
+      });
+    }
+    Object.entries(mastAcc).forEach(([label,bandas])=>{
+      accesorios.push({categoria:'Mástiles (apiladores)', nombre:'Mástil - '+label, bandas});
+    });
+
+    return { modelos, accesorios };
+  }
+
+  function utf8ToBase64(str){
+    return btoa(unescape(encodeURIComponent(str)));
+  }
+
+  lpSubirBtn.addEventListener('click', async ()=>{
+    const archivo = lpArchivoInput.files[0];
+    if(!archivo){ lpEstadoSubidaEl.textContent = 'Elegí un archivo Excel primero.'; return; }
+    if(!ghToken){ lpEstadoSubidaEl.textContent = 'Cargá y guardá tu token en la pestaña Fichas Técnicas primero.'; return; }
+
+    lpSubirBtn.disabled = true;
+    lpEstadoSubidaEl.textContent = 'Leyendo Excel...';
+    try{
+      await cargarLibreriaXLSX();
+      const buffer = await archivo.arrayBuffer();
+      const wb = XLSX.read(buffer, { type: 'array' });
+      const nuevaLista = extraerListaPrecios(wb);
+
+      lpEstadoSubidaEl.textContent = `Detectados ${nuevaLista.modelos.length} modelos y ${nuevaLista.accesorios.length} accesorios. Subiendo...`;
+
+      const contenidoB64 = utf8ToBase64(JSON.stringify(nuevaLista));
+      const url = `${GH_CONTENTS_ROOT}/data/lista-precios.json`;
+
+      let sha;
+      try{
+        const metaResp = await fetch(url, { headers: { 'Accept': 'application/vnd.github+json', 'Authorization': `Bearer ${ghToken}` } });
+        if(metaResp.ok){ const meta = await metaResp.json(); sha = meta.sha; }
+      }catch(e){ /* si falla, intentamos crear el archivo sin sha */ }
+
+      const body = { message: 'Actualizar lista de precios', content: contenidoB64, branch: GH_BRANCH };
+      if(sha) body.sha = sha;
+
+      const resp = await fetch(url, {
+        method: 'PUT',
+        headers: { 'Accept': 'application/vnd.github+json', 'Authorization': `Bearer ${ghToken}` },
+        body: JSON.stringify(body)
+      });
+      if(!resp.ok){
+        const errData = await resp.json().catch(()=>({}));
+        throw new Error(errData.message || ('Error ' + resp.status));
+      }
+
+      LISTA_PRECIOS = nuevaLista;
+      renderModelosResultados();
+      renderAccResultados();
+      lpEstadoSubidaEl.textContent = `Lista actualizada: ${nuevaLista.modelos.length} modelos y ${nuevaLista.accesorios.length} accesorios. Ya está activa.`;
+      lpArchivoInput.value = '';
+    }catch(err){
+      lpEstadoSubidaEl.textContent = 'Error: ' + err.message;
+    }finally{
+      lpSubirBtn.disabled = false;
+    }
+  });
+
+  /* ---------- Fichas Técnicas ---------- */
+  if(window.pdfjsLib){
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  }
+
+  const listaFichasEl = document.getElementById('listaFichas');
+  const fichaBuscadorEl = document.getElementById('fichaBuscador');
+  const adminToggleEl = document.getElementById('adminToggle');
+  const adminPanelEl = document.getElementById('adminPanel');
+  const ghTokenInput = document.getElementById('ghToken');
+  const ghRecordarInput = document.getElementById('ghRecordar');
+  const ghGuardarTokenBtn = document.getElementById('ghGuardarToken');
+  const panelSubidaEl = document.getElementById('panelSubida');
+  const ghArchivoInput = document.getElementById('ghArchivo');
+  const ghNombreInput = document.getElementById('ghNombre');
+  const ghSubirBtn = document.getElementById('ghSubirBtn');
+  const ghEstadoSubidaEl = document.getElementById('ghEstadoSubida');
+
+  let fichasCache = [];
+  let modoAdmin = false;
+
+  if(ghToken){
+    ghTokenInput.value = ghToken;
+    ghRecordarInput.checked = true;
+    panelSubidaEl.style.display = 'block';
+  }
+
+  adminToggleEl.addEventListener('click', ()=>{
+    adminPanelEl.classList.toggle('activo');
+  });
+
+  ghGuardarTokenBtn.addEventListener('click', ()=>{
+    ghToken = ghTokenInput.value.trim();
+    if(ghRecordarInput.checked && ghToken){
+      localStorage.setItem('gh_token_fichas', ghToken);
+    } else {
+      localStorage.removeItem('gh_token_fichas');
+    }
+    modoAdmin = !!ghToken;
+    panelSubidaEl.style.display = modoAdmin ? 'block' : 'none';
+    renderFichas();
+  });
+
+  async function cargarFichas(){
+    listaFichasEl.innerHTML = '<div class="estado-fichas">Cargando fichas...</div>';
+    try{
+      const resp = await fetch(GH_API, { headers: { 'Accept': 'application/vnd.github+json' } });
+      if(resp.status === 404){
+        fichasCache = [];
+        renderFichas();
+        return;
+      }
+      if(!resp.ok) throw new Error('No se pudo leer la carpeta de fichas (' + resp.status + ')');
+      const data = await resp.json();
+      fichasCache = (Array.isArray(data) ? data : [])
+        .filter(f => f.type === 'file' && f.name.toLowerCase().endsWith('.pdf'))
+        .sort((a,b)=>a.name.localeCompare(b.name, 'es'));
+      renderFichas();
+      poblarCotFichaSelect();
+    }catch(err){
+      listaFichasEl.innerHTML = `<div class="estado-fichas">No se pudo cargar la lista. ${err.message}</div>`;
+    }
+  }
+
+  function renderFichas(){
+    modoAdmin = !!ghToken;
+    const filtro = fichaBuscadorEl.value.trim().toLowerCase();
+    const items = fichasCache.filter(f => f.name.toLowerCase().includes(filtro));
+
+    if(items.length === 0){
+      listaFichasEl.innerHTML = '<div class="estado-fichas">No hay fichas cargadas todavía.</div>';
+      return;
+    }
+
+    listaFichasEl.innerHTML = '';
+    items.forEach(f=>{
+      const nombreVisible = f.name.replace(/\.pdf$/i, '');
+      const url = f.download_url;
+      const thumbUrl = `${GH_RAW_BASE}/thumbs/${encodeURIComponent(nombreVisible)}.jpg`;
+      const mensaje = encodeURIComponent(`Te comparto la ficha técnica: ${nombreVisible}\n${url}`);
+      const div = document.createElement('div');
+      div.className = 'ficha-item';
+      div.innerHTML = `
+        <span class="ficha-info">
+          <img class="ficha-thumb" src="${thumbUrl}" alt="" loading="lazy" onerror="this.outerHTML='<span class=&quot;ficha-thumb-fallback&quot;>PDF</span>'">
+          <span class="ficha-nombre" title="${nombreVisible}">${nombreVisible}</span>
+        </span>
+        <span class="ficha-acciones">
+          <a class="ficha-btn ver" href="${url}" target="_blank">Ver</a>
+          <a class="ficha-btn enviar" href="https://wa.me/?text=${mensaje}" target="_blank">Enviar</a>
+          ${modoAdmin ? `<button class="ficha-btn borrar" data-name="${f.name}" data-sha="${f.sha}">Borrar</button>` : ''}
+        </span>
+      `;
+      listaFichasEl.appendChild(div);
+    });
+
+    if(modoAdmin){
+      listaFichasEl.querySelectorAll('.ficha-btn.borrar').forEach(btn=>{
+        btn.addEventListener('click', ()=> borrarFicha(btn.dataset.name, btn.dataset.sha));
+      });
+    }
+  }
+
+  fichaBuscadorEl.addEventListener('input', renderFichas);
+
+  function poblarCotFichaSelect(){
+    // Puebla tanto el select de Equipo 1 (cotFichaSelect) como el de Equipo 2 (cotFichaSelect2, si existe).
+    const selects = document.querySelectorAll('select[id^="cotFichaSelect"]');
+    if(!selects.length) return;
+    fichaUrlPorNombre = {};
+    fichasCache.forEach(f=>{
+      const nombreVisible = f.name.replace(/\.pdf$/i, '');
+      fichaUrlPorNombre[nombreVisible] = f.download_url;
+    });
+    selects.forEach(sel=>{
+      const valorPrevio = sel.value;
+      sel.innerHTML = '<option value="">— Sin vincular / cargar manualmente —</option>';
+      fichasCache.forEach(f=>{
+        const nombreVisible = f.name.replace(/\.pdf$/i, '');
+        const opt = document.createElement('option');
+        opt.value = nombreVisible;
+        opt.textContent = nombreVisible;
+        sel.appendChild(opt);
+      });
+      if(Array.from(sel.options).some(o=>o.value===valorPrevio)) sel.value = valorPrevio;
+    });
+  }
+
+  ghArchivoInput.addEventListener('change', ()=>{
+    if(ghArchivoInput.files[0] && !ghNombreInput.value){
+      ghNombreInput.value = ghArchivoInput.files[0].name;
+    }
+  });
+
+  function archivoABase64(file){
+    return new Promise((resolve, reject)=>{
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result.split(',')[1]);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function generarMiniaturaB64(file){
+    if(!window.pdfjsLib) return null;
+    try{
+      const buffer = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
+      const page = await pdf.getPage(1);
+      const base = page.getViewport({ scale: 1 });
+      const escala = 300 / base.width;
+      const viewport = page.getViewport({ scale: escala });
+      const canvas = document.createElement('canvas');
+      canvas.width = viewport.width;
+      canvas.height = viewport.height;
+      await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+      return canvas.toDataURL('image/jpeg', 0.82).split(',')[1];
+    }catch(err){
+      console.warn('No se pudo generar la miniatura:', err);
+      return null;
+    }
+  }
+
+  async function subirMiniatura(nombrePdf, thumbB64){
+    if(!thumbB64) return;
+    const nombreSinExt = nombrePdf.replace(/\.pdf$/i, '');
+    try{
+      await fetch(`${GH_API}/thumbs/${encodeURIComponent(nombreSinExt)}.jpg`, {
+        method: 'PUT',
+        headers: {
+          'Accept': 'application/vnd.github+json',
+          'Authorization': `Bearer ${ghToken}`
+        },
+        body: JSON.stringify({
+          message: `Agregar miniatura: ${nombreSinExt}.jpg`,
+          content: thumbB64,
+          branch: GH_BRANCH
+        })
+      });
+    }catch(err){
+      console.warn('No se pudo subir la miniatura:', err);
+    }
+  }
+
+  async function eliminarMiniaturaSiExiste(nombrePdf){
+    const nombreSinExt = nombrePdf.replace(/\.pdf$/i, '');
+    const urlThumb = `${GH_API}/thumbs/${encodeURIComponent(nombreSinExt)}.jpg`;
+    try{
+      const metaResp = await fetch(urlThumb, { headers: { 'Accept': 'application/vnd.github+json', 'Authorization': `Bearer ${ghToken}` } });
+      if(!metaResp.ok) return;
+      const meta = await metaResp.json();
+      await fetch(urlThumb, {
+        method: 'DELETE',
+        headers: { 'Accept': 'application/vnd.github+json', 'Authorization': `Bearer ${ghToken}` },
+        body: JSON.stringify({ message: `Eliminar miniatura: ${nombreSinExt}.jpg`, sha: meta.sha, branch: GH_BRANCH })
+      });
+    }catch(err){
+      /* silencioso: si no había miniatura, no hay nada que borrar */
+    }
+  }
+
+  ghSubirBtn.addEventListener('click', async ()=>{
+    const archivo = ghArchivoInput.files[0];
+    let nombre = ghNombreInput.value.trim();
+    if(!archivo){ ghEstadoSubidaEl.textContent = 'Elegí un PDF primero.'; return; }
+    if(!nombre){ nombre = archivo.name; }
+    if(!nombre.toLowerCase().endsWith('.pdf')) nombre += '.pdf';
+    if(!ghToken){ ghEstadoSubidaEl.textContent = 'Cargá y guardá el token primero.'; return; }
+
+    ghSubirBtn.disabled = true;
+    ghEstadoSubidaEl.textContent = 'Subiendo...';
+    try{
+      const [contenidoB64, thumbB64] = await Promise.all([
+        archivoABase64(archivo),
+        generarMiniaturaB64(archivo)
+      ]);
+      const resp = await fetch(`${GH_API}/${encodeURIComponent(nombre)}`, {
+        method: 'PUT',
+        headers: {
+          'Accept': 'application/vnd.github+json',
+          'Authorization': `Bearer ${ghToken}`
+        },
+        body: JSON.stringify({
+          message: `Agregar ficha: ${nombre}`,
+          content: contenidoB64,
+          branch: GH_BRANCH
+        })
+      });
+      if(!resp.ok){
+        const errData = await resp.json().catch(()=>({}));
+        throw new Error(errData.message || ('Error ' + resp.status));
+      }
+      await subirMiniatura(nombre, thumbB64);
+      ghEstadoSubidaEl.textContent = 'Ficha subida correctamente.';
+      ghArchivoInput.value = '';
+      ghNombreInput.value = '';
+      await cargarFichas();
+    }catch(err){
+      ghEstadoSubidaEl.textContent = 'Error al subir: ' + err.message;
+    }finally{
+      ghSubirBtn.disabled = false;
+    }
+  });
+
+  async function borrarFicha(nombre, sha){
+    if(!confirm(`¿Borrar la ficha "${nombre.replace(/\.pdf$/i,'')}"? Esta acción no se puede deshacer.`)) return;
+    try{
+      const resp = await fetch(`${GH_API}/${encodeURIComponent(nombre)}`, {
+        method: 'DELETE',
+        headers: {
+          'Accept': 'application/vnd.github+json',
+          'Authorization': `Bearer ${ghToken}`
+        },
+        body: JSON.stringify({
+          message: `Eliminar ficha: ${nombre}`,
+          sha: sha,
+          branch: GH_BRANCH
+        })
+      });
+      if(!resp.ok){
+        const errData = await resp.json().catch(()=>({}));
+        throw new Error(errData.message || ('Error ' + resp.status));
+      }
+      await eliminarMiniaturaSiExiste(nombre);
+      await cargarFichas();
+    }catch(err){
+      alert('No se pudo borrar: ' + err.message);
+    }
+  }
+
+  cargarFichas();
+</script>
+
+</body>
+</html>
