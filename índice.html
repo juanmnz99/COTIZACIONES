@@ -774,7 +774,7 @@
         </div>
       </div>
 
-      <div class="seccion-titulo">Equipo</div>
+      <div class="seccion-titulo">Equipo 1</div>
 
       <div class="field">
         <label for="cotFichaSelect">Ficha técnica del equipo (PDF ya cargado)</label>
@@ -794,11 +794,57 @@
         <input type="text" id="cotModelo" placeholder="Ej: CPD25-XAJ4-I">
       </div>
 
+      <button type="button" class="btn-agregar" id="cotBuscarFichaGuardada">🔎 Autocompletar desde ficha guardada de este modelo</button>
+      <div class="estado-fichas" id="cotFichaGuardadaEstado"></div>
+
       <div id="camposCategoria"></div>
 
       <div class="field">
         <label for="cotExtras">Equipamiento adicional (una línea por ítem)</label>
         <textarea id="cotExtras" rows="6"></textarea>
+      </div>
+
+      <button type="button" class="btn-agregar" id="cotGuardarFicha">💾 Guardar esta ficha para futuras cotizaciones (por modelo)</button>
+      <div class="estado-fichas" id="cotGuardarFichaEstado"></div>
+
+      <button type="button" class="btn-secundario" id="cotAgregarProducto2" style="margin-top:14px;">+ Agregar segundo equipo a esta cotización</button>
+
+      <div id="producto2Container" style="display:none;margin-top:10px;">
+        <div class="seccion-titulo" style="display:flex;align-items:center;justify-content:space-between;">
+          <span>Equipo 2</span>
+          <button type="button" class="btn-secundario" id="cotQuitarProducto2" style="margin:0;padding:4px 10px;font-size:12px;">✕ Quitar equipo 2</button>
+        </div>
+
+        <div class="field">
+          <label for="cotFichaSelect2">Ficha técnica del equipo (PDF ya cargado)</label>
+          <select id="cotFichaSelect2">
+            <option value="">— Sin vincular / cargar manualmente —</option>
+          </select>
+          <div class="tasa-note">Al elegir una, se autocompleta el Modelo con el nombre del PDF. Confirmá vos la categoría que le corresponde.</div>
+        </div>
+
+        <div class="field">
+          <label for="cotCategoria2">Categoría de equipo</label>
+          <select id="cotCategoria2"></select>
+        </div>
+
+        <div class="field">
+          <label for="cotModelo2">Modelo</label>
+          <input type="text" id="cotModelo2" placeholder="Ej: CPD25-XAJ4-I">
+        </div>
+
+        <button type="button" class="btn-agregar" id="cotBuscarFichaGuardada2">🔎 Autocompletar desde ficha guardada de este modelo</button>
+        <div class="estado-fichas" id="cotFichaGuardadaEstado2"></div>
+
+        <div id="camposCategoria2"></div>
+
+        <div class="field">
+          <label for="cotExtras2">Equipamiento adicional (una línea por ítem)</label>
+          <textarea id="cotExtras2" rows="6"></textarea>
+        </div>
+
+        <button type="button" class="btn-agregar" id="cotGuardarFicha2">💾 Guardar esta ficha para futuras cotizaciones (por modelo)</button>
+        <div class="estado-fichas" id="cotGuardarFichaEstado2"></div>
       </div>
 
       <div class="seccion-titulo">Lista de precios (modelos GP)</div>
@@ -875,7 +921,7 @@
       </div>
       <div class="field">
         <label for="cotFormaPago">Forma de pago (texto base)</label>
-        <textarea id="cotFormaPago" rows="2">A convenir.</textarea>
+        <textarea id="cotFormaPago" rows="4">El pago podrá realizarse de contado o financiado, a elección del cliente. Ofrecemos dos alternativas de financiación: propia, mediante cheques de pago diferido en hasta 12 cuotas; o bancaria, a través del programa BNA Conecta del Banco de la Nación Argentina, en hasta 36 cuotas, sujeta a las condiciones vigentes de dicha entidad.</textarea>
       </div>
 
       <div class="checkbox-row">
@@ -1085,6 +1131,21 @@
     const intFormateado = parseInt(intPart,10).toLocaleString('es-AR');
     return decPart !== undefined ? intFormateado + ',' + decPart : intFormateado;
   }
+  // Convierte un número JS "de fábrica" (punto decimal, ej: proveniente de la lista de precios)
+  // al formato de texto es-AR (coma decimal) que espera parseMonto/limpiarEntradaDecimal.
+  // Sin esto, un precio como 7780.3 se guardaba como texto "7780.3", el punto se interpretaba
+  // como separador de miles y terminaba mostrándose como USD 77.803 en vez de USD 7.780,3.
+  function numeroAFormatoInput(num){
+    if(num === null || num === undefined || num === '') return '';
+    const n = typeof num === 'number' ? num : parseFloat(String(num).replace(',', '.'));
+    if(isNaN(n)) return String(num);
+    let s = n.toFixed(2);
+    if(s.endsWith('.00')) s = s.slice(0, -3);
+    else if(s.endsWith('0')) s = s.slice(0, -1);
+    const [intPart, decPart] = s.split('.');
+    const intFormateado = parseInt(intPart, 10).toLocaleString('es-AR');
+    return decPart ? intFormateado + ',' + decPart : intFormateado;
+  }
 
   /* ---------- GitHub (repo del propio sitio, usado por Fichas / Cotización / Lista de precios) ---------- */
   const GH_OWNER = 'juanmnz99';
@@ -1276,6 +1337,25 @@
       .catch(()=>{ /* seguimos con la lista embebida por defecto */ });
   })();
 
+  // Biblioteca de fichas técnicas guardadas por modelo (se completa con el botón "Guardar ficha")
+  let BIBLIOTECA_FICHAS = [];
+  (function cargarBibliotecaFichasRemota(){
+    fetch(GH_RAW_ROOT + '/data/fichas-modelos.json')
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if(Array.isArray(data)) BIBLIOTECA_FICHAS = data;
+      })
+      .catch(()=>{ /* todavía no hay ninguna guardada */ });
+  })();
+  function normalizarModelo(s){
+    return String(s || '').trim().toLowerCase();
+  }
+  function buscarFichaGuardada(modelo){
+    const clave = normalizarModelo(modelo);
+    if(!clave) return null;
+    return BIBLIOTECA_FICHAS.find(f => normalizarModelo(f.modelo) === clave) || null;
+  }
+
   const CATEGORIAS = {
     autoelevador_electrico: {
       nombre: 'Autoelevador Eléctrico',
@@ -1392,59 +1472,190 @@
     }
   };
 
-  const cotCategoriaEl = document.getElementById('cotCategoria');
-  const cotModeloEl = document.getElementById('cotModelo');
-  const cotFichaSelectEl = document.getElementById('cotFichaSelect');
   let fichaUrlPorNombre = {};
-
-  cotFichaSelectEl.addEventListener('change', ()=>{
-    if(cotFichaSelectEl.value){
-      cotModeloEl.value = cotFichaSelectEl.value;
-    }
-  });
-  const camposCategoriaEl = document.getElementById('camposCategoria');
-  const cotExtrasEl = document.getElementById('cotExtras');
   const itemsCotizacionEl = document.getElementById('itemsCotizacion');
   const cotAgregarItemBtn = document.getElementById('cotAgregarItem');
-
-  Object.keys(CATEGORIAS).forEach(key=>{
-    const opt = document.createElement('option');
-    opt.value = key;
-    opt.textContent = CATEGORIAS[key].nombre;
-    cotCategoriaEl.appendChild(opt);
-  });
-
-  let camposValoresPorCategoria = {};
   let itemsCotizacion = [ { desc:'', precio:'', iva:'10.5' } ];
 
-  function renderCamposCategoria(){
-    const cat = CATEGORIAS[cotCategoriaEl.value];
-    cotModeloEl.placeholder = cat.modeloPlaceholder;
-    camposCategoriaEl.innerHTML = '';
-    const guardados = camposValoresPorCategoria[cotCategoriaEl.value] || {};
-    cat.campos.forEach(campo=>{
-      const div = document.createElement('div');
-      div.className = 'field';
-      div.innerHTML = `<label for="camp_${campo.id}">${campo.label}</label>
-        <input type="text" id="camp_${campo.id}" data-campo="${campo.id}" placeholder="${campo.placeholder}" value="${guardados[campo.id] || ''}">`;
-      camposCategoriaEl.appendChild(div);
+  // Fábrica de controladores de "Equipo" (categoría + modelo + ficha técnica). Se usa una vez
+  // para el Equipo 1 (sufijo '') y, si el usuario lo pide, una segunda vez para el Equipo 2
+  // (sufijo '2'), reutilizando los mismos ids con el sufijo agregado en el HTML.
+  function crearProductoController(sufijo){
+    const categoriaEl = document.getElementById('cotCategoria' + sufijo);
+    const modeloEl = document.getElementById('cotModelo' + sufijo);
+    const fichaSelectEl = document.getElementById('cotFichaSelect' + sufijo);
+    const camposCategoriaEl = document.getElementById('camposCategoria' + sufijo);
+    const extrasEl = document.getElementById('cotExtras' + sufijo);
+    const buscarFichaBtn = document.getElementById('cotBuscarFichaGuardada' + sufijo);
+    const fichaGuardadaEstadoEl = document.getElementById('cotFichaGuardadaEstado' + sufijo);
+    const guardarFichaBtn = document.getElementById('cotGuardarFicha' + sufijo);
+    const guardarFichaEstadoEl = document.getElementById('cotGuardarFichaEstado' + sufijo);
+
+    let camposValoresPorCategoria = {};
+
+    Object.keys(CATEGORIAS).forEach(key=>{
+      const opt = document.createElement('option');
+      opt.value = key;
+      opt.textContent = CATEGORIAS[key].nombre;
+      categoriaEl.appendChild(opt);
     });
-    camposCategoriaEl.querySelectorAll('input').forEach(inp=>{
-      inp.addEventListener('input', ()=>{
-        if(!camposValoresPorCategoria[cotCategoriaEl.value]) camposValoresPorCategoria[cotCategoriaEl.value] = {};
-        camposValoresPorCategoria[cotCategoriaEl.value][inp.dataset.campo] = inp.value;
+
+    function renderCampos(){
+      const cat = CATEGORIAS[categoriaEl.value];
+      modeloEl.placeholder = cat.modeloPlaceholder;
+      camposCategoriaEl.innerHTML = '';
+      const guardados = camposValoresPorCategoria[categoriaEl.value] || {};
+      cat.campos.forEach(campo=>{
+        const div = document.createElement('div');
+        div.className = 'field';
+        div.innerHTML = `<label for="camp_${campo.id}${sufijo}">${campo.label}</label>
+          <input type="text" id="camp_${campo.id}${sufijo}" data-campo="${campo.id}" placeholder="${campo.placeholder}" value="${guardados[campo.id] || ''}">`;
+        camposCategoriaEl.appendChild(div);
       });
-    });
-    if(!cotExtrasEl.dataset.editadoManual || cotExtrasEl.dataset.categoriaActual !== cotCategoriaEl.value){
-      cotExtrasEl.value = cat.extrasDefault;
-      cotExtrasEl.dataset.categoriaActual = cotCategoriaEl.value;
-      cotExtrasEl.dataset.editadoManual = '';
+      camposCategoriaEl.querySelectorAll('input').forEach(inp=>{
+        inp.addEventListener('input', ()=>{
+          if(!camposValoresPorCategoria[categoriaEl.value]) camposValoresPorCategoria[categoriaEl.value] = {};
+          camposValoresPorCategoria[categoriaEl.value][inp.dataset.campo] = inp.value;
+        });
+      });
+      if(!extrasEl.dataset.editadoManual || extrasEl.dataset.categoriaActual !== categoriaEl.value){
+        extrasEl.value = cat.extrasDefault;
+        extrasEl.dataset.categoriaActual = categoriaEl.value;
+        extrasEl.dataset.editadoManual = '';
+      }
     }
+
+    extrasEl.addEventListener('input', ()=>{ extrasEl.dataset.editadoManual = '1'; });
+    categoriaEl.addEventListener('change', renderCampos);
+    renderCampos();
+
+    fichaSelectEl.addEventListener('change', ()=>{
+      if(fichaSelectEl.value) modeloEl.value = fichaSelectEl.value;
+    });
+
+    if(buscarFichaBtn){
+      buscarFichaBtn.addEventListener('click', ()=>{
+        const modelo = modeloEl.value.trim();
+        if(!modelo){
+          fichaGuardadaEstadoEl.textContent = 'Escribí un modelo para buscar.';
+          return;
+        }
+        const encontrada = buscarFichaGuardada(modelo);
+        if(!encontrada){
+          fichaGuardadaEstadoEl.textContent = `No hay ninguna ficha guardada para "${modelo}" todavía.`;
+          return;
+        }
+        if(encontrada.categoria && CATEGORIAS[encontrada.categoria]){
+          categoriaEl.value = encontrada.categoria;
+          renderCampos();
+        }
+        if(!camposValoresPorCategoria[categoriaEl.value]) camposValoresPorCategoria[categoriaEl.value] = {};
+        Object.keys(encontrada.campos || {}).forEach(id=>{
+          camposValoresPorCategoria[categoriaEl.value][id] = encontrada.campos[id];
+          const inp = document.getElementById('camp_' + id + sufijo);
+          if(inp) inp.value = encontrada.campos[id];
+        });
+        if(typeof encontrada.extras === 'string'){
+          extrasEl.value = encontrada.extras;
+          extrasEl.dataset.editadoManual = '1';
+          extrasEl.dataset.categoriaActual = categoriaEl.value;
+        }
+        fichaGuardadaEstadoEl.textContent = `✔ Ficha de "${encontrada.modelo}" cargada${encontrada.fecha ? ' (guardada el ' + encontrada.fecha + ')' : ''}. Podés editarla antes de continuar.`;
+      });
+    }
+
+    if(guardarFichaBtn){
+      guardarFichaBtn.addEventListener('click', async ()=>{
+        const modelo = modeloEl.value.trim();
+        if(!modelo){
+          guardarFichaEstadoEl.textContent = 'Escribí el modelo antes de guardar la ficha.';
+          return;
+        }
+        if(!ghToken){
+          guardarFichaEstadoEl.textContent = 'Necesitás cargar el token de GitHub (panel de administración de Fichas Técnicas) para poder guardar.';
+          return;
+        }
+        const campos = {};
+        camposCategoriaEl.querySelectorAll('input[data-campo]').forEach(inp=>{
+          campos[inp.dataset.campo] = inp.value;
+        });
+        const nuevaEntrada = {
+          modelo,
+          categoria: categoriaEl.value,
+          campos,
+          extras: extrasEl.value,
+          fecha: new Date().toLocaleDateString('es-AR')
+        };
+        const clave = normalizarModelo(modelo);
+        const idxExistente = BIBLIOTECA_FICHAS.findIndex(f => normalizarModelo(f.modelo) === clave);
+        if(idxExistente >= 0) BIBLIOTECA_FICHAS[idxExistente] = nuevaEntrada;
+        else BIBLIOTECA_FICHAS.push(nuevaEntrada);
+
+        guardarFichaEstadoEl.textContent = 'Guardando...';
+        const urlArchivo = `${GH_CONTENTS_ROOT}/data/fichas-modelos.json`;
+        try{
+          let sha;
+          try{
+            const metaResp = await fetch(urlArchivo, { headers: { 'Accept': 'application/vnd.github+json', 'Authorization': `Bearer ${ghToken}` } });
+            if(metaResp.ok){ const meta = await metaResp.json(); sha = meta.sha; }
+          }catch(e){ /* si falla, intentamos crear el archivo sin sha */ }
+
+          const body = {
+            message: `Actualiza ficha guardada de modelo ${modelo}`,
+            content: utf8ToBase64(JSON.stringify(BIBLIOTECA_FICHAS, null, 2)),
+            branch: GH_BRANCH
+          };
+          if(sha) body.sha = sha;
+
+          const resp = await fetch(urlArchivo, {
+            method: 'PUT',
+            headers: { 'Accept': 'application/vnd.github+json', 'Authorization': `Bearer ${ghToken}` },
+            body: JSON.stringify(body)
+          });
+          if(!resp.ok) throw new Error('No se pudo guardar en GitHub (revisá el token).');
+          guardarFichaEstadoEl.textContent = `✔ Ficha de "${modelo}" guardada. La próxima vez que cotices este modelo, tocá "Autocompletar".`;
+        }catch(err){
+          guardarFichaEstadoEl.textContent = 'Error al guardar la ficha: ' + err.message;
+        }
+      });
+    }
+
+    return {
+      categoriaEl, modeloEl, fichaSelectEl, extrasEl,
+      getCategoria: () => CATEGORIAS[categoriaEl.value],
+      getModelo: () => modeloEl.value.trim(),
+      getCamposHtml: () => {
+        const cat = CATEGORIAS[categoriaEl.value];
+        return cat.campos
+          .map(c => { const v = (document.getElementById('camp_'+c.id+sufijo) || {}).value; return v ? `<li>${c.label}: ${v}</li>` : ''; })
+          .join('');
+      },
+      getExtrasHtml: () => nl2li(extrasEl.value),
+      getFichaLink: () => (fichaSelectEl.value && fichaUrlPorNombre[fichaSelectEl.value])
+        ? { nombre: fichaSelectEl.value, url: fichaUrlPorNombre[fichaSelectEl.value] }
+        : null
+    };
   }
 
-  cotExtrasEl.addEventListener('input', ()=>{ cotExtrasEl.dataset.editadoManual = '1'; });
-  cotCategoriaEl.addEventListener('change', renderCamposCategoria);
-  renderCamposCategoria();
+  const producto1 = crearProductoController('');
+  let producto2 = null;
+  const cotAgregarProducto2Btn = document.getElementById('cotAgregarProducto2');
+  const producto2ContainerEl = document.getElementById('producto2Container');
+  const cotQuitarProducto2Btn = document.getElementById('cotQuitarProducto2');
+
+  function producto2Activo(){
+    return !!producto2 && producto2ContainerEl.style.display !== 'none';
+  }
+
+  cotAgregarProducto2Btn.addEventListener('click', ()=>{
+    if(!producto2) producto2 = crearProductoController('2');
+    producto2ContainerEl.style.display = '';
+    cotAgregarProducto2Btn.style.display = 'none';
+  });
+  cotQuitarProducto2Btn.addEventListener('click', ()=>{
+    producto2ContainerEl.style.display = 'none';
+    cotAgregarProducto2Btn.style.display = '';
+  });
 
   function renderItemsCotizacion(){
     itemsCotizacionEl.innerHTML = '';
@@ -1491,9 +1702,24 @@
     return texto.split('\n').map(l=>l.trim()).filter(l=>l).map(l=>`<li>${l}</li>`).join('');
   }
 
+  // Arma el bloque "Ficha técnica – Categoría Modelo" para un producto (controller de crearProductoController).
+  function renderFichaTecnicaHtml(controller){
+    const cat = controller.getCategoria();
+    const modelo = controller.getModelo();
+    const camposHtml = controller.getCamposHtml();
+    const extrasHtml = controller.getExtrasHtml();
+    const fichaLink = controller.getFichaLink();
+    return `
+      <h2>Ficha técnica – ${cat.nombre}${modelo ? ' ' + modelo : ''}</h2>
+      <ul>
+        ${camposHtml}
+        ${extrasHtml}
+      </ul>
+      ${fichaLink ? `<p style="font-size:12px;color:#555;">Ficha técnica completa: <a href="${fichaLink.url}" target="_blank">${fichaLink.nombre}.pdf</a></p>` : ''}
+    `;
+  }
+
   function generarPreview(){
-    const cat = CATEGORIAS[cotCategoriaEl.value];
-    const modelo = cotModeloEl.value.trim();
     const ref = document.getElementById('cotRef').value;
     const ciudad = document.getElementById('cotCiudad').value.trim();
     const cliente = document.getElementById('cotCliente').value.trim();
@@ -1508,10 +1734,8 @@
 
     const fecha = new Date().toLocaleDateString('es-AR', { day:'numeric', month:'long', year:'numeric' });
 
-    const camposHtml = cat.campos
-      .map(c => { const v = (document.getElementById('camp_'+c.id) || {}).value; return v ? `<li>${c.label}: ${v}</li>` : ''; })
-      .join('');
-    const extrasHtml = nl2li(cotExtrasEl.value);
+    const fichasTecnicasHtml = renderFichaTecnicaHtml(producto1) + (producto2Activo() ? renderFichaTecnicaHtml(producto2) : '');
+    const introEquipo = producto2Activo() ? 'los siguientes equipos' : 'el siguiente equipo';
 
     const filasTabla = itemsCotizacion
       .filter(it => it.desc.trim() !== '')
@@ -1545,17 +1769,12 @@
       ${cliente ? `<p>Sr./Sres.: ${cliente}${cuit ? ' — CUIT: ' + cuit : ''}</p>` : ''}
       <p><strong>Ref.: ${ref}</strong></p>
       <p>De nuestra mayor consideración:</p>
-      <p>En nuestro carácter de concesionario de la Línea de equipos para manipuleo de materiales producidos por HANGCHA forklift truck, nos dirigimos a Uds., a los efectos de cotizarles el siguiente equipo.</p>
-      <h2>Ficha técnica – ${cat.nombre}${modelo ? ' ' + modelo : ''}</h2>
-      <ul>
-        ${camposHtml}
-        ${extrasHtml}
-      </ul>
+      <p>En nuestro carácter de concesionario de la Línea de equipos para manipuleo de materiales producidos por HANGCHA forklift truck, nos dirigimos a Uds., a los efectos de cotizarles ${introEquipo}.</p>
+      ${fichasTecnicasHtml}
       <table class="preview-tabla">
         <thead><tr><th>Item</th><th>Tipo</th><th>Precio</th></tr></thead>
         <tbody>${filasTabla || '<tr><td colspan="3">Sin ítems cargados</td></tr>'}</tbody>
       </table>
-      ${cotFichaSelectEl.value && fichaUrlPorNombre[cotFichaSelectEl.value] ? `<p style="font-size:12px;color:#555;">Ficha técnica completa: <a href="${fichaUrlPorNombre[cotFichaSelectEl.value]}" target="_blank">${cotFichaSelectEl.value}.pdf</a></p>` : ''}
       <p><strong>Oferta económica:</strong> Dólar oficial BNA al día de la facturación.</p>
       <p><strong>Oferta comercial:</strong></p>
       <p>Validez: ${validez}.<br>
@@ -1584,8 +1803,6 @@
   });
 
   function construirMensajeWhatsapp(){
-    const cat = CATEGORIAS[cotCategoriaEl.value];
-    const modelo = cotModeloEl.value.trim();
     const cliente = document.getElementById('cotCliente').value.trim();
     let formaPago = document.getElementById('cotFormaPago').value.trim();
 
@@ -1610,9 +1827,15 @@
       return `- ${it.desc}: USD ${formatoMoneda(precioNum,'')} + IVA ${ivaItem}%`;
     }).join('\n');
 
+    const equipos = [producto1];
+    if(producto2Activo()) equipos.push(producto2);
+    const equiposTexto = equipos
+      .map(p => { const cat = p.getCategoria(); const modelo = p.getModelo(); return `${cat.nombre}${modelo ? ' ' + modelo : ''}`; })
+      .join(' + ');
+
     let msg = `*Grupo Pomiglio — Cotización*\n`;
     if(cliente) msg += `Cliente: ${cliente}\n`;
-    msg += `Equipo: ${cat.nombre}${modelo ? ' ' + modelo : ''}\n\n`;
+    msg += `Equipo: ${equiposTexto}\n\n`;
     if(itemsTexto) msg += itemsTexto + '\n\n';
     msg += `Forma de pago: ${formaPago}\n\n`;
     msg += `Te adjunto la cotización completa en PDF.`;
@@ -1652,7 +1875,8 @@
     try{
       const mensaje = construirMensajeWhatsapp();
       const blob = await generarBlobPdf();
-      const nombreArchivo = 'cotizacion-' + (cotModeloEl.value.trim() || 'equipo').replace(/[^a-z0-9-]+/gi,'_') + '.pdf';
+      const nombreBase = [producto1.getModelo(), producto2Activo() ? producto2.getModelo() : ''].filter(Boolean).join('-') || 'equipo';
+      const nombreArchivo = 'cotizacion-' + nombreBase.replace(/[^a-z0-9-]+/gi,'_') + '.pdf';
       const archivo = new File([blob], nombreArchivo, { type: 'application/pdf' });
 
       if(navigator.canShare && navigator.canShare({ files: [archivo] })){
@@ -1690,10 +1914,11 @@
 
   function agregarItemCotizacion(desc, precio){
     const ivaDefault = document.getElementById('cotIvaGlobal').value;
+    const precioTexto = numeroAFormatoInput(precio);
     if(itemsCotizacion.length === 1 && itemsCotizacion[0].desc.trim() === '' && itemsCotizacion[0].precio === ''){
-      itemsCotizacion[0] = { desc, precio: String(precio), iva: ivaDefault };
+      itemsCotizacion[0] = { desc, precio: precioTexto, iva: ivaDefault };
     } else {
-      itemsCotizacion.push({ desc, precio: String(precio), iva: ivaDefault });
+      itemsCotizacion.push({ desc, precio: precioTexto, iva: ivaDefault });
     }
     renderItemsCotizacion();
   }
@@ -1722,7 +1947,9 @@
         <span class="lp-precio">${precio != null ? 'U$D ' + formatoMoneda(precio,'') : 's/d'}</span>
       `;
       div.addEventListener('click', ()=>{
-        cotModeloEl.value = m.modelo;
+        // Completa el Equipo 1 primero; si ya tiene modelo y el Equipo 2 está activo y vacío, completa ese.
+        const destino = (producto1.getModelo() && producto2Activo() && !producto2.getModelo()) ? producto2 : producto1;
+        destino.modeloEl.value = m.modelo;
         if(precio != null){
           agregarItemCotizacion(`${m.marca} ${m.modelo} (${tipo === 'contado' ? 'Contado' : 'Distribuidor'})`, precio);
         }
@@ -2048,20 +2275,26 @@
   fichaBuscadorEl.addEventListener('input', renderFichas);
 
   function poblarCotFichaSelect(){
-    const sel = cotFichaSelectEl;
-    if(!sel) return;
-    const valorPrevio = sel.value;
-    sel.innerHTML = '<option value="">— Sin vincular / cargar manualmente —</option>';
+    // Puebla tanto el select de Equipo 1 (cotFichaSelect) como el de Equipo 2 (cotFichaSelect2, si existe).
+    const selects = document.querySelectorAll('select[id^="cotFichaSelect"]');
+    if(!selects.length) return;
     fichaUrlPorNombre = {};
     fichasCache.forEach(f=>{
       const nombreVisible = f.name.replace(/\.pdf$/i, '');
       fichaUrlPorNombre[nombreVisible] = f.download_url;
-      const opt = document.createElement('option');
-      opt.value = nombreVisible;
-      opt.textContent = nombreVisible;
-      sel.appendChild(opt);
     });
-    if(Array.from(sel.options).some(o=>o.value===valorPrevio)) sel.value = valorPrevio;
+    selects.forEach(sel=>{
+      const valorPrevio = sel.value;
+      sel.innerHTML = '<option value="">— Sin vincular / cargar manualmente —</option>';
+      fichasCache.forEach(f=>{
+        const nombreVisible = f.name.replace(/\.pdf$/i, '');
+        const opt = document.createElement('option');
+        opt.value = nombreVisible;
+        opt.textContent = nombreVisible;
+        sel.appendChild(opt);
+      });
+      if(Array.from(sel.options).some(o=>o.value===valorPrevio)) sel.value = valorPrevio;
+    });
   }
 
   ghArchivoInput.addEventListener('change', ()=>{
