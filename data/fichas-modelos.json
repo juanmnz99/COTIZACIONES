@@ -412,7 +412,7 @@
     "categoria": "autoelevador_electrico",
     "campos": {
       "bateria": "Litio 80V 230 Ah",
-      "capacidad": "",
+      "capacidad": "2.500 Kg a 500 mm del c.d.c.",
       "torre": "",
       "desplazador": "",
       "horquillas": ""
