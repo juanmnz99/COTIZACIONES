@@ -817,7 +817,7 @@
       <div class="field">
         <label for="cotModelo">Modelo</label>
         <input type="text" id="cotModelo" placeholder="Ej: CPD25-XAJ4-I">
-        <div class="tasa-note">Si ya guardaste una ficha para este modelo, al salir del campo se autocompleta sola.</div>
+        <div class="tasa-note">Si ya guardaste una ficha para este modelo, apretá Enter (o salí del campo) y se autocompleta sola.</div>
       </div>
 
       <button type="button" class="btn-agregar" id="cotBuscarFichaGuardada">🔎 Recargar ficha guardada de este modelo</button>
@@ -857,7 +857,7 @@
         <div class="field">
           <label for="cotModelo2">Modelo</label>
           <input type="text" id="cotModelo2" placeholder="Ej: CPD25-XAJ4-I">
-          <div class="tasa-note">Si ya guardaste una ficha para este modelo, al salir del campo se autocompleta sola.</div>
+          <div class="tasa-note">Si ya guardaste una ficha para este modelo, apretá Enter (o salí del campo) y se autocompleta sola.</div>
         </div>
 
         <button type="button" class="btn-agregar" id="cotBuscarFichaGuardada2">🔎 Recargar ficha guardada de este modelo</button>
@@ -1793,6 +1793,15 @@
     modeloEl.addEventListener('change', ()=>{
       const clave = normalizarModelo(modeloEl.value);
       if(clave && clave !== ultimoModeloAutocargado) autocompletarDesdeFicha(true);
+    });
+    // Un <input> de texto solo no dispara "change" al apretar Enter (solo al perder el foco).
+    // Por eso escribir el modelo y apretar Enter no autocompletaba nada: acá forzamos el blur,
+    // que sí dispara el "change" de arriba y completa todo en el momento.
+    modeloEl.addEventListener('keydown', (e)=>{
+      if(e.key === 'Enter'){
+        e.preventDefault();
+        modeloEl.blur();
+      }
     });
 
     if(buscarFichaBtn){
