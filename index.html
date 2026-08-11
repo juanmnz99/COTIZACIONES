@@ -539,6 +539,21 @@
     color:#fff;
     border-color:var(--azul);
   }
+  .lp-cat-chip{
+    border:1px solid var(--gris-borde);
+    background:#fff;
+    border-radius:16px;
+    padding:6px 12px;
+    font-size:12.5px;
+    cursor:pointer;
+    color:var(--texto);
+    font-weight:600;
+  }
+  .lp-cat-chip.activo{
+    background:var(--azul);
+    color:#fff;
+    border-color:var(--azul);
+  }
   .btn-primario{
     width:100%;
     padding:13px 0;
@@ -877,8 +892,20 @@
 
       <div class="seccion-titulo">Lista de precios (modelos GP)</div>
 
+      <div class="tasa-note">Elegí tonelaje y altura de torre — es la forma más rápida desde el celular. También podés buscar por texto más abajo.</div>
+      <div class="field-row">
+        <div class="field">
+          <label for="lpTonelajeFiltro">Tonelaje</label>
+          <select id="lpTonelajeFiltro"><option value="">Todos</option></select>
+        </div>
+        <div class="field">
+          <label for="lpAlturaFiltro">Altura de torre</label>
+          <select id="lpAlturaFiltro"><option value="">Todas</option></select>
+        </div>
+      </div>
+
       <div class="field">
-        <label for="lpModeloBuscar">Buscar modelo</label>
+        <label for="lpModeloBuscar">Buscar modelo (opcional)</label>
         <input type="text" id="lpModeloBuscar" placeholder="Ej: CPD25, XEN, apilador...">
       </div>
       <div class="lista-fichas" id="lpModeloResultados" style="max-height:220px;overflow-y:auto;"></div>
@@ -893,12 +920,14 @@
 
       <div class="seccion-titulo">Accesorios y opciones (lista de precios)</div>
 
+      <div class="checkbox-row" id="lpAccCategoriaChips" style="gap:6px;flex-wrap:wrap;"></div>
+
       <div class="field">
         <label for="lpAccBuscar">Buscar accesorio u opción</label>
-        <input type="text" id="lpAccBuscar" placeholder="Ej: mástil, sideshift, cubierta...">
+        <input type="text" id="lpAccBuscar" placeholder="Ej: mástil, desplazador lateral, neumático...">
       </div>
       <div class="lista-fichas" id="lpAccResultados" style="max-height:260px;overflow-y:auto;"></div>
-      <div class="tasa-note">Elegí la franja de tonelaje que corresponda a tu equipo — se agrega como ítem editable.</div>
+      <div class="tasa-note">Tocá una categoría de arriba para ver todo sin escribir, o buscá por texto. Elegí la franja de tonelaje que corresponda a tu equipo — se agrega como ítem editable.</div>
 
       <span class="admin-toggle" id="lpAdminToggle">Actualizar lista de precios (subir Excel nuevo)</span>
 
@@ -966,16 +995,16 @@
       <div class="field-row">
         <div class="field">
           <label for="cotVendedorNombre">Nombre</label>
-          <input type="text" id="cotVendedorNombre" placeholder="Ej: Juan Nuñez">
+          <input type="text" id="cotVendedorNombre" value="JUAN NUÑEZ">
         </div>
         <div class="field">
           <label for="cotVendedorTel">Teléfono</label>
-          <input type="text" id="cotVendedorTel" value="0351-152014521">
+          <input type="text" id="cotVendedorTel" value="3513250674">
         </div>
       </div>
       <div class="field">
         <label for="cotVendedorEmail">Email</label>
-        <input type="text" id="cotVendedorEmail" placeholder="Ej: jnunez@grupopomiglio.com">
+        <input type="text" id="cotVendedorEmail" value="VENTAS2@GRUPOPOMIGLIO.COM">
       </div>
 
       <button type="button" class="btn-primario" id="cotVerPreview">Vista previa e imprimir</button>
@@ -1352,7 +1381,7 @@
   calcularCheques();
 
   /* ---------- Cotización ---------- */
-  let LISTA_PRECIOS = {"modelos":[{"clasificacion":"SIN CLASE (Aereo)","marca":"HANGCHA","modelo":"78XEN","cap":"NA","alt":10,"motor":"EVE Lithium Battery 24V/230Ah","ruedas":"MACIZA","contado":11748.74,"distribuidor":10617.12,"comentarios":""},{"clasificacion":"SIN CLASE (Aereo)","marca":"HANGCHA","modelo":"100XEN","cap":"NA","alt":10,"motor":"EVE Lithium Battery 24V/230Ah","ruedas":"MACIZA","contado":15186.01,"distribuidor":13723.31,"comentarios":""},{"clasificacion":"SIN CLASE (Aereo)","marca":"HANGCHA","modelo":"140XEN","cap":"NA","alt":14,"motor":"EVE Lithium Battery 24V/230Ah","ruedas":"MACIZA","contado":16287.11,"distribuidor":14718.36,"comentarios":""},{"clasificacion":"SIN CLASE (Aereo)","marca":"HANGCHA","modelo":"160XEN","cap":"NA","alt":16,"motor":"EVE Lithium Battery 24V/230Ah","ruedas":"MACIZA","contado":21517.33,"distribuidor":19444.82,"comentarios":""},{"clasificacion":"SIN CLASE (Aereo)","marca":"HANGCHA","modelo":"HV70M-LC","cap":"NA","alt":7,"motor":"Gel","ruedas":"MACIZA","contado":5120.12,"distribuidor":4626.95,"comentarios":""},{"clasificacion":"CLASE 7 (Telehandler)","marca":"HANGCHA","modelo":"T25-60XHYG","cap":2500,"alt":6000,"motor":"EVE Lithium Battery 310V/150Ah","ruedas":"NEUMATICAS","contado":93226.4,"distribuidor":82530.35,"comentarios":""},{"clasificacion":"CLASE 7 (Brazos)","marca":"HANGCHA","modelo":"GTHZ170","cap":"NA","alt":17000,"motor":"HANGCHA lithium battery 80V/125AH","ruedas":"MACIZA","contado":52414.71,"distribuidor":46401.07,"comentarios":""},{"clasificacion":"CLASE 3 (rango alto)","marca":"HANGCHA","modelo":"AGVLCBD20-MGJ1","cap":2000,"alt":0,"motor":"STD","ruedas":"PU","contado":6826.65,"distribuidor":6131.13,"comentarios":""},{"clasificacion":"CLASE 1 (Entre 1,8 y 2,5)","marca":"HANGCHA","modelo":"CPDS18-XCY2G-SI","cap":1800,"alt":6000,"motor":"EVE Lithium battery (80V/230Ah)","ruedas":"MACIZA","contado":25159.12,"distribuidor":22595.84,"comentarios":""},{"clasificacion":"CLASE 1 (Entre 1,8 y 2,5)","marca":"HANGCHA","modelo":"CPDS20-XCD6-SI","cap":2000,"alt":6000,"motor":"EVE Lithium battery (80V/230Ah)","ruedas":"MACIZA","contado":10864.12,"distribuidor":9757.25,"comentarios":""},{"clasificacion":"CLASE 1 (Entre 1,8 y 2,5)","marca":"HANGCHA","modelo":"CPD25-XAJ4-I","cap":2500,"alt":4500,"motor":"EVE Lithium battery (80V/230Ah)","ruedas":"NEUMATICAS","contado":19251.14,"distribuidor":17289.78,"comentarios":"Precio Promo 16500"},{"clasificacion":"CLASE 1 (Entre 1,8 y 2,5)","marca":"HANGCHA","modelo":"CPD25-XAJ4-I","cap":2500,"alt":4500,"motor":"EVE Lithium battery (80V/230Ah)","ruedas":"NEUMATICAS","contado":20187.37,"distribuidor":18130.62,"comentarios":"Precio Promo 17300"},{"clasificacion":"CLASE 1 (Entre 1,8 y 2,5)","marca":"HANGCHA","modelo":"CPD25-XAJ4-I","cap":2500,"alt":4500,"motor":"EVE Lithium battery (80V/230Ah)","ruedas":"NEUMATICAS","contado":20733.5,"distribuidor":18621.11,"comentarios":"Precio Promo 17800"},{"clasificacion":"CLASE 1 (Entre 3,0 y 3,8)","marca":"HANGCHA","modelo":"CPD30-XAJ4-I","cap":3000,"alt":4500,"motor":"EVE Lithium battery (80V/304Ah)","ruedas":"NEUMATICAS","contado":22120.29,"distribuidor":19866.61,"comentarios":""},{"clasificacion":"CLASE 1 (Entre 3,0 y 3,8)","marca":"HANGCHA","modelo":"CPD38-XAJ4-I","cap":3800,"alt":4500,"motor":"EVE Lithium battery (80V/304Ah)","ruedas":"NEUMATICAS","contado":23220.35,"distribuidor":20854.6,"comentarios":""},{"clasificacion":"CLASE 1 (Entre 1,8 y 2,5)","marca":"HANGCHA","modelo":"CPD18-XEY2HA-SI","cap":1800,"alt":4500,"motor":"EVE Lithium battery (80V/230Ah)","ruedas":"NEUMATICAS","contado":19949.41,"distribuidor":17916.91,"comentarios":""},{"clasificacion":"CLASE 1 (Entre 1,8 y 2,5)","marca":"HANGCHA","modelo":"CPD25-XEY2HA-SI","cap":2500,"alt":4500,"motor":"EVE Lithium battery (80V/230Ah)","ruedas":"NEUMATICAS","contado":21950.6,"distribuidor":19714.21,"comentarios":"Precio Promo 17300"},{"clasificacion":"CLASE 1 (Entre 1,8 y 2,5)","marca":"HANGCHA","modelo":"CPD25-XEY2HA-SI","cap":2500,"alt":4500,"motor":"EVE Lithium battery (80V/304Ah)","ruedas":"NEUMATICAS","contado":23413.45,"distribuidor":21028.02,"comentarios":"Precio Promo 18500"},{"clasificacion":"CLASE 1 (Entre 3,0 y 3,8)","marca":"HANGCHA","modelo":"CPD30-XEY2HA-SI","cap":3000,"alt":4500,"motor":"EVE Lithium battery (80V/304Ah)","ruedas":"NEUMATICAS","contado":25393.18,"distribuidor":22806.05,"comentarios":""},{"clasificacion":"CLASE 1 (Entre 3,0 y 3,8)","marca":"HANGCHA","modelo":"CPD38-XEY2HA-SI","cap":3800,"alt":4500,"motor":"EVE Lithium battery (80V/304Ah)","ruedas":"NEUMATICAS","contado":27080.33,"distribuidor":24321.31,"comentarios":""},{"clasificacion":"CLASE 3 (rango alto)","marca":"HANGCHA","modelo":"CQD18-AC5-I","cap":1800,"alt":9500,"motor":"CATL Lithium battery (80V/302Ah)","ruedas":"PU","contado":45001.26,"distribuidor":40416.4,"comentarios":""},{"clasificacion":"CLASE 3 (rango alto)","marca":"HANGCHA","modelo":"CQD20-AC5-I","cap":2000,"alt":9500,"motor":"CATL Lithium battery (80V/302Ah)","ruedas":"PU","contado":46062.31,"distribuidor":41369.35,"comentarios":""},{"clasificacion":"CLASE 3 (rango bajo) CBD20","marca":"HANGCHA","modelo":"CBD20-WD-I","cap":2000,"alt":0,"motor":"48V/20Ah hangcha lithium battery(standard)","ruedas":"PU","contado":1572.42,"distribuidor":1300.33,"comentarios":""},{"clasificacion":"CLASE 3 (rango alto)","marca":"HANGCHA","modelo":"CBD20-XT1S-SISU","cap":2000,"alt":0,"motor":"EVE Lithium Battery 48V/125Ah","ruedas":"PU","contado":8318.76,"distribuidor":7471.22,"comentarios":""},{"clasificacion":"CLASE 3 (rango bajo) CDD15","marca":"HANGCHA","modelo":"CDD15-WS-I","cap":1500,"alt":3000,"motor":"Li-ion iron phosphate lithium (24V/60Ah)","ruedas":"PU","contado":3291.45,"distribuidor":2875.9,"comentarios":""},{"clasificacion":"CLASE 3 (rango bajo) CDD15","marca":"HANGCHA","modelo":"CDD15-WS-I","cap":1500,"alt":3500,"motor":"Li-ion iron phosphate lithium (24V/60Ah)","ruedas":"PU","contado":3506.44,"distribuidor":3063.74,"comentarios":""},{"clasificacion":"CLASE 3 (rango alto)","marca":"HANGCHA","modelo":"CDD16-XT1S-SISU","cap":1600,"alt":6000,"motor":"EVE Lithium Battery 48V/105Ah","ruedas":"PU","contado":13516.76,"distribuidor":12139.63,"comentarios":""},{"clasificacion":"CLASE 3 (rango alto)","marca":"HANGCHA","modelo":"CDD20-XT1S-SI","cap":2000,"alt":4500,"motor":"EVE Lithium Battery 48V/80Ah","ruedas":"PU","contado":10672.97,"distribuidor":9585.58,"comentarios":""},{"clasificacion":"CLASE 3 (rango alto)","marca":"HANGCHA","modelo":"CDD20-XT1S-SI","cap":2000,"alt":5500,"motor":"EVE Lithium Battery 48V/105Ah","ruedas":"PU","contado":11336.13,"distribuidor":10181.18,"comentarios":""},{"clasificacion":"CLASE 3 (rango alto)","marca":"HANGCHA","modelo":"CDD20-XT1S-SI","cap":2000,"alt":6000,"motor":"EVE Lithium Battery 48V/105Ah","ruedas":"PU","contado":11862.76,"distribuidor":10654.15,"comentarios":""},{"clasificacion":"CLASE 5 (2,5)","marca":"HANGCHA","modelo":"CPCD25-AG2/A2G28","cap":2500,"alt":3000,"motor":"XINCHAI C490BPG/4D29G","ruedas":"NEUMATICAS","contado":13522.91,"distribuidor":12179.55,"comentarios":"Precio Promo 11400"},{"clasificacion":"CLASE 5 (2,5)","marca":"HANGCHA","modelo":"CPCD25-AG2/A2G28","cap":2500,"alt":4500,"motor":"XINCHAI C490BPG/4D29G","ruedas":"NEUMATICAS","contado":15894.95,"distribuidor":14315.96,"comentarios":"Precio Promo 12200"},{"clasificacion":"CLASE 5 (Entre 3,0 y 3,8)","marca":"HANGCHA","modelo":"CPCD30-AG2/A2G28","cap":3000,"alt":4500,"motor":"XINCHAI C490BPG/4D29G","ruedas":"NEUMATICAS","contado":17092.27,"distribuidor":15394.34,"comentarios":""},{"clasificacion":"CLASE 5 (Entre 3,0 y 3,8)","marca":"HANGCHA","modelo":"CPCD38-AG2/A2G28","cap":3800,"alt":4500,"motor":"XINCHAI C490BPG/4D29G","ruedas":"NEUMATICAS","contado":19335.54,"distribuidor":17414.77,"comentarios":""},{"clasificacion":"CLASE 5 (2,5)","marca":"HANGCHA","modelo":"CPCD25-XRG2","cap":2500,"alt":4500,"motor":"XINCHAI C490BPG","ruedas":"NEUMATICAS","contado":16541.05,"distribuidor":14897.88,"comentarios":"Precio Promo 12700"},{"clasificacion":"CLASE 5 (Entre 3,0 y 3,8)","marca":"HANGCHA","modelo":"CPCD30-XRG2","cap":3000,"alt":4500,"motor":"XINCHAI C490BPG","ruedas":"NEUMATICAS","contado":3230.5,"distribuidor":2909.58,"comentarios":""},{"clasificacion":"CLASE 5 (Entre 3,0 y 3,8)","marca":"HANGCHA","modelo":"CPCD38-XRG2","cap":3800,"alt":4500,"motor":"XINCHAI C490BPG","ruedas":"NEUMATICAS","contado":3863.04,"distribuidor":3479.29,"comentarios":""},{"clasificacion":"CLASE 5 (2,5)","marca":"HANGCHA","modelo":"CPCD25-XRW10","cap":2500,"alt":4500,"motor":"ISUZU C240NKFC01","ruedas":"NEUMATICAS","contado":23984.75,"distribuidor":21602.12,"comentarios":""},{"clasificacion":"CLASE 5 (2,5)","marca":"HANGCHA","modelo":"CPCD25-XRW55F","cap":2500,"alt":4500,"motor":"MITSUBISHI S4S","ruedas":"NEUMATICAS","contado":22665.44,"distribuidor":20413.88,"comentarios":""},{"clasificacion":"CLASE 5 (2,5)","marca":"SOGNI","modelo":"IDF25","cap":2500,"alt":3000,"motor":"XINCHAI C490BPG","ruedas":"NEUMATICAS","contado":13441.58,"distribuidor":12106.31,"comentarios":"Precio Promo 11400"},{"clasificacion":"CLASE 5 (2,5)","marca":"SOGNI","modelo":"IDF25","cap":2500,"alt":4500,"motor":"XINCHAI C490BPG","ruedas":"NEUMATICAS","contado":14571.12,"distribuidor":13123.64,"comentarios":""},{"clasificacion":"CLASE 3 (rango alto)","marca":"HANGCHA","modelo":"QDD60-AC2-I","cap":6000,"alt":0,"motor":"CATL Lithium Battery 48V/228Ah","ruedas":"MACIZA","contado":20801.77,"distribuidor":18682.42,"comentarios":""},{"clasificacion":"SIN CLASE (Cleaning)","marca":"HANGCHA","modelo":"JSSD1250-BC6J","cap":"NA","alt":0,"motor":"GEL","ruedas":"MACIZA","contado":6162.0,"distribuidor":5138.25,"comentarios":""},{"clasificacion":"SIN CLASE (Cleaning)","marca":"HANGCHA","modelo":"JSSD1350-BC6J-I","cap":"NA","alt":0,"motor":"LITIO","ruedas":"MACIZA","contado":9243.0,"distribuidor":7707.38,"comentarios":""},{"clasificacion":"SIN CLASE (Cleaning)","marca":"HANGCHA","modelo":"JSSD1900-BC6J-P-I","cap":"NA","alt":0,"motor":"LITIO","ruedas":"MACIZA","contado":14315.76,"distribuidor":11937.36,"comentarios":""},{"clasificacion":"SIN CLASE (Cleaning)","marca":"HANGCHA","modelo":"JSXD50-RC9Z-I","cap":"NA","alt":0,"motor":"LITIO","ruedas":"MACIZA","contado":3081.0,"distribuidor":2569.13,"comentarios":""},{"clasificacion":"SIN CLASE (Cleaning)","marca":"HANGCHA","modelo":"JSXD60-XQ6Z-I","cap":"NA","alt":0,"motor":"LITIO","ruedas":"MACIZA","contado":5290.61,"distribuidor":4411.63,"comentarios":""},{"clasificacion":"SIN CLASE (Cleaning)","marca":"HANGCHA","modelo":"JSXD90-RC9-I","cap":"NA","alt":0,"motor":"LITIO","ruedas":"MACIZA","contado":5290.61,"distribuidor":4411.63,"comentarios":""},{"clasificacion":"SIN CLASE (Cleaning)","marca":"HANGCHA","modelo":"JSXD90-RC9-SI","cap":"NA","alt":0,"motor":"LITIO","ruedas":"MACIZA","contado":5041.64,"distribuidor":4204.03,"comentarios":""},{"clasificacion":"SIN CLASE (Cleaning)","marca":"HANGCHA","modelo":"JSXD75-XL6-STI","cap":"NA","alt":0,"motor":"LITIO","ruedas":"MACIZA","contado":7780.3,"distribuidor":6487.69,"comentarios":""},{"clasificacion":"SIN CLASE (Cleaning)","marca":"HANGCHA","modelo":"JSXD120-XL6-I","cap":"NA","alt":0,"motor":"LITIO","ruedas":"MACIZA","contado":14626.97,"distribuidor":12196.86,"comentarios":""},{"clasificacion":"SIN CLASE (transp. Manual)","marca":"HANGCHA","modelo":"CBY30-BF","cap":3000,"alt":0,"motor":"NA","ruedas":"NYLON","contado":531.76,"distribuidor":454.09,"comentarios":"Precio Promo 362"}],"accesorios":[{"categoria":"Neumáticos","nombre":"Solid tyre","bandas":{"1-1.8T":280,"2-2.5T":340,"3-3.5T":420,"5-7T":1290,"8-10T":2570,"12T-14T (600mm)":4320,"16T (600mm)":4370,"14T-16T (900mm)":4370,"A16T-18T (1200mm)":5010,"25T":7140,"32T":9470}},{"categoria":"Neumáticos","nombre":"No mark tyre","bandas":{"1-1.8T":350,"2-2.5T":520,"3-3.5T":640,"5-7T":1940,"8-10T":3160,"3-W":140,"12T-14T (600mm)":4470,"16T (600mm)":4680,"14T-16T (900mm)":5680,"A16T-18T (1200mm)":5890,"25T":9890}},{"categoria":"Neumáticos","nombre":"Dual tyres","bandas":{"1-1.8T":370,"2-2.5T":460,"3-3.5T":540,"4T/4.5T-5T(Mini)":690}},{"categoria":"Neumáticos","nombre":"Front dual solid tyres and Rear solid tyre","bandas":{"1-1.8T":770,"2-2.5T":970,"3-3.5T":1200,"4T/4.5T-5T(Mini)":1640}},{"categoria":"Neumáticos","nombre":"Fromt dual pneumatic tyres and Rear solid tyres","bandas":{"1-1.8T":400,"2-2.5T":580,"3-3.5T":690,"4T/4.5T-5T(Mini)":890}},{"categoria":"Accesorios","nombre":"Standard length of the Fork","bandas":{"1-1.8T":920,"2-2.5T":1070,"3-3.5T":1070,"4-mini 5T":1070,"5-6T":1200,"7T":1200,"8T":1500,"10T":1500,"CQD":920,"3-Wheel":900,"12T/14T/mini 16T":1500,"14T/16T Std.":1800,"A16T-18T":1800}},{"categoria":"Accesorios","nombre":"Each 100mm extended fork length","bandas":{"1-1.8T":20,"2-2.5T":30,"3-3.5T":35,"4-mini 5T":40,"5-6T":40,"7T":50,"8T":50,"10T":60,"CQD":40,"3-Wheel":40,"12T/14T/mini 16T":220,"14T/16T Std.":320,"A16T-18T":400}},{"categoria":"Accesorios","nombre":"Standard width of the Carriage","bandas":{"1-1.8T":1000,"2-2.5T":1038,"3-3.5T":1150,"4-mini 5T":1250,"5-6T":1700,"7T":1700,"8T":1800,"10T":1800,"12T/14T/mini 16T":2200,"14T/16T Std.":2310,"A16T-18T":2510}},{"categoria":"Accesorios","nombre":"Each 100mm extended Carriage Wide","bandas":{"1-1.8T":30,"2-2.5T":50,"3-3.5T":60,"4-mini 5T":70,"5-6T":90,"7T":110,"8T":140,"10T":150,"12T/14T/mini 16T":210,"14T/16T Std.":220,"A16T-18T":250}},{"categoria":"Accesorios","nombre":"HC made Integrated sideshift","bandas":{"1-1.8T":360,"2-2.5T":420,"3-3.5T":460,"4-mini 5T":560,"CQD":0,"3-Wheel":360}},{"categoria":"Accesorios","nombre":"Cascade sideshift","bandas":{"1-1.8T":350,"2-2.5T":350,"3-3.5T":660,"4-mini 5T":660,"5-6T":1410,"7T":1410,"3-Wheel":390}},{"categoria":"Accesorios","nombre":"Integrated sideshift & Fork positioner","bandas":{"1-1.8T":1800,"2-2.5T":1800,"5-6T":2920,"7T":2920,"8T":2850,"10T":3000,"12T/14T/mini 16T":3390,"14T/16T Std.":4650,"A16T-18T":4650}},{"categoria":"Accesorios","nombre":"3rd valve","bandas":{"1-1.8T":60,"2-2.5T":60,"3-3.5T":60,"4-mini 5T":130,"5-6T":130,"7T":130,"3-Wheel":60}},{"categoria":"Accesorios","nombre":"3rd and 4th valve","bandas":{"1-1.8T":120,"2-2.5T":120,"3-3.5T":120,"4-mini 5T":260,"5-6T":260,"7T":260,"3-Wheel":120}},{"categoria":"Accesorios","nombre":"3rd and 4th and 5th valve","bandas":{"3-3.5T":180,"4-mini 5T":390,"5-6T":390,"7T":390,"8T":210,"10T":210}},{"categoria":"Accesorios","nombre":"3rd pipeline","bandas":{"1-1.8T":140,"2-2.5T":140,"3-3.5T":140,"4-mini 5T":140,"5-6T":140,"7T":140,"8T":140,"10T":140,"CQD":0,"3-Wheel":140}},{"categoria":"Accesorios","nombre":"3rd and 4th pipelines","bandas":{"1-1.8T":280,"2-2.5T":280,"3-3.5T":280,"4-mini 5T":280,"5-6T":280,"7T":280,"8T":280,"10T":280,"CQD":0,"3-Wheel":280}},{"categoria":"Accesorios","nombre":"3rd and 4th and 5th pipelines","bandas":{"3-3.5T":420,"4-mini 5T":420,"5-6T":420,"7T":420,"8T":420,"10T":420}},{"categoria":"Accesorios","nombre":"3-Way catalyst","bandas":{"1-1.8T":1000,"2-2.5T":1000,"3-3.5T":1000,"4-mini 5T":1000,"5-6T":1000,"7T":1000,"CQD":0,"3-Wheel":0}},{"categoria":"Accesorios","nombre":"Particle purifier","bandas":{"1-1.8T":1000,"2-2.5T":1000,"3-3.5T":1000,"4-mini 5T":1000,"5-6T":1000,"7T":1000,"8T":1000,"10T":1000}},{"categoria":"Accesorios","nombre":"Oil-bath cleaner for R series","bandas":{"1-1.8T":70,"2-2.5T":70,"3-3.5T":70,"4-mini 5T":110,"5-6T":130,"7T":130,"8T":130,"10T":130,"CQD":0,"3-Wheel":0}},{"categoria":"Accesorios","nombre":"Upper air cleaner for R series","bandas":{"1-1.8T":90,"2-2.5T":90,"3-3.5T":90,"4-mini 5T":90,"5-6T":130,"7T":130,"8T":130,"10T":130,"CQD":0,"3-Wheel":0,"12T/14T/mini 16T":190,"14T/16T Std.":190,"A16T-18T":190}},{"categoria":"Accesorios","nombre":"LPG swing-down bracket","bandas":{"1-1.8T":70,"2-2.5T":70,"3-3.5T":70,"4-mini 5T":80,"5-6T":0,"7T":0,"8T":0,"10T":0,"CQD":0,"3-Wheel":0}},{"categoria":"Accesorios","nombre":"LPG back rotated bracket","bandas":{"1-1.8T":70,"2-2.5T":70,"3-3.5T":70,"4-mini 5T":80}},{"categoria":"Accesorios","nombre":"Double LPG bracket","bandas":{"5-6T":130,"7T":130}},{"categoria":"Accesorios","nombre":"Upper-positioned exhaust pipe","bandas":{"1-1.8T":110,"2-2.5T":110,"3-3.5T":110,"4-mini 5T":110,"5-6T":110,"7T":110,"8T":110,"10T":110,"CQD":0,"3-Wheel":0}},{"categoria":"Accesorios","nombre":"Middle-positioned exhaust pipe","bandas":{"1-1.8T":70,"2-2.5T":70,"3-3.5T":70,"4-mini 5T":70,"5-6T":0,"7T":0,"8T":0,"10T":0,"CQD":0,"3-Wheel":0}},{"categoria":"Accesorios","nombre":"Sparkle-arrest","bandas":{"1-1.8T":40,"2-2.5T":40,"3-3.5T":40,"4-mini 5T":40,"5-6T":40,"7T":40,"8T":40,"10T":40,"CQD":0,"3-Wheel":0,"12T/14T/mini 16T":40}},{"categoria":"Accesorios","nombre":"Fire extinguisher","bandas":{"1-1.8T":50,"2-2.5T":50,"3-3.5T":50,"4-mini 5T":50,"5-6T":50,"7T":50,"8T":50,"10T":50,"CQD":0,"3-Wheel":0}},{"categoria":"Accesorios","nombre":"Counterbalance net","bandas":{"1-1.8T":30,"2-2.5T":30,"3-3.5T":30,"4-mini 5T":30,"5-6T":30,"7T":30,"8T":30,"10T":30,"CQD":0,"3-Wheel":0}},{"categoria":"Accesorios","nombre":"Camera for Reach truck","bandas":{"CQD":950}},{"categoria":"Accesorios","nombre":"Lifting height digital screen for Reach truck","bandas":{"CQD":1370}},{"categoria":"Accesorios","nombre":"lifting height limitation","bandas":{"CQD":530}},{"categoria":"Accesorios","nombre":"lifting height selection system","bandas":{"CQD":720}},{"categoria":"Accesorios","nombre":"Glass overhead","bandas":{"CQD":130}},{"categoria":"Accesorios","nombre":"Single fork positioner in Hydraulic type","bandas":{"12T/14T/mini 16T":1350}},{"categoria":"Accesorios","nombre":"Rear view camera","bandas":{"12T/14T/mini 16T":460}},{"categoria":"Accesorios","nombre":"Clean control indicator in filter","bandas":{"1-1.8T":10,"2-2.5T":10,"3-3.5T":10,"5-6T":10,"7T":10,"8T":10,"10T":10}},{"categoria":"Accesorios","nombre":"Dust proof for engine radiator","bandas":{"1-1.8T":20,"2-2.5T":20,"3-3.5T":20,"4-mini 5T":20,"5-6T":20,"7T":20,"8T":20,"10T":20}},{"categoria":"Accesorios","nombre":"Protective hood for chassis","bandas":{"1-1.8T":90,"2-2.5T":90,"3-3.5T":90}},{"categoria":"Accesorios","nombre":"AKEBONO brake system","bandas":{"4-mini 5T":850,"5-6T":850,"7T":850}},{"categoria":"Accesorios","nombre":"Return oil strainer for IC truck","bandas":{"1-1.8T":30,"2-2.5T":30,"3-3.5T":30,"4-mini 5T":30,"5-6T":30,"7T":30,"8T":30,"10T":30}},{"categoria":"Accesorios","nombre":"Overspeed alarm","bandas":{"1-1.8T":150,"2-2.5T":150,"3-3.5T":150}},{"categoria":"Accesorios","nombre":"Lateral battery extraction for A series 4-wheel truck","bandas":{"1-1.8T":240,"2-2.5T":240,"3-3.5T":240}},{"categoria":"Accesorios","nombre":"Lateral battery extraction for A series 3-wheel truck","bandas":{"3-Wheel":240}},{"categoria":"Accesorios","nombre":"Wheelbarrow","bandas":{"1-1.8T":60,"2-2.5T":60,"3-3.5T":60,"3-Wheel":60}},{"categoria":"Accesorios","nombre":"Lateral battery extraction and wheelbarrow for reach truck","bandas":{"CQD":270}},{"categoria":"Accesorios","nombre":"Lateral battery extraction and wheelbarrow for rear driving 3-wheel truck","bandas":{"3-Wheel":340}},{"categoria":"Accesorios","nombre":"Higher OHG with suspension seat","bandas":{"1-1.8T":30,"2-2.5T":30,"3-3.5T":30,"4-mini 5T":30,"5-6T":30,"7T":30,"8T":30,"10T":30}},{"categoria":"Accesorios","nombre":"Wet-disc brake","bandas":{"4-mini 5T":580,"5-6T":660,"7T":660,"8T":800,"10T":800}},{"categoria":"Accesorios","nombre":"Port transmission","bandas":{"5-6T":280,"7T":280,"8T":280,"10T":280}},{"categoria":"Accesorios","nombre":"Double sound insulating padding","bandas":{"1-1.8T":70,"2-2.5T":70,"3-3.5T":70,"4-mini 5T":110,"5-6T":110,"7T":110,"8T":130,"10T":130}},{"categoria":"Accesorios","nombre":"REAR HANDLE WITH HORN","bandas":{"1-1.8T":20,"2-2.5T":20,"3-3.5T":20}},{"categoria":"Accesorios","nombre":"Tools set","bandas":{"1-1.8T":28,"2-2.5T":28,"3-3.5T":28,"4-mini 5T":28,"5-6T":28,"7T":28,"8T":28,"10T":28,"CQD":28,"3-Wheel":28,"12T/14T/mini 16T":28,"14T/16T Std.":28,"A16T-18T":28}},{"categoria":"Accesorios","nombre":"Hangcha Work Suit","bandas":{"1-1.8T":18,"2-2.5T":18,"3-3.5T":18,"4-mini 5T":18,"5-6T":18,"7T":18,"8T":18,"10T":18,"CQD":18,"3-Wheel":18,"12T/14T/mini 16T":18,"14T/16T Std.":18,"A16T-18T":18}},{"categoria":"Accesorios","nombre":"Dual Rear view mirror","bandas":{"1-1.8T":20,"2-2.5T":20,"3-3.5T":20,"4-mini 5T":20}},{"categoria":"Accesorios","nombre":"Protecting rod for control valve","bandas":{"1-1.8T":20,"2-2.5T":0,"3-3.5T":0,"4-mini 5T":0,"5-6T":0,"7T":0,"8T":0,"10T":0,"CQD":0,"3-Wheel":0}},{"categoria":"Accesorios","nombre":"BF5 full suspention seat","bandas":{"1-1.8T":70}},{"categoria":"Accesorios","nombre":"BF5 full suspention seat with switch and belt","bandas":{"1-1.8T":100}},{"categoria":"Accesorios","nombre":"MSG65/531 seat with armset","bandas":{"1-1.8T":280}},{"categoria":"Accesorios","nombre":"SC24 full-suspension seat with armset and switch","bandas":{"1-1.8T":90}},{"categoria":"Accesorios","nombre":"Operator presence system(OPS) for IC","bandas":{"1-1.8T":210}},{"categoria":"Accesorios","nombre":"OPS for electric forklift","bandas":{"1-1.8T":130}},{"categoria":"Accesorios","nombre":"S85/90 seat","bandas":{"1-1.8T":30,"2-2.5T":0,"3-3.5T":0,"4-mini 5T":0,"5-6T":0,"7T":0,"8T":0,"10T":0,"CQD":0,"3-Wheel":0}},{"categoria":"Accesorios","nombre":"S85/90 seat with armset","bandas":{"1-1.8T":40,"2-2.5T":0,"3-3.5T":0,"4-mini 5T":0,"5-6T":0,"7T":0,"8T":0,"10T":0,"CQD":0,"3-Wheel":0}},{"categoria":"Accesorios","nombre":"S85/90 Seat with belt","bandas":{"1-1.8T":40,"2-2.5T":0,"3-3.5T":0,"4-mini 5T":0,"5-6T":0,"7T":0,"8T":0,"10T":0,"CQD":0,"3-Wheel":0}},{"categoria":"Accesorios","nombre":"S85/90 Folding Seat with belt","bandas":{"1-1.8T":50,"2-2.5T":0,"3-3.5T":0,"4-mini 5T":0,"5-6T":0,"7T":0,"8T":0,"10T":0,"CQD":0,"3-Wheel":0}},{"categoria":"Accesorios","nombre":"S85/90 with armset and switch","bandas":{"1-1.8T":60}},{"categoria":"Accesorios","nombre":"S85/90 Folding seat with armset","bandas":{"1-1.8T":70}},{"categoria":"Accesorios","nombre":"GS12 seat","bandas":{"1-1.8T":50,"2-2.5T":0,"3-3.5T":0,"4-mini 5T":0,"5-6T":0,"7T":0,"8T":0,"10T":0,"CQD":0,"3-Wheel":0}},{"categoria":"Accesorios","nombre":"GS12 seat with armset","bandas":{"1-1.8T":70,"2-2.5T":0,"3-3.5T":0,"4-mini 5T":0,"5-6T":0,"7T":0,"8T":0,"10T":0,"CQD":0,"3-Wheel":0}},{"categoria":"Accesorios","nombre":"GS12 seat with switch","bandas":{"1-1.8T":60,"2-2.5T":0,"3-3.5T":0,"4-mini 5T":0,"5-6T":0,"7T":0,"8T":0,"10T":0,"CQD":0,"3-Wheel":0}},{"categoria":"Accesorios","nombre":"GS12 with armset and switch","bandas":{"1-1.8T":80,"2-2.5T":0,"3-3.5T":0,"4-mini 5T":0,"5-6T":0,"7T":0,"8T":0,"10T":0,"CQD":0,"3-Wheel":0}},{"categoria":"Accesorios","nombre":"GRAMMER MFA Fingtip control","bandas":{"1-1.8T":1860,"2-2.5T":1860,"3-3.5T":1860,"4-mini 5T":1860,"3-Wheel":1860}},{"categoria":"Accesorios","nombre":"Rear working light","bandas":{"1-1.8T":50,"2-2.5T":50,"3-3.5T":50,"4-mini 5T":50}},{"categoria":"Accesorios","nombre":"Bule LED light","bandas":{"1-1.8T":40,"2-2.5T":40,"3-3.5T":40}},{"categoria":"Mástiles (apiladores)","nombre":"Mástil - Mini range (CDD10/12-AMC1-SZ)","bandas":{"2.0m":0,"2.5m":0,"2.7m":0,"3m":0,"3.3m":120,"3.5m":180,"3.6m":200}},{"categoria":"Mástiles (apiladores)","nombre":"Mástil - Basic Range (CDD12/14/16-AEC1(S)) - 1 cilindro simple","bandas":{"2.0m":0,"2.5m":0,"2.7m":0,"3m":65,"3.3m":95,"3.5m":160,"3.6m":170}},{"categoria":"Mástiles (apiladores)","nombre":"Mástil - Basic Range (CDD12/14/16-AEC1(S)) - 2 cilindros dúplex","bandas":{"2.0m":285,"2.5m":295,"2.7m":330,"3m":360,"3.3m":380,"3.5m":410,"3.6m":420,"3.8m":430,"4.0m":440,"4.3m":520,"4.5M":550}},{"categoria":"Mástiles (apiladores)","nombre":"Mástil - Basic Range (CDD12/14/16-AEC1(S)) - full free dúplex","bandas":{"2.0m":440,"2.5m":440,"2.7m":450,"3m":460,"3.3m":510,"3.5m":530,"3.6m":540}},{"categoria":"Mástiles (apiladores)","nombre":"Mástil - Hi Range (CDD12/14/16/20-AC1(S)) - 2 cilindros dúplex","bandas":{"2.0m":0,"2.5m":0,"2.7m":0,"3m":75,"3.3m":120,"3.5m":190,"3.6m":200,"3.8m":240,"4.0m":290,"4.3m":370,"4.5M":390}},{"categoria":"Mástiles (apiladores)","nombre":"Mástil - Hi Range (CDD12/14/16/20-AC1(S)) - full free dúplex","bandas":{"2.0m":290,"2.5m":300,"2.7m":310,"3m":330,"3.3m":360,"3.5m":370,"3.6m":380}},{"categoria":"Mástiles (apiladores)","nombre":"Mástil - Basic Range (CDD12/14/16-AEC1(S)) - full free tríplex","bandas":{"3.5m":590,"3.7m":610,"4.0m":650,"4.3m":730,"4.5M":800}},{"categoria":"Mástiles (apiladores)","nombre":"Mástil - Hi Range (CDD12/14/16/20-AC1(S)) - full free tríplex","bandas":{"3.5m":440,"3.6m":450,"3.7m":460,"4.0m":510,"4.3m":580,"4.5M":660,"4.7M":690,"5.0M":730,"5.2M":760,"5.5M":800,"6.0M":1070}}]};
+  let LISTA_PRECIOS = {"modelos":[{"clasificacion":"SIN CLASE (Aereo)","marca":"HANGCHA","modelo":"78XEN","cap":"NA","alt":10,"motor":"EVE Lithium Battery 24V/230Ah","ruedas":"MACIZA","contado":11748.74,"distribuidor":10617.12,"comentarios":""},{"clasificacion":"SIN CLASE (Aereo)","marca":"HANGCHA","modelo":"100XEN","cap":"NA","alt":10,"motor":"EVE Lithium Battery 24V/230Ah","ruedas":"MACIZA","contado":15186.01,"distribuidor":13723.31,"comentarios":""},{"clasificacion":"SIN CLASE (Aereo)","marca":"HANGCHA","modelo":"140XEN","cap":"NA","alt":14,"motor":"EVE Lithium Battery 24V/230Ah","ruedas":"MACIZA","contado":16287.11,"distribuidor":14718.36,"comentarios":""},{"clasificacion":"SIN CLASE (Aereo)","marca":"HANGCHA","modelo":"160XEN","cap":"NA","alt":16,"motor":"EVE Lithium Battery 24V/230Ah","ruedas":"MACIZA","contado":21517.33,"distribuidor":19444.82,"comentarios":""},{"clasificacion":"SIN CLASE (Aereo)","marca":"HANGCHA","modelo":"HV70M-LC","cap":"NA","alt":7,"motor":"Gel","ruedas":"MACIZA","contado":5120.12,"distribuidor":4626.95,"comentarios":""},{"clasificacion":"CLASE 7 (Telehandler)","marca":"HANGCHA","modelo":"T25-60XHYG","cap":2500,"alt":6000,"motor":"EVE Lithium Battery 310V/150Ah","ruedas":"NEUMATICAS","contado":93226.4,"distribuidor":82530.35,"comentarios":""},{"clasificacion":"CLASE 7 (Brazos)","marca":"HANGCHA","modelo":"GTHZ170","cap":"NA","alt":17000,"motor":"HANGCHA lithium battery 80V/125AH","ruedas":"MACIZA","contado":52414.71,"distribuidor":46401.07,"comentarios":""},{"clasificacion":"CLASE 3 (rango alto)","marca":"HANGCHA","modelo":"AGVLCBD20-MGJ1","cap":2000,"alt":0,"motor":"STD","ruedas":"PU","contado":6826.65,"distribuidor":6131.13,"comentarios":""},{"clasificacion":"CLASE 1 (Entre 1,8 y 2,5)","marca":"HANGCHA","modelo":"CPDS18-XCY2G-SI","cap":1800,"alt":6000,"motor":"EVE Lithium battery (80V/230Ah)","ruedas":"MACIZA","contado":25159.12,"distribuidor":22595.84,"comentarios":""},{"clasificacion":"CLASE 1 (Entre 1,8 y 2,5)","marca":"HANGCHA","modelo":"CPDS20-XCD6-SI","cap":2000,"alt":6000,"motor":"EVE Lithium battery (80V/230Ah)","ruedas":"MACIZA","contado":10864.12,"distribuidor":9757.25,"comentarios":""},{"clasificacion":"CLASE 1 (Entre 1,8 y 2,5)","marca":"HANGCHA","modelo":"CPD25-XAJ4-I","cap":2500,"alt":4500,"motor":"EVE Lithium battery (80V/230Ah)","ruedas":"NEUMATICAS","contado":19251.14,"distribuidor":17289.78,"comentarios":"Precio Promo 16500"},{"clasificacion":"CLASE 1 (Entre 1,8 y 2,5)","marca":"HANGCHA","modelo":"CPD25-XAJ4-I","cap":2500,"alt":4500,"motor":"EVE Lithium battery (80V/230Ah)","ruedas":"NEUMATICAS","contado":20187.37,"distribuidor":18130.62,"comentarios":"Precio Promo 17300"},{"clasificacion":"CLASE 1 (Entre 1,8 y 2,5)","marca":"HANGCHA","modelo":"CPD25-XAJ4-I","cap":2500,"alt":4500,"motor":"EVE Lithium battery (80V/230Ah)","ruedas":"NEUMATICAS","contado":20733.5,"distribuidor":18621.11,"comentarios":"Precio Promo 17800"},{"clasificacion":"CLASE 1 (Entre 3,0 y 3,8)","marca":"HANGCHA","modelo":"CPD30-XAJ4-I","cap":3000,"alt":4500,"motor":"EVE Lithium battery (80V/304Ah)","ruedas":"NEUMATICAS","contado":22120.29,"distribuidor":19866.61,"comentarios":""},{"clasificacion":"CLASE 1 (Entre 3,0 y 3,8)","marca":"HANGCHA","modelo":"CPD38-XAJ4-I","cap":3800,"alt":4500,"motor":"EVE Lithium battery (80V/304Ah)","ruedas":"NEUMATICAS","contado":23220.35,"distribuidor":20854.6,"comentarios":""},{"clasificacion":"CLASE 1 (Entre 1,8 y 2,5)","marca":"HANGCHA","modelo":"CPD18-XEY2HA-SI","cap":1800,"alt":4500,"motor":"EVE Lithium battery (80V/230Ah)","ruedas":"NEUMATICAS","contado":19949.41,"distribuidor":17916.91,"comentarios":""},{"clasificacion":"CLASE 1 (Entre 1,8 y 2,5)","marca":"HANGCHA","modelo":"CPD25-XEY2HA-SI","cap":2500,"alt":4500,"motor":"EVE Lithium battery (80V/230Ah)","ruedas":"NEUMATICAS","contado":21950.6,"distribuidor":19714.21,"comentarios":"Precio Promo 17300"},{"clasificacion":"CLASE 1 (Entre 1,8 y 2,5)","marca":"HANGCHA","modelo":"CPD25-XEY2HA-SI","cap":2500,"alt":4500,"motor":"EVE Lithium battery (80V/304Ah)","ruedas":"NEUMATICAS","contado":23413.45,"distribuidor":21028.02,"comentarios":"Precio Promo 18500"},{"clasificacion":"CLASE 1 (Entre 3,0 y 3,8)","marca":"HANGCHA","modelo":"CPD30-XEY2HA-SI","cap":3000,"alt":4500,"motor":"EVE Lithium battery (80V/304Ah)","ruedas":"NEUMATICAS","contado":25393.18,"distribuidor":22806.05,"comentarios":""},{"clasificacion":"CLASE 1 (Entre 3,0 y 3,8)","marca":"HANGCHA","modelo":"CPD38-XEY2HA-SI","cap":3800,"alt":4500,"motor":"EVE Lithium battery (80V/304Ah)","ruedas":"NEUMATICAS","contado":27080.33,"distribuidor":24321.31,"comentarios":""},{"clasificacion":"CLASE 3 (rango alto)","marca":"HANGCHA","modelo":"CQD18-AC5-I","cap":1800,"alt":9500,"motor":"CATL Lithium battery (80V/302Ah)","ruedas":"PU","contado":45001.26,"distribuidor":40416.4,"comentarios":""},{"clasificacion":"CLASE 3 (rango alto)","marca":"HANGCHA","modelo":"CQD20-AC5-I","cap":2000,"alt":9500,"motor":"CATL Lithium battery (80V/302Ah)","ruedas":"PU","contado":46062.31,"distribuidor":41369.35,"comentarios":""},{"clasificacion":"CLASE 3 (rango bajo) CBD20","marca":"HANGCHA","modelo":"CBD20-WD-I","cap":2000,"alt":0,"motor":"48V/20Ah hangcha lithium battery(standard)","ruedas":"PU","contado":1572.42,"distribuidor":1300.33,"comentarios":""},{"clasificacion":"CLASE 3 (rango alto)","marca":"HANGCHA","modelo":"CBD20-XT1S-SISU","cap":2000,"alt":0,"motor":"EVE Lithium Battery 48V/125Ah","ruedas":"PU","contado":8318.76,"distribuidor":7471.22,"comentarios":""},{"clasificacion":"CLASE 3 (rango bajo) CDD15","marca":"HANGCHA","modelo":"CDD15-WS-I","cap":1500,"alt":3000,"motor":"Li-ion iron phosphate lithium (24V/60Ah)","ruedas":"PU","contado":3291.45,"distribuidor":2875.9,"comentarios":""},{"clasificacion":"CLASE 3 (rango bajo) CDD15","marca":"HANGCHA","modelo":"CDD15-WS-I","cap":1500,"alt":3500,"motor":"Li-ion iron phosphate lithium (24V/60Ah)","ruedas":"PU","contado":3506.44,"distribuidor":3063.74,"comentarios":""},{"clasificacion":"CLASE 3 (rango alto)","marca":"HANGCHA","modelo":"CDD16-XT1S-SISU","cap":1600,"alt":6000,"motor":"EVE Lithium Battery 48V/105Ah","ruedas":"PU","contado":13516.76,"distribuidor":12139.63,"comentarios":""},{"clasificacion":"CLASE 3 (rango alto)","marca":"HANGCHA","modelo":"CDD20-XT1S-SI","cap":2000,"alt":4500,"motor":"EVE Lithium Battery 48V/80Ah","ruedas":"PU","contado":10672.97,"distribuidor":9585.58,"comentarios":""},{"clasificacion":"CLASE 3 (rango alto)","marca":"HANGCHA","modelo":"CDD20-XT1S-SI","cap":2000,"alt":5500,"motor":"EVE Lithium Battery 48V/105Ah","ruedas":"PU","contado":11336.13,"distribuidor":10181.18,"comentarios":""},{"clasificacion":"CLASE 3 (rango alto)","marca":"HANGCHA","modelo":"CDD20-XT1S-SI","cap":2000,"alt":6000,"motor":"EVE Lithium Battery 48V/105Ah","ruedas":"PU","contado":11862.76,"distribuidor":10654.15,"comentarios":""},{"clasificacion":"CLASE 5 (2,5)","marca":"HANGCHA","modelo":"CPCD25-AG2/A2G28","cap":2500,"alt":3000,"motor":"XINCHAI C490BPG/4D29G","ruedas":"NEUMATICAS","contado":13522.91,"distribuidor":12179.55,"comentarios":"Precio Promo 11400"},{"clasificacion":"CLASE 5 (2,5)","marca":"HANGCHA","modelo":"CPCD25-AG2/A2G28","cap":2500,"alt":4500,"motor":"XINCHAI C490BPG/4D29G","ruedas":"NEUMATICAS","contado":15894.95,"distribuidor":14315.96,"comentarios":"Precio Promo 12200"},{"clasificacion":"CLASE 5 (Entre 3,0 y 3,8)","marca":"HANGCHA","modelo":"CPCD30-AG2/A2G28","cap":3000,"alt":4500,"motor":"XINCHAI C490BPG/4D29G","ruedas":"NEUMATICAS","contado":17092.27,"distribuidor":15394.34,"comentarios":""},{"clasificacion":"CLASE 5 (Entre 3,0 y 3,8)","marca":"HANGCHA","modelo":"CPCD38-AG2/A2G28","cap":3800,"alt":4500,"motor":"XINCHAI C490BPG/4D29G","ruedas":"NEUMATICAS","contado":19335.54,"distribuidor":17414.77,"comentarios":""},{"clasificacion":"CLASE 5 (2,5)","marca":"HANGCHA","modelo":"CPCD25-XRG2","cap":2500,"alt":4500,"motor":"XINCHAI C490BPG","ruedas":"NEUMATICAS","contado":16541.05,"distribuidor":14897.88,"comentarios":"Precio Promo 12700"},{"clasificacion":"CLASE 5 (Entre 3,0 y 3,8)","marca":"HANGCHA","modelo":"CPCD30-XRG2","cap":3000,"alt":4500,"motor":"XINCHAI C490BPG","ruedas":"NEUMATICAS","contado":3230.5,"distribuidor":2909.58,"comentarios":""},{"clasificacion":"CLASE 5 (Entre 3,0 y 3,8)","marca":"HANGCHA","modelo":"CPCD38-XRG2","cap":3800,"alt":4500,"motor":"XINCHAI C490BPG","ruedas":"NEUMATICAS","contado":3863.04,"distribuidor":3479.29,"comentarios":""},{"clasificacion":"CLASE 5 (2,5)","marca":"HANGCHA","modelo":"CPCD25-XRW10","cap":2500,"alt":4500,"motor":"ISUZU C240NKFC01","ruedas":"NEUMATICAS","contado":23984.75,"distribuidor":21602.12,"comentarios":""},{"clasificacion":"CLASE 5 (2,5)","marca":"HANGCHA","modelo":"CPCD25-XRW55F","cap":2500,"alt":4500,"motor":"MITSUBISHI S4S","ruedas":"NEUMATICAS","contado":22665.44,"distribuidor":20413.88,"comentarios":""},{"clasificacion":"CLASE 5 (2,5)","marca":"SOGNI","modelo":"IDF25","cap":2500,"alt":3000,"motor":"XINCHAI C490BPG","ruedas":"NEUMATICAS","contado":13441.58,"distribuidor":12106.31,"comentarios":"Precio Promo 11400"},{"clasificacion":"CLASE 5 (2,5)","marca":"SOGNI","modelo":"IDF25","cap":2500,"alt":4500,"motor":"XINCHAI C490BPG","ruedas":"NEUMATICAS","contado":14571.12,"distribuidor":13123.64,"comentarios":""},{"clasificacion":"CLASE 3 (rango alto)","marca":"HANGCHA","modelo":"QDD60-AC2-I","cap":6000,"alt":0,"motor":"CATL Lithium Battery 48V/228Ah","ruedas":"MACIZA","contado":20801.77,"distribuidor":18682.42,"comentarios":""},{"clasificacion":"SIN CLASE (Cleaning)","marca":"HANGCHA","modelo":"JSSD1250-BC6J","cap":"NA","alt":0,"motor":"GEL","ruedas":"MACIZA","contado":6162.0,"distribuidor":5138.25,"comentarios":""},{"clasificacion":"SIN CLASE (Cleaning)","marca":"HANGCHA","modelo":"JSSD1350-BC6J-I","cap":"NA","alt":0,"motor":"LITIO","ruedas":"MACIZA","contado":9243.0,"distribuidor":7707.38,"comentarios":""},{"clasificacion":"SIN CLASE (Cleaning)","marca":"HANGCHA","modelo":"JSSD1900-BC6J-P-I","cap":"NA","alt":0,"motor":"LITIO","ruedas":"MACIZA","contado":14315.76,"distribuidor":11937.36,"comentarios":""},{"clasificacion":"SIN CLASE (Cleaning)","marca":"HANGCHA","modelo":"JSXD50-RC9Z-I","cap":"NA","alt":0,"motor":"LITIO","ruedas":"MACIZA","contado":3081.0,"distribuidor":2569.13,"comentarios":""},{"clasificacion":"SIN CLASE (Cleaning)","marca":"HANGCHA","modelo":"JSXD60-XQ6Z-I","cap":"NA","alt":0,"motor":"LITIO","ruedas":"MACIZA","contado":5290.61,"distribuidor":4411.63,"comentarios":""},{"clasificacion":"SIN CLASE (Cleaning)","marca":"HANGCHA","modelo":"JSXD90-RC9-I","cap":"NA","alt":0,"motor":"LITIO","ruedas":"MACIZA","contado":5290.61,"distribuidor":4411.63,"comentarios":""},{"clasificacion":"SIN CLASE (Cleaning)","marca":"HANGCHA","modelo":"JSXD90-RC9-SI","cap":"NA","alt":0,"motor":"LITIO","ruedas":"MACIZA","contado":5041.64,"distribuidor":4204.03,"comentarios":""},{"clasificacion":"SIN CLASE (Cleaning)","marca":"HANGCHA","modelo":"JSXD75-XL6-STI","cap":"NA","alt":0,"motor":"LITIO","ruedas":"MACIZA","contado":7780.3,"distribuidor":6487.69,"comentarios":""},{"clasificacion":"SIN CLASE (Cleaning)","marca":"HANGCHA","modelo":"JSXD120-XL6-I","cap":"NA","alt":0,"motor":"LITIO","ruedas":"MACIZA","contado":14626.97,"distribuidor":12196.86,"comentarios":""},{"clasificacion":"SIN CLASE (transp. Manual)","marca":"HANGCHA","modelo":"CBY30-BF","cap":3000,"alt":0,"motor":"NA","ruedas":"NYLON","contado":531.76,"distribuidor":454.09,"comentarios":"Precio Promo 362"}],"accesorios":[{"categoria":"Neumáticos","nombre":"Neumático macizo","bandas":{"1-1.8T":280,"2-2.5T":340,"3-3.5T":420,"5-7T":1290,"8-10T":2570,"12T-14T (600mm)":4320,"16T (600mm)":4370,"14T-16T (900mm)":4370,"A16T-18T (1200mm)":5010,"25T":7140,"32T":9470}},{"categoria":"Neumáticos","nombre":"Neumático sin marca (no deja marca en el piso)","bandas":{"1-1.8T":350,"2-2.5T":520,"3-3.5T":640,"5-7T":1940,"8-10T":3160,"3-W":140,"12T-14T (600mm)":4470,"16T (600mm)":4680,"14T-16T (900mm)":5680,"A16T-18T (1200mm)":5890,"25T":9890}},{"categoria":"Neumáticos","nombre":"Neumáticos dobles","bandas":{"1-1.8T":370,"2-2.5T":460,"3-3.5T":540,"4T/4.5T-5T(Mini)":690}},{"categoria":"Neumáticos","nombre":"Macizos dobles delanteros y macizo trasero","bandas":{"1-1.8T":770,"2-2.5T":970,"3-3.5T":1200,"4T/4.5T-5T(Mini)":1640}},{"categoria":"Neumáticos","nombre":"Neumáticos dobles delanteros y macizos traseros","bandas":{"1-1.8T":400,"2-2.5T":580,"3-3.5T":690,"4T/4.5T-5T(Mini)":890}},{"categoria":"Accesorios","nombre":"Horquillas de largo estándar","bandas":{"1-1.8T":920,"2-2.5T":1070,"3-3.5T":1070,"4-mini 5T":1070,"5-6T":1200,"7T":1200,"8T":1500,"10T":1500,"CQD":920,"3-Wheel":900,"12T/14T/mini 16T":1500,"14T/16T Std.":1800,"A16T-18T":1800}},{"categoria":"Accesorios","nombre":"Extensión de horquilla cada 100 mm","bandas":{"1-1.8T":20,"2-2.5T":30,"3-3.5T":35,"4-mini 5T":40,"5-6T":40,"7T":50,"8T":50,"10T":60,"CQD":40,"3-Wheel":40,"12T/14T/mini 16T":220,"14T/16T Std.":320,"A16T-18T":400}},{"categoria":"Accesorios","nombre":"Portahorquillas de ancho estándar","bandas":{"1-1.8T":1000,"2-2.5T":1038,"3-3.5T":1150,"4-mini 5T":1250,"5-6T":1700,"7T":1700,"8T":1800,"10T":1800,"12T/14T/mini 16T":2200,"14T/16T Std.":2310,"A16T-18T":2510}},{"categoria":"Accesorios","nombre":"Extensión de portahorquillas cada 100 mm","bandas":{"1-1.8T":30,"2-2.5T":50,"3-3.5T":60,"4-mini 5T":70,"5-6T":90,"7T":110,"8T":140,"10T":150,"12T/14T/mini 16T":210,"14T/16T Std.":220,"A16T-18T":250}},{"categoria":"Accesorios","nombre":"Desplazador lateral integrado (fabricado por Hangcha)","bandas":{"1-1.8T":360,"2-2.5T":420,"3-3.5T":460,"4-mini 5T":560,"CQD":0,"3-Wheel":360}},{"categoria":"Accesorios","nombre":"Desplazador lateral Cascade","bandas":{"1-1.8T":350,"2-2.5T":350,"3-3.5T":660,"4-mini 5T":660,"5-6T":1410,"7T":1410,"3-Wheel":390}},{"categoria":"Accesorios","nombre":"Desplazador lateral integrado + posicionador de horquillas","bandas":{"1-1.8T":1800,"2-2.5T":1800,"5-6T":2920,"7T":2920,"8T":2850,"10T":3000,"12T/14T/mini 16T":3390,"14T/16T Std.":4650,"A16T-18T":4650}},{"categoria":"Accesorios","nombre":"Tercera válvula hidráulica","bandas":{"1-1.8T":60,"2-2.5T":60,"3-3.5T":60,"4-mini 5T":130,"5-6T":130,"7T":130,"3-Wheel":60}},{"categoria":"Accesorios","nombre":"Tercera y cuarta válvula hidráulica","bandas":{"1-1.8T":120,"2-2.5T":120,"3-3.5T":120,"4-mini 5T":260,"5-6T":260,"7T":260,"3-Wheel":120}},{"categoria":"Accesorios","nombre":"Tercera, cuarta y quinta válvula hidráulica","bandas":{"3-3.5T":180,"4-mini 5T":390,"5-6T":390,"7T":390,"8T":210,"10T":210}},{"categoria":"Accesorios","nombre":"Tercera línea hidráulica (cañería)","bandas":{"1-1.8T":140,"2-2.5T":140,"3-3.5T":140,"4-mini 5T":140,"5-6T":140,"7T":140,"8T":140,"10T":140,"CQD":0,"3-Wheel":140}},{"categoria":"Accesorios","nombre":"Tercera y cuarta línea hidráulica (cañerías)","bandas":{"1-1.8T":280,"2-2.5T":280,"3-3.5T":280,"4-mini 5T":280,"5-6T":280,"7T":280,"8T":280,"10T":280,"CQD":0,"3-Wheel":280}},{"categoria":"Accesorios","nombre":"Tercera, cuarta y quinta línea hidráulica (cañerías)","bandas":{"3-3.5T":420,"4-mini 5T":420,"5-6T":420,"7T":420,"8T":420,"10T":420}},{"categoria":"Accesorios","nombre":"Catalizador de 3 vías","bandas":{"1-1.8T":1000,"2-2.5T":1000,"3-3.5T":1000,"4-mini 5T":1000,"5-6T":1000,"7T":1000,"CQD":0,"3-Wheel":0}},{"categoria":"Accesorios","nombre":"Filtro de partículas","bandas":{"1-1.8T":1000,"2-2.5T":1000,"3-3.5T":1000,"4-mini 5T":1000,"5-6T":1000,"7T":1000,"8T":1000,"10T":1000}},{"categoria":"Accesorios","nombre":"Filtro de aire a baño de aceite (serie R)","bandas":{"1-1.8T":70,"2-2.5T":70,"3-3.5T":70,"4-mini 5T":110,"5-6T":130,"7T":130,"8T":130,"10T":130,"CQD":0,"3-Wheel":0}},{"categoria":"Accesorios","nombre":"Filtro de aire superior (serie R)","bandas":{"1-1.8T":90,"2-2.5T":90,"3-3.5T":90,"4-mini 5T":90,"5-6T":130,"7T":130,"8T":130,"10T":130,"CQD":0,"3-Wheel":0,"12T/14T/mini 16T":190,"14T/16T Std.":190,"A16T-18T":190}},{"categoria":"Accesorios","nombre":"Soporte abatible para garrafa de GLP","bandas":{"1-1.8T":70,"2-2.5T":70,"3-3.5T":70,"4-mini 5T":80,"5-6T":0,"7T":0,"8T":0,"10T":0,"CQD":0,"3-Wheel":0}},{"categoria":"Accesorios","nombre":"Soporte giratorio trasero para garrafa de GLP","bandas":{"1-1.8T":70,"2-2.5T":70,"3-3.5T":70,"4-mini 5T":80}},{"categoria":"Accesorios","nombre":"Soporte doble para garrafa de GLP","bandas":{"5-6T":130,"7T":130}},{"categoria":"Accesorios","nombre":"Caño de escape en posición superior","bandas":{"1-1.8T":110,"2-2.5T":110,"3-3.5T":110,"4-mini 5T":110,"5-6T":110,"7T":110,"8T":110,"10T":110,"CQD":0,"3-Wheel":0}},{"categoria":"Accesorios","nombre":"Caño de escape en posición media","bandas":{"1-1.8T":70,"2-2.5T":70,"3-3.5T":70,"4-mini 5T":70,"5-6T":0,"7T":0,"8T":0,"10T":0,"CQD":0,"3-Wheel":0}},{"categoria":"Accesorios","nombre":"Apagachispas","bandas":{"1-1.8T":40,"2-2.5T":40,"3-3.5T":40,"4-mini 5T":40,"5-6T":40,"7T":40,"8T":40,"10T":40,"CQD":0,"3-Wheel":0,"12T/14T/mini 16T":40}},{"categoria":"Accesorios","nombre":"Matafuegos","bandas":{"1-1.8T":50,"2-2.5T":50,"3-3.5T":50,"4-mini 5T":50,"5-6T":50,"7T":50,"8T":50,"10T":50,"CQD":0,"3-Wheel":0}},{"categoria":"Accesorios","nombre":"Red de protección del contrapeso","bandas":{"1-1.8T":30,"2-2.5T":30,"3-3.5T":30,"4-mini 5T":30,"5-6T":30,"7T":30,"8T":30,"10T":30,"CQD":0,"3-Wheel":0}},{"categoria":"Accesorios","nombre":"Cámara (para reach truck)","bandas":{"CQD":950}},{"categoria":"Accesorios","nombre":"Pantalla digital de altura de elevación (reach truck)","bandas":{"CQD":1370}},{"categoria":"Accesorios","nombre":"Limitador de altura de elevación","bandas":{"CQD":530}},{"categoria":"Accesorios","nombre":"Sistema de selección de altura de elevación","bandas":{"CQD":720}},{"categoria":"Accesorios","nombre":"Techo de vidrio","bandas":{"CQD":130}},{"categoria":"Accesorios","nombre":"Posicionador de horquilla simple (hidráulico)","bandas":{"12T/14T/mini 16T":1350}},{"categoria":"Accesorios","nombre":"Cámara de marcha atrás","bandas":{"12T/14T/mini 16T":460}},{"categoria":"Accesorios","nombre":"Indicador de estado del filtro","bandas":{"1-1.8T":10,"2-2.5T":10,"3-3.5T":10,"5-6T":10,"7T":10,"8T":10,"10T":10}},{"categoria":"Accesorios","nombre":"Protección antipolvo para radiador del motor","bandas":{"1-1.8T":20,"2-2.5T":20,"3-3.5T":20,"4-mini 5T":20,"5-6T":20,"7T":20,"8T":20,"10T":20}},{"categoria":"Accesorios","nombre":"Cubierta protectora de chasis","bandas":{"1-1.8T":90,"2-2.5T":90,"3-3.5T":90}},{"categoria":"Accesorios","nombre":"Sistema de frenos AKEBONO","bandas":{"4-mini 5T":850,"5-6T":850,"7T":850}},{"categoria":"Accesorios","nombre":"Filtro de retorno de aceite (motor a combustión)","bandas":{"1-1.8T":30,"2-2.5T":30,"3-3.5T":30,"4-mini 5T":30,"5-6T":30,"7T":30,"8T":30,"10T":30}},{"categoria":"Accesorios","nombre":"Alarma de exceso de velocidad","bandas":{"1-1.8T":150,"2-2.5T":150,"3-3.5T":150}},{"categoria":"Accesorios","nombre":"Extracción lateral de batería (serie A, 4 ruedas)","bandas":{"1-1.8T":240,"2-2.5T":240,"3-3.5T":240}},{"categoria":"Accesorios","nombre":"Extracción lateral de batería (serie A, triciclo)","bandas":{"3-Wheel":240}},{"categoria":"Accesorios","nombre":"Carro extractor de batería","bandas":{"1-1.8T":60,"2-2.5T":60,"3-3.5T":60,"3-Wheel":60}},{"categoria":"Accesorios","nombre":"Extracción lateral de batería + carro extractor (reach truck)","bandas":{"CQD":270}},{"categoria":"Accesorios","nombre":"Extracción lateral de batería + carro extractor (triciclo, tracción trasera)","bandas":{"3-Wheel":340}},{"categoria":"Accesorios","nombre":"Techo protector alto con asiento con suspensión","bandas":{"1-1.8T":30,"2-2.5T":30,"3-3.5T":30,"4-mini 5T":30,"5-6T":30,"7T":30,"8T":30,"10T":30}},{"categoria":"Accesorios","nombre":"Freno de disco en baño de aceite","bandas":{"4-mini 5T":580,"5-6T":660,"7T":660,"8T":800,"10T":800}},{"categoria":"Accesorios","nombre":"Transmisión reforzada para uso portuario","bandas":{"5-6T":280,"7T":280,"8T":280,"10T":280}},{"categoria":"Accesorios","nombre":"Doble aislamiento acústico","bandas":{"1-1.8T":70,"2-2.5T":70,"3-3.5T":70,"4-mini 5T":110,"5-6T":110,"7T":110,"8T":130,"10T":130}},{"categoria":"Accesorios","nombre":"Manija trasera con bocina","bandas":{"1-1.8T":20,"2-2.5T":20,"3-3.5T":20}},{"categoria":"Accesorios","nombre":"Juego de herramientas","bandas":{"1-1.8T":28,"2-2.5T":28,"3-3.5T":28,"4-mini 5T":28,"5-6T":28,"7T":28,"8T":28,"10T":28,"CQD":28,"3-Wheel":28,"12T/14T/mini 16T":28,"14T/16T Std.":28,"A16T-18T":28}},{"categoria":"Accesorios","nombre":"Traje de trabajo Hangcha","bandas":{"1-1.8T":18,"2-2.5T":18,"3-3.5T":18,"4-mini 5T":18,"5-6T":18,"7T":18,"8T":18,"10T":18,"CQD":18,"3-Wheel":18,"12T/14T/mini 16T":18,"14T/16T Std.":18,"A16T-18T":18}},{"categoria":"Accesorios","nombre":"Espejo retrovisor doble","bandas":{"1-1.8T":20,"2-2.5T":20,"3-3.5T":20,"4-mini 5T":20}},{"categoria":"Accesorios","nombre":"Barra protectora para válvula de mando","bandas":{"1-1.8T":20,"2-2.5T":0,"3-3.5T":0,"4-mini 5T":0,"5-6T":0,"7T":0,"8T":0,"10T":0,"CQD":0,"3-Wheel":0}},{"categoria":"Accesorios","nombre":"Asiento BF5 con suspensión total","bandas":{"1-1.8T":70}},{"categoria":"Accesorios","nombre":"Asiento BF5 con suspensión total, interruptor y cinturón","bandas":{"1-1.8T":100}},{"categoria":"Accesorios","nombre":"Asiento MSG65/531 con apoyabrazos","bandas":{"1-1.8T":280}},{"categoria":"Accesorios","nombre":"Asiento SC24 con suspensión total, apoyabrazos e interruptor","bandas":{"1-1.8T":90}},{"categoria":"Accesorios","nombre":"Sistema de presencia del operador (OPS) - motor a combustión","bandas":{"1-1.8T":210}},{"categoria":"Accesorios","nombre":"Sistema de presencia del operador (OPS) - eléctrico","bandas":{"1-1.8T":130}},{"categoria":"Accesorios","nombre":"Asiento S85/90","bandas":{"1-1.8T":30,"2-2.5T":0,"3-3.5T":0,"4-mini 5T":0,"5-6T":0,"7T":0,"8T":0,"10T":0,"CQD":0,"3-Wheel":0}},{"categoria":"Accesorios","nombre":"Asiento S85/90 con apoyabrazos","bandas":{"1-1.8T":40,"2-2.5T":0,"3-3.5T":0,"4-mini 5T":0,"5-6T":0,"7T":0,"8T":0,"10T":0,"CQD":0,"3-Wheel":0}},{"categoria":"Accesorios","nombre":"Asiento S85/90 con cinturón","bandas":{"1-1.8T":40,"2-2.5T":0,"3-3.5T":0,"4-mini 5T":0,"5-6T":0,"7T":0,"8T":0,"10T":0,"CQD":0,"3-Wheel":0}},{"categoria":"Accesorios","nombre":"Asiento S85/90 plegable con cinturón","bandas":{"1-1.8T":50,"2-2.5T":0,"3-3.5T":0,"4-mini 5T":0,"5-6T":0,"7T":0,"8T":0,"10T":0,"CQD":0,"3-Wheel":0}},{"categoria":"Accesorios","nombre":"Asiento S85/90 con apoyabrazos e interruptor","bandas":{"1-1.8T":60}},{"categoria":"Accesorios","nombre":"Asiento S85/90 plegable con apoyabrazos","bandas":{"1-1.8T":70}},{"categoria":"Accesorios","nombre":"Asiento GS12","bandas":{"1-1.8T":50,"2-2.5T":0,"3-3.5T":0,"4-mini 5T":0,"5-6T":0,"7T":0,"8T":0,"10T":0,"CQD":0,"3-Wheel":0}},{"categoria":"Accesorios","nombre":"Asiento GS12 con apoyabrazos","bandas":{"1-1.8T":70,"2-2.5T":0,"3-3.5T":0,"4-mini 5T":0,"5-6T":0,"7T":0,"8T":0,"10T":0,"CQD":0,"3-Wheel":0}},{"categoria":"Accesorios","nombre":"Asiento GS12 con interruptor","bandas":{"1-1.8T":60,"2-2.5T":0,"3-3.5T":0,"4-mini 5T":0,"5-6T":0,"7T":0,"8T":0,"10T":0,"CQD":0,"3-Wheel":0}},{"categoria":"Accesorios","nombre":"Asiento GS12 con apoyabrazos e interruptor","bandas":{"1-1.8T":80,"2-2.5T":0,"3-3.5T":0,"4-mini 5T":0,"5-6T":0,"7T":0,"8T":0,"10T":0,"CQD":0,"3-Wheel":0}},{"categoria":"Accesorios","nombre":"Control por dedo (fingertip) GRAMMER MFA","bandas":{"1-1.8T":1860,"2-2.5T":1860,"3-3.5T":1860,"4-mini 5T":1860,"3-Wheel":1860}},{"categoria":"Accesorios","nombre":"Luz de trabajo trasera","bandas":{"1-1.8T":50,"2-2.5T":50,"3-3.5T":50,"4-mini 5T":50}},{"categoria":"Accesorios","nombre":"Luz LED azul","bandas":{"1-1.8T":40,"2-2.5T":40,"3-3.5T":40}},{"categoria":"Mástiles (apiladores)","nombre":"Mástil - Mini range (CDD10/12-AMC1-SZ)","bandas":{"2.0m":0,"2.5m":0,"2.7m":0,"3m":0,"3.3m":120,"3.5m":180,"3.6m":200}},{"categoria":"Mástiles (apiladores)","nombre":"Mástil - Basic Range (CDD12/14/16-AEC1(S)) - 1 cilindro simple","bandas":{"2.0m":0,"2.5m":0,"2.7m":0,"3m":65,"3.3m":95,"3.5m":160,"3.6m":170}},{"categoria":"Mástiles (apiladores)","nombre":"Mástil - Basic Range (CDD12/14/16-AEC1(S)) - 2 cilindros dúplex","bandas":{"2.0m":285,"2.5m":295,"2.7m":330,"3m":360,"3.3m":380,"3.5m":410,"3.6m":420,"3.8m":430,"4.0m":440,"4.3m":520,"4.5M":550}},{"categoria":"Mástiles (apiladores)","nombre":"Mástil - Basic Range (CDD12/14/16-AEC1(S)) - full free dúplex","bandas":{"2.0m":440,"2.5m":440,"2.7m":450,"3m":460,"3.3m":510,"3.5m":530,"3.6m":540}},{"categoria":"Mástiles (apiladores)","nombre":"Mástil - Hi Range (CDD12/14/16/20-AC1(S)) - 2 cilindros dúplex","bandas":{"2.0m":0,"2.5m":0,"2.7m":0,"3m":75,"3.3m":120,"3.5m":190,"3.6m":200,"3.8m":240,"4.0m":290,"4.3m":370,"4.5M":390}},{"categoria":"Mástiles (apiladores)","nombre":"Mástil - Hi Range (CDD12/14/16/20-AC1(S)) - full free dúplex","bandas":{"2.0m":290,"2.5m":300,"2.7m":310,"3m":330,"3.3m":360,"3.5m":370,"3.6m":380}},{"categoria":"Mástiles (apiladores)","nombre":"Mástil - Basic Range (CDD12/14/16-AEC1(S)) - full free tríplex","bandas":{"3.5m":590,"3.7m":610,"4.0m":650,"4.3m":730,"4.5M":800}},{"categoria":"Mástiles (apiladores)","nombre":"Mástil - Hi Range (CDD12/14/16/20-AC1(S)) - full free tríplex","bandas":{"3.5m":440,"3.6m":450,"3.7m":460,"4.0m":510,"4.3m":580,"4.5M":660,"4.7M":690,"5.0M":730,"5.2M":760,"5.5M":800,"6.0M":1070}}]};
 
   (function cargarListaPreciosRemota(){
     fetch(GH_RAW_ROOT + '/data/lista-precios.json')
@@ -1526,6 +1555,32 @@
       ],
       extrasDefault: 'Asiento ergonómico con amortiguación, regulable y cinturón de seguridad.\nLuces de trabajo y tránsito Full LED.\nCubiertas macizas de alta resistencia.\nDirección hidráulica asistida.\nTecho protector y parrilla porta carga.\nAlarma sonora de retroceso, bocina, espejo retrovisor y baliza LED.'
     },
+    telehandler: {
+      nombre: 'Telehandler (manipulador telescópico)',
+      modeloPlaceholder: 'Ej: T25-60XHYG',
+      campos: [
+        {id:'bateria', label:'Batería / Motor', placeholder:'Litio 310V / 150 Ah'},
+        {id:'capacidad', label:'Capacidad de carga nominal', placeholder:'2.500 kg'},
+        {id:'alturaMax', label:'Altura máxima de elevación', placeholder:'6,0 m'},
+        {id:'alcance', label:'Alcance horizontal máximo', placeholder:'3,0 m'},
+        {id:'neumaticos', label:'Neumáticos', placeholder:'Neumáticos todo terreno'},
+        {id:'traccion', label:'Tracción', placeholder:'4x4'}
+      ],
+      extrasDefault: 'Cabina cerrada con calefacción.\nEstabilizadores hidráulicos.\nLuces de trabajo LED.\nAlarma sonora de retroceso.'
+    },
+    brazo_telescopico: {
+      nombre: 'Brazo Telescópico / Articulado',
+      modeloPlaceholder: 'Ej: GTHZ170',
+      campos: [
+        {id:'bateria', label:'Batería / Motor', placeholder:'Litio 80V / 125 Ah'},
+        {id:'alturaMax', label:'Altura máxima de elevación', placeholder:'17 m'},
+        {id:'capacidad', label:'Capacidad de carga nominal', placeholder:'A confirmar según altura'},
+        {id:'alcance', label:'Alcance horizontal máximo', placeholder:'A confirmar según modelo'},
+        {id:'neumaticos', label:'Neumáticos', placeholder:'Macizos'},
+        {id:'fabricacion', label:'Condición de fabricación', placeholder:'Importación a pedido'}
+      ],
+      extrasDefault: 'Equipo importado a pedido.\nAlturas disponibles: 12, 14, 17 y 21 metros.\nCabina con protección ROPS/FOPS.\nLuces de trabajo LED.'
+    },
     transpaleta: {
       nombre: 'Transpaleta',
       modeloPlaceholder: 'Ej: CBD15-A3MC2-I',
@@ -1615,6 +1670,15 @@
       campos: [],
       extrasDefault: ''
     }
+  };
+
+  // Vincula ciertas categorías con la palabra clave del PDF de ficha técnica que les corresponde,
+  // para poder elegir automáticamente el folleto (o la categoría, en sentido inverso) y ahorrar clics.
+  const CATEGORIA_FICHA_KEYWORDS = {
+    fregadora: ['limpieza'],
+    barredora: ['limpieza'],
+    telehandler: ['telehandler'],
+    brazo_telescopico: ['brazo']
   };
 
   let fichaUrlPorNombre = {};
@@ -1790,17 +1854,44 @@
       extrasEl.dataset.editadoManual = '1';
       programarAutoguardado();
     });
-    categoriaEl.addEventListener('change', renderCampos);
+    categoriaEl.addEventListener('change', ()=>{
+      renderCampos();
+      // Para categorías que se resuelven con un único folleto combinado (fregadora, barredora,
+      // telehandler, brazo), si todavía no hay ninguna ficha PDF elegida, la buscamos y
+      // la vinculamos sola por palabra clave, para ahorrar un clic.
+      if(!fichaSelectEl.value){
+        const palabras = CATEGORIA_FICHA_KEYWORDS[categoriaEl.value];
+        if(palabras){
+          const opciones = Array.from(fichaSelectEl.options).slice(1);
+          const match = opciones.find(o => palabras.some(p => o.value.toLowerCase().includes(p)));
+          if(match){
+            fichaSelectEl.value = match.value;
+            if(!modeloEl.value.trim()){
+              modeloEl.value = match.value;
+              autocompletarDesdeFicha(true);
+            }
+          }
+        }
+      }
+    });
     renderCampos();
 
     // Al elegir una ficha PDF ya cargada, solo completa el Modelo si todavía está vacío:
     // así no pisa un modelo que el vendedor ya tipeó (ej: un PDF general "Equipos de limpieza"
-    // que sirve para varios modelos distintos).
+    // que sirve para varios modelos distintos). Además, si el nombre del PDF deja clara la
+    // categoría (telehandler, brazo, limpieza), la elegimos sola para ahorrar otro clic.
     fichaSelectEl.addEventListener('change', ()=>{
       if(fichaSelectEl.value && !modeloEl.value.trim()){
         modeloEl.value = fichaSelectEl.value;
         autocompletarDesdeFicha(true);
       }
+      const nombreLower = fichaSelectEl.value.toLowerCase();
+      Object.keys(CATEGORIA_FICHA_KEYWORDS).forEach(cat=>{
+        if(CATEGORIA_FICHA_KEYWORDS[cat].some(p => nombreLower.includes(p)) && categoriaEl.value !== cat){
+          categoriaEl.value = cat;
+          renderCampos();
+        }
+      });
     });
 
     // Autocompletado automático: al salir del campo Modelo (o al elegir una ficha PDF que sí
@@ -2070,17 +2161,48 @@
   // a la mitad entre una hoja y la siguiente — si no entra, pasa completo a la próxima hoja.
   async function generarBlobPdf(){
     await cargarLibreriaHtml2pdf();
-    const elemento = document.getElementById('previewPage');
+    const original = document.getElementById('previewPage');
+
+    // Renderizar directo desde adentro del overlay (position:fixed + overflow:auto) puede salir
+    // en blanco en algunos navegadores, porque html2canvas no siempre clona bien ese contexto.
+    // Por eso copiamos el contenido a un contenedor aparte, fuera del overlay, y renderizamos
+    // desde ahí. También esperamos a que terminen de cargar los logos antes de capturar.
+    const clon = original.cloneNode(true);
+    clon.style.position = 'absolute';
+    clon.style.top = '0';
+    clon.style.left = '-9999px';
+    clon.style.maxWidth = '800px';
+    clon.style.width = '800px';
+    clon.style.margin = '0';
+    clon.style.boxShadow = 'none';
+    document.body.appendChild(clon);
+
+    const imagenes = clon.querySelectorAll('img');
+    await Promise.all(Array.from(imagenes).map(img => {
+      if(img.complete) return Promise.resolve();
+      return new Promise(res => { img.onload = res; img.onerror = res; });
+    }));
+
     const opt = {
       margin: 10,
       filename: 'cotizacion.pdf',
       image: { type: 'jpeg', quality: 0.95 },
       html2canvas: { scale: 2, useCORS: true },
       jsPDF: { unit: 'pt', format: 'a4', orientation: 'portrait' },
-      pagebreak: { mode: ['css', 'legacy'], avoid: ['.ficha-tecnica-bloque', 'tr', '.preview-cierre'] }
+      pagebreak: { mode: ['css'], avoid: ['.ficha-tecnica-bloque', 'tr', '.preview-cierre'] }
     };
-    const pdfObj = await html2pdf().set(opt).from(elemento).toPdf().get('pdf');
-    return pdfObj.output('blob');
+    try{
+      const pdfObj = await html2pdf().set(opt).from(clon).toPdf().get('pdf');
+      const blob = pdfObj.output('blob');
+      // Si el PDF sale sospechosamente liviano, seguramente se generó en blanco (le pasó a algún
+      // navegador). Mejor avisar que descargar un PDF vacío sin que nadie se dé cuenta.
+      if(blob.size < 15000){
+        throw new Error('El PDF se generó vacío o incompleto. Probá de nuevo; si sigue pasando, avisale a Juan.');
+      }
+      return blob;
+    } finally {
+      document.body.removeChild(clon);
+    }
   }
 
   function nombreArchivoCotizacion(){
@@ -2151,6 +2273,34 @@
   const lpTipoPrecioEl = document.getElementById('lpTipoPrecio');
   const lpAccBuscarEl = document.getElementById('lpAccBuscar');
   const lpAccResultadosEl = document.getElementById('lpAccResultados');
+  const lpTonelajeFiltroEl = document.getElementById('lpTonelajeFiltro');
+  const lpAlturaFiltroEl = document.getElementById('lpAlturaFiltro');
+
+  // Solo interesan los autoelevadores con capacidad y altura de torre numéricas (deja afuera
+  // aéreos, equipos de limpieza, transpaletas manuales y demás, que no tienen "torre" real).
+  function modelosConTorre(){
+    return LISTA_PRECIOS.modelos.filter(m => typeof m.cap === 'number' && typeof m.alt === 'number' && m.alt >= 1000);
+  }
+
+  (function poblarFiltrosTonelajeAltura(){
+    const relevantes = modelosConTorre();
+    const tonelajes = [...new Set(relevantes.map(m => m.cap))].sort((a,b)=>a-b);
+    const alturas = [...new Set(relevantes.map(m => m.alt))].sort((a,b)=>a-b);
+    tonelajes.forEach(t=>{
+      const opt = document.createElement('option');
+      opt.value = t;
+      opt.textContent = (t/1000).toLocaleString('es-AR', {minimumFractionDigits:1, maximumFractionDigits:1}) + ' t';
+      lpTonelajeFiltroEl.appendChild(opt);
+    });
+    alturas.forEach(a=>{
+      const opt = document.createElement('option');
+      opt.value = a;
+      opt.textContent = (a/1000).toLocaleString('es-AR', {minimumFractionDigits:1, maximumFractionDigits:1}) + ' m';
+      lpAlturaFiltroEl.appendChild(opt);
+    });
+  })();
+  lpTonelajeFiltroEl.addEventListener('change', renderModelosResultados);
+  lpAlturaFiltroEl.addEventListener('change', renderModelosResultados);
 
   function agregarItemCotizacion(desc, precio){
     const ivaDefault = document.getElementById('cotIvaGlobal').value;
@@ -2165,16 +2315,21 @@
 
   function renderModelosResultados(){
     const q = lpModeloBuscarEl.value.trim().toLowerCase();
-    if(q.length < 2){
-      lpModeloResultadosEl.innerHTML = q.length === 0 ? '' : '<div class="estado-fichas">Escribí al menos 2 letras...</div>';
+    const tonFiltro = lpTonelajeFiltroEl.value;
+    const altFiltro = lpAlturaFiltroEl.value;
+    const hayFiltroTorre = tonFiltro !== '' || altFiltro !== '';
+    if(q.length < 2 && !hayFiltroTorre){
+      lpModeloResultadosEl.innerHTML = q.length === 0 ? '' : '<div class="estado-fichas">Escribí al menos 2 letras, o elegí tonelaje/altura arriba...</div>';
       return;
     }
     const tipo = lpTipoPrecioEl.value;
-    const resultados = LISTA_PRECIOS.modelos
-      .filter(m => (m.modelo + ' ' + m.clasificacion + ' ' + m.marca).toLowerCase().includes(q))
-      .slice(0, 25);
+    let resultados = LISTA_PRECIOS.modelos;
+    if(tonFiltro !== '') resultados = resultados.filter(m => String(m.cap) === tonFiltro);
+    if(altFiltro !== '') resultados = resultados.filter(m => String(m.alt) === altFiltro);
+    if(q.length >= 2) resultados = resultados.filter(m => (m.modelo + ' ' + m.clasificacion + ' ' + m.marca).toLowerCase().includes(q));
+    resultados = resultados.slice(0, 25);
     if(resultados.length === 0){
-      lpModeloResultadosEl.innerHTML = '<div class="estado-fichas">Sin resultados.</div>';
+      lpModeloResultadosEl.innerHTML = '<div class="estado-fichas">Sin resultados con esos filtros.</div>';
       return;
     }
     lpModeloResultadosEl.innerHTML = '';
@@ -2200,15 +2355,37 @@
   lpModeloBuscarEl.addEventListener('input', renderModelosResultados);
   lpTipoPrecioEl.addEventListener('change', renderModelosResultados);
 
+  let lpAccCategoriaActiva = '';
+  const lpAccCategoriaChipsEl = document.getElementById('lpAccCategoriaChips');
+  (function poblarChipsCategoriaAcc(){
+    const categorias = [...new Set(LISTA_PRECIOS.accesorios.map(a => a.categoria))];
+    categorias.forEach(cat=>{
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'lp-cat-chip';
+      btn.textContent = cat;
+      btn.dataset.categoria = cat;
+      btn.addEventListener('click', ()=>{
+        lpAccCategoriaActiva = (lpAccCategoriaActiva === cat) ? '' : cat;
+        lpAccCategoriaChipsEl.querySelectorAll('.lp-cat-chip').forEach(c=>{
+          c.classList.toggle('activo', c.dataset.categoria === lpAccCategoriaActiva);
+        });
+        renderAccResultados();
+      });
+      lpAccCategoriaChipsEl.appendChild(btn);
+    });
+  })();
+
   function renderAccResultados(){
     const q = lpAccBuscarEl.value.trim().toLowerCase();
-    if(q.length < 2){
-      lpAccResultadosEl.innerHTML = q.length === 0 ? '' : '<div class="estado-fichas">Escribí al menos 2 letras...</div>';
+    if(q.length < 2 && !lpAccCategoriaActiva){
+      lpAccResultadosEl.innerHTML = q.length === 0 ? '' : '<div class="estado-fichas">Escribí al menos 2 letras, o elegí una categoría arriba...</div>';
       return;
     }
-    const resultados = LISTA_PRECIOS.accesorios
-      .filter(a => (a.nombre + ' ' + a.categoria).toLowerCase().includes(q))
-      .slice(0, 20);
+    let resultados = LISTA_PRECIOS.accesorios;
+    if(lpAccCategoriaActiva) resultados = resultados.filter(a => a.categoria === lpAccCategoriaActiva);
+    if(q.length >= 2) resultados = resultados.filter(a => (a.nombre + ' ' + a.categoria).toLowerCase().includes(q));
+    resultados = resultados.slice(0, 40);
     if(resultados.length === 0){
       lpAccResultadosEl.innerHTML = '<div class="estado-fichas">Sin resultados.</div>';
       return;
