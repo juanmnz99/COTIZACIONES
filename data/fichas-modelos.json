@@ -419,5 +419,18 @@
     },
     "extras": "Espejo retrovisor interno.\nLuces de tránsito full LED.\nAlarma sonora de retroceso.\nBaliza de techo LED.\nBocina + alfombra antideslizante + estribos y pasamanos de acceso.\nTecho protector construido según normas de seguridad.\nParrilla soporte de cargas.\nOPS (Sistema de presencia de operador).\nCubiertas: macizas",
     "fecha": "11/8/2026"
+  },
+  {
+    "modelo": "HANGCHA ADAS Grupo Pomiglio.",
+    "categoria": "autoelevador_diesel",
+    "campos": {
+      "motor": "Diésel Xinchai, 4 cilindros, refrigerado por agua",
+      "capacidad": "1.500 a 3.800 kg, centro de carga 500 mm",
+      "mastil": "Alta visibilidad, doble 3.0 mts",
+      "desplazador": "Hidráulico marca Cascade",
+      "horquillas": "Marca Cascade"
+    },
+    "extras": "Asiento ergonómico con amortiguación, regulable y cinturón de seguridad.\nLuces de trabajo y tránsito Full LED.\nCubiertas macizas de alta resistencia.\nDirección hidráulica asistida.\nTecho protector y parrilla porta carga.\nAlarma sonora de retroceso, bocina, espejo retrovisor y baliza LED.",
+    "fecha": "12/8/2026"
   }
 ]
