@@ -715,6 +715,36 @@
 </head>
 <body>
 
+<div id="errorBanner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:99999;background:#c0392b;color:#fff;padding:10px 14px;font-size:13px;font-family:sans-serif;line-height:1.4;"></div>
+<script>
+  // Captura cualquier error de JavaScript (incluso dentro de los botones de PDF/WhatsApp) y lo
+  // muestra en una franja roja arriba de la pantalla, en vez de que "no pase nada" en silencio.
+  // Sacale una captura de pantalla a ese texto si algo falla y mandámela.
+  function mostrarErrorBanner(msg){
+    var b = document.getElementById('errorBanner');
+    if(!b) return;
+    b.textContent = msg + ' ';
+    var cerrar = document.createElement('button');
+    cerrar.textContent = 'Cerrar';
+    cerrar.style.marginLeft = '10px';
+    cerrar.style.padding = '2px 10px';
+    cerrar.style.border = 'none';
+    cerrar.style.borderRadius = '4px';
+    cerrar.style.cursor = 'pointer';
+    cerrar.onclick = function(){ b.style.display = 'none'; };
+    b.appendChild(cerrar);
+    b.style.display = 'block';
+  }
+  window.addEventListener('error', function(e){
+    var extra = e.filename ? ' (' + String(e.filename).split('/').pop() + ':' + e.lineno + ')' : '';
+    mostrarErrorBanner('Error de JavaScript: ' + (e.message || 'desconocido') + extra);
+  });
+  window.addEventListener('unhandledrejection', function(e){
+    var msg = (e.reason && e.reason.message) ? e.reason.message : String(e.reason);
+    mostrarErrorBanner('Error: ' + msg);
+  });
+</script>
+
 <div class="wrapper">
 
   <div class="tabs">
@@ -2261,13 +2291,25 @@
   document.getElementById('cotDescargarPdf').addEventListener('click', async ()=>{
     const btn = document.getElementById('cotDescargarPdf');
     const estadoEl = document.getElementById('cotWaEstado');
+    // Abrimos la pestaña YA, en el mismo instante del clic (todavía dentro del gesto real del
+    // usuario). Muchos celulares (sobre todo iPhone) bloquean en silencio, sin ningún error, una
+    // descarga que se dispara recién después de esperar a que se termine de armar el PDF — por
+    // eso "no pasaba nada" al tocar el botón. Reservando la pestaña antes evitamos ese bloqueo.
+    const ventana = window.open('', '_blank');
     btn.disabled = true;
     estadoEl.textContent = 'Generando PDF...';
     try{
       const blob = await generarBlobPdf();
-      descargarBlob(blob, nombreArchivoCotizacion());
-      estadoEl.textContent = '✔ PDF descargado.';
+      const url = URL.createObjectURL(blob);
+      if(ventana && !ventana.closed){
+        ventana.location.href = url;
+        estadoEl.textContent = '✔ PDF listo, se abrió en una pestaña nueva. Si no la ves, revisá si el navegador bloqueó una ventana emergente.';
+      } else {
+        descargarBlob(blob, nombreArchivoCotizacion());
+        estadoEl.textContent = '✔ PDF descargado.';
+      }
     }catch(err){
+      if(ventana && !ventana.closed) ventana.close();
       estadoEl.textContent = 'Error al generar el PDF: ' + (err.message || err);
     }finally{
       btn.disabled = false;
@@ -2277,23 +2319,33 @@
   document.getElementById('cotEnviarWa').addEventListener('click', async ()=>{
     const btn = document.getElementById('cotEnviarWa');
     const estadoEl = document.getElementById('cotWaEstado');
+    const mensaje = construirMensajeWhatsapp();
+    // Mismo motivo que en "Descargar PDF": reservamos la pestaña del PDF ya, en el instante del
+    // clic, para que el navegador no la bloquee después por haber pasado tiempo generando el PDF.
+    const ventana = window.open('', '_blank');
     btn.disabled = true;
     estadoEl.textContent = 'Generando PDF...';
     try{
-      const mensaje = construirMensajeWhatsapp();
       const blob = await generarBlobPdf();
       const nombreArchivo = nombreArchivoCotizacion();
       const archivo = new File([blob], nombreArchivo, { type: 'application/pdf' });
 
       if(navigator.canShare && navigator.canShare({ files: [archivo] })){
+        if(ventana && !ventana.closed) ventana.close();
         await navigator.share({ files: [archivo], text: mensaje, title: 'Cotización Grupo Pomiglio' });
         estadoEl.textContent = '';
       } else {
-        descargarBlob(blob, nombreArchivo);
+        const url = URL.createObjectURL(blob);
+        if(ventana && !ventana.closed){
+          ventana.location.href = url;
+        } else {
+          descargarBlob(blob, nombreArchivo);
+        }
         window.open(`https://wa.me/?text=${encodeURIComponent(mensaje)}`, '_blank');
-        estadoEl.textContent = 'Se descargó el PDF y se abrió WhatsApp — adjuntá el PDF descargado al chat manualmente (tu navegador no permite adjuntarlo solo).';
+        estadoEl.textContent = 'Se generó el PDF y se abrió WhatsApp — adjuntá el PDF al chat manualmente (tu navegador no permite adjuntarlo solo).';
       }
     }catch(err){
+      if(ventana && !ventana.closed) ventana.close();
       if(err && err.name === 'AbortError'){
         estadoEl.textContent = '';
       } else {
