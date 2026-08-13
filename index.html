@@ -2164,6 +2164,11 @@
 
     document.getElementById('previewPage').innerHTML = html;
     document.getElementById('previewOverlay').classList.add('activo');
+    // Precargamos html2canvas/jsPDF ya, en segundo plano, apenas se abre la vista previa.
+    // Así, cuando el usuario toque "Descargar PDF" o "Enviar por WhatsApp", las librerías
+    // ya están listas y no suman tiempo de espera entre el toque y el share/descarga real
+    // (importante porque navigator.share() sólo funciona pegado al gesto del usuario).
+    cargarLibreriasPdf().catch(()=>{});
   }
 
   document.getElementById('cotVerPreview').addEventListener('click', generarPreview);
@@ -2211,23 +2216,30 @@
     return msg;
   }
 
-  function cargarLibreriaHtml2pdf(){
-    return new Promise((resolve, reject)=>{
-      if(window.html2pdf){ resolve(); return; }
+  function cargarLibreriasPdf(){
+    // Antes usábamos el bundle de html2pdf.js, pero su html2canvas interno generaba
+    // canvases de altura 0 en ciertos navegadores (PDF "vacío" siempre, sin ningún error
+    // visible). Por eso cargamos html2canvas y jsPDF por separado, más recientes y estables,
+    // y armamos el PDF nosotros mismos (ver generarBlobPdf).
+    const cargarScript = (src) => new Promise((resolve, reject) => {
       const s = document.createElement('script');
-      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
+      s.src = src;
       s.onload = () => resolve();
       s.onerror = () => reject(new Error('No se pudo cargar el generador de PDF'));
       document.head.appendChild(s);
     });
+    const p1 = window.html2canvas ? Promise.resolve() : cargarScript('https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js');
+    const p2 = (window.jspdf && window.jspdf.jsPDF) ? Promise.resolve() : cargarScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+    return Promise.all([p1, p2]);
   }
 
   // Genera el PDF a partir del DOM ya renderizado en #previewPage (no usa window.print(),
-  // así el archivo queda limpio: sin título de pestaña ni URL del navegador). El pagebreak
-  // "avoid" evita que una ficha técnica, una fila de la tabla o el cierre queden cortados
-  // a la mitad entre una hoja y la siguiente — si no entra, pasa completo a la próxima hoja.
+  // así el archivo queda limpio: sin título de pestaña ni URL del navegador). El armado de
+  // páginas es manual: sacamos una sola imagen larga con html2canvas y la vamos cortando en
+  // hojas A4, evitando cortar una ficha técnica, una fila de tabla o el cierre a la mitad
+  // (mismo espíritu que el "pagebreak avoid" que usábamos antes con html2pdf.js).
   async function generarBlobPdf(){
-    await cargarLibreriaHtml2pdf();
+    await cargarLibreriasPdf();
     const original = document.getElementById('previewPage');
 
     // Renderizar directo desde adentro del overlay (position:fixed + overflow:auto) puede salir
@@ -2235,9 +2247,10 @@
     // Por eso copiamos el contenido a un contenedor aparte, fuera del overlay, y renderizamos
     // desde ahí. También esperamos a que terminen de cargar los logos antes de capturar.
     const clon = original.cloneNode(true);
-    clon.style.position = 'absolute';
+    clon.style.position = 'fixed';
     clon.style.top = '0';
-    clon.style.left = '-9999px';
+    clon.style.left = '0';
+    clon.style.zIndex = '-9999';
     clon.style.maxWidth = '800px';
     clon.style.width = '800px';
     clon.style.margin = '0';
@@ -2250,17 +2263,64 @@
       return new Promise(res => { img.onload = res; img.onerror = res; });
     }));
 
-    const opt = {
-      margin: 10,
-      filename: 'cotizacion.pdf',
-      image: { type: 'jpeg', quality: 0.95 },
-      html2canvas: { scale: 2, useCORS: true },
-      jsPDF: { unit: 'pt', format: 'a4', orientation: 'portrait' },
-      pagebreak: { mode: ['css'], avoid: ['.ficha-tecnica-bloque', 'tr', '.preview-cierre'] }
-    };
+    // Bounding boxes (en px CSS, relativos al clon) de los bloques que no queremos cortar
+    // a la mitad entre una hoja y la siguiente.
+    const avoidEls = Array.from(clon.querySelectorAll('.ficha-tecnica-bloque, tr, .preview-cierre'));
+    const clonRectPre = clon.getBoundingClientRect();
+    const avoidRanges = avoidEls.map(el => {
+      const r = el.getBoundingClientRect();
+      return { top: r.top - clonRectPre.top, bottom: r.bottom - clonRectPre.top };
+    });
+
+    const scale = 2;
+    let canvas, blob;
     try{
-      const pdfObj = await html2pdf().set(opt).from(clon).toPdf().get('pdf');
-      const blob = pdfObj.output('blob');
+      canvas = await window.html2canvas(clon, { scale, useCORS: true });
+
+      if(!canvas || canvas.width < 10 || canvas.height < 10){
+        throw new Error('El PDF se generó vacío o incompleto. Probá de nuevo; si sigue pasando, avisale a Juan.');
+      }
+
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF({ unit: 'pt', format: 'a4', orientation: 'portrait' });
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const margin = 10;
+      const usableWidth = pageWidth - margin * 2;
+      const usableHeight = pageHeight - margin * 2;
+
+      const imgWidthPx = canvas.width;
+      const imgHeightPx = canvas.height;
+      const pxToPt = usableWidth / imgWidthPx;
+      const idealSlicePx = usableHeight / pxToPt;
+      const avoidPx = avoidRanges.map(r => ({ top: r.top * scale, bottom: r.bottom * scale }));
+      const MIN_PROGRESS_PX = idealSlicePx * 0.4; // no achicar una hoja a menos del 40% solo para esquivar un corte
+
+      let start = 0;
+      let pageIndex = 0;
+      while (start < imgHeightPx - 1) {
+        let end = Math.min(start + idealSlicePx, imgHeightPx);
+        if (end < imgHeightPx) {
+          for (const rng of avoidPx) {
+            if (rng.top < end && rng.bottom > end && rng.top > start) {
+              if (rng.top - start >= MIN_PROGRESS_PX) end = rng.top;
+              break;
+            }
+          }
+        }
+        const sliceHeightPx = end - start;
+        const sliceCanvas = document.createElement('canvas');
+        sliceCanvas.width = imgWidthPx;
+        sliceCanvas.height = sliceHeightPx;
+        sliceCanvas.getContext('2d').drawImage(canvas, 0, start, imgWidthPx, sliceHeightPx, 0, 0, imgWidthPx, sliceHeightPx);
+        const imgData = sliceCanvas.toDataURL('image/jpeg', 0.95);
+        if (pageIndex > 0) pdf.addPage();
+        pdf.addImage(imgData, 'JPEG', margin, margin, usableWidth, sliceHeightPx * pxToPt);
+        start = end;
+        pageIndex++;
+      }
+
+      blob = pdf.output('blob');
       // Si el PDF sale sospechosamente liviano, seguramente se generó en blanco (le pasó a algún
       // navegador). Mejor avisar que descargar un PDF vacío sin que nadie se dé cuenta.
       if(blob.size < 15000){
@@ -2325,35 +2385,77 @@
     const ventana = window.open('', '_blank');
     btn.disabled = true;
     estadoEl.textContent = 'Generando PDF...';
-    try{
-      const blob = await generarBlobPdf();
-      const nombreArchivo = nombreArchivoCotizacion();
-      const archivo = new File([blob], nombreArchivo, { type: 'application/pdf' });
 
-      if(navigator.canShare && navigator.canShare({ files: [archivo] })){
-        if(ventana && !ventana.closed) ventana.close();
-        await navigator.share({ files: [archivo], text: mensaje, title: 'Cotización Grupo Pomiglio' });
-        estadoEl.textContent = '';
-      } else {
-        const url = URL.createObjectURL(blob);
-        if(ventana && !ventana.closed){
-          ventana.location.href = url;
-        } else {
-          descargarBlob(blob, nombreArchivo);
-        }
-        window.open(`https://wa.me/?text=${encodeURIComponent(mensaje)}`, '_blank');
-        estadoEl.textContent = 'Se generó el PDF y se abrió WhatsApp — adjuntá el PDF al chat manualmente (tu navegador no permite adjuntarlo solo).';
-      }
+    let blob, nombreArchivo;
+    try{
+      blob = await generarBlobPdf();
+      nombreArchivo = nombreArchivoCotizacion();
     }catch(err){
+      // Acá sí es un error real: no se pudo generar el PDF, no hay nada de qué mostrar.
       if(ventana && !ventana.closed) ventana.close();
-      if(err && err.name === 'AbortError'){
-        estadoEl.textContent = '';
-      } else {
-        estadoEl.textContent = 'Error al generar/enviar: ' + (err.message || err);
-      }
-    }finally{
+      estadoEl.textContent = 'Error al generar el PDF: ' + (err.message || err);
       btn.disabled = false;
+      return;
     }
+
+    const archivo = new File([blob], nombreArchivo, { type: 'application/pdf' });
+    let compartidoOk = false;
+    if(navigator.canShare && navigator.canShare({ files: [archivo] })){
+      try{
+        await navigator.share({ files: [archivo], text: mensaje, title: 'Cotización Grupo Pomiglio' });
+        compartidoOk = true;
+      }catch(err){
+        if(err && err.name === 'AbortError'){
+          // El usuario abrió el panel de compartir y lo cerró a propósito: no es un error,
+          // no hace falta ningún plan B.
+          if(ventana && !ventana.closed) ventana.close();
+          estadoEl.textContent = '';
+          btn.disabled = false;
+          return;
+        }
+        // Cualquier otro motivo (por ejemplo: el navegador ya no considera "reciente" el
+        // toque porque tardamos en generar el PDF, o el usuario no tiene apps de share
+        // configuradas) — seguimos con el plan B de abajo en vez de mostrar un error crudo.
+      }
+    }
+
+    if(compartidoOk){
+      if(ventana && !ventana.closed) ventana.close();
+      estadoEl.textContent = '';
+    } else {
+      const url = URL.createObjectURL(blob);
+      if(ventana && !ventana.closed){
+        ventana.location.href = url;
+      } else {
+        descargarBlob(blob, nombreArchivo);
+      }
+      const waWin = window.open(`https://wa.me/?text=${encodeURIComponent(mensaje)}`, '_blank');
+      if(waWin){
+        estadoEl.textContent = 'Se generó el PDF y se abrió WhatsApp — adjuntá el PDF al chat manualmente (tu navegador no permite adjuntarlo solo).';
+      } else {
+        // El navegador bloqueó la segunda ventana emergente (pasa a veces después de esperar
+        // a que termine de generarse el PDF). Copiamos el mensaje al portapapeles como plan C
+        // para que igual se pueda pegar en WhatsApp a mano.
+        let copiado = false;
+        try{
+          if(navigator.clipboard && navigator.clipboard.writeText){
+            // Con timeout propio: en algunos navegadores/contextos el permiso de portapapeles
+            // puede quedar "colgado" sin resolver ni rechazar nunca. No queremos que el botón
+            // se quede trabado en "Generando..." por eso — el PDF ya está listo de todas formas.
+            const timeoutMs = 1500;
+            await Promise.race([
+              navigator.clipboard.writeText(mensaje),
+              new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), timeoutMs))
+            ]);
+            copiado = true;
+          }
+        }catch(e){ /* si tampoco se puede copiar, el usuario igual tiene el PDF */ }
+        estadoEl.textContent = copiado
+          ? 'Se generó el PDF (se abrió en otra pestaña) y copiamos el mensaje al portapapeles — abrí WhatsApp, pegá el mensaje y adjuntá el PDF a mano.'
+          : 'Se generó el PDF y se abrió en otra pestaña — abrí WhatsApp a mano y adjuntalo (tu navegador bloqueó la apertura automática).';
+      }
+    }
+    btn.disabled = false;
   });
 
   /* ---------- Lista de precios (modelos + accesorios) ---------- */
