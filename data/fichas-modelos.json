@@ -432,5 +432,18 @@
     },
     "extras": "Asiento ergonómico con amortiguación, regulable y cinturón de seguridad.\nLuces de trabajo y tránsito Full LED.\nCubiertas neumatica de alta resistencia.\nDirección hidráulica asistida.\nTecho protector y parrilla porta carga.\nAlarma sonora de retroceso, bocina, espejo retrovisor y baliza LED.",
     "fecha": "12/8/2026"
+  },
+  {
+    "modelo": "SERIE A2G2",
+    "categoria": "autoelevador_diesel",
+    "campos": {
+      "motor": "Diésel Xinchai, 4 cilindros, refrigerado por agua",
+      "capacidad": "",
+      "mastil": "",
+      "desplazador": "",
+      "horquillas": ""
+    },
+    "extras": "Asiento ergonómico con amortiguación, regulable y cinturón de seguridad.\nLuces de trabajo y tránsito Full LED.\nCubiertas macizas de alta resistencia.\nDirección hidráulica asistida.\nTecho protector y parrilla porta carga.\nAlarma sonora de retroceso, bocina, espejo retrovisor y baliza LED.",
+    "fecha": "13/8/2026"
   }
 ]
